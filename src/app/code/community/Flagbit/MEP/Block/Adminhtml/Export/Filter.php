@@ -339,6 +339,18 @@ class Flagbit_MEP_Block_Adminhtml_Export_Filter extends Mage_Adminhtml_Block_Wid
             'frame_callback' => array($this, 'decorateFilter')
         ));
 
+        $this->addColumn('map_field', array(
+            'header'         => $this->_helper->__('Mapping Field'),
+            'sortable'       => false,
+            'filter'         => false,
+            'type'  => 'input',
+            'name'  => 'map_field[]'
+        ));
+
+
+
+
+
         if ($this->hasOperation()) {
             $operation = $this->getOperation();
             $skipAttr = $operation->getSkipAttr();
