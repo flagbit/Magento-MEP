@@ -21,8 +21,19 @@
         <models>
             <mep>
                 <class>Flagbit_MEP_Model</class>
+                <resourceModel>mep_mysql4</resourceModel>
             </mep>
+
+            <mep_mysql4>
+                <class>Flagbit_MEP_Model_Mysql4</class>
+                <entities>
+                    <profil>
+                        <table>mep_profile</table>
+                    </profil>
+                </entities>
+            </mep_mysql4>
         </models>
+
         <resources>
             <mep_setup>
                 <setup>
@@ -45,8 +56,6 @@
             </mep_read>
         </resources>
     </global>
-
-
 
 
 

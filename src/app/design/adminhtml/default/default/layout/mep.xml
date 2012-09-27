@@ -15,4 +15,11 @@
         </block>
     </adminhtml_mep_getfilter>
 
+
+    <adminhtml_profil_index>
+        <reference name="content">
+            <block type="mep/adminhtml_profil_view" name="map.profil" />
+        </reference>
+    </adminhtml_profil_index>
+
 </layout>
