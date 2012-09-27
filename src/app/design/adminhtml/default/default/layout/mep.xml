@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<layout>
+	<adminhtml_mep_index>
+        <reference name="content">
+            <block type="adminhtml/template" template="mep/form/before.phtml" name="mep.form.before" alias="form_before"/>
+            <block type="mep/adminhtml_export_edit" name="mep.form.container"/>
+            <block type="adminhtml/template" template="mep/form/after.phtml" name="mep.form.after" alias="form_after"/>
+        </reference>
+	</adminhtml_mep_index>
+
+
+    <adminhtml_mep_getfilter>
+        <block type="core/text_list" name="root">
+            <block type="mep/adminhtml_export_filter" name="mep.filter"/>
+        </block>
+    </adminhtml_mep_getfilter>
+
+</layout>

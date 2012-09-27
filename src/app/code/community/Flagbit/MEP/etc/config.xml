@@ -1,0 +1,75 @@
+<?xml version="1.0"?>
+<config>
+    <modules>
+        <Flagbit_MEP>
+            <version>0.1.0</version>
+        </Flagbit_MEP>
+    </modules>
+    
+    <global>
+        <blocks>
+            <mep>
+                <class>Flagbit_MEP_Block</class>
+            </mep>
+        </blocks>
+
+        <helpers>
+            <mep>
+                <class>Flagbit_MEP_Helper</class>
+            </mep>
+        </helpers>
+        <models>
+            <mep>
+                <class>Flagbit_MEP_Model</class>
+            </mep>
+        </models>
+        <resources>
+            <mep_setup>
+                <setup>
+                    <module>Flagbit_MEP</module>
+                    <class>Mage_Core_Model_Resource_Setup</class>
+                </setup>
+                <connection>
+                    <use>core_setup</use>
+                </connection>
+            </mep_setup>
+            <mep_write>
+                <connection>
+                    <use>core_write</use>
+                </connection>
+            </mep_write>
+            <mep_read>
+                <connection>
+                    <use>core_read</use>
+                </connection>
+            </mep_read>
+        </resources>
+    </global>
+
+
+
+
+
+    <admin>
+        <routers>
+            <adminhtml>
+                <args>
+                    <modules>
+                        <mep before="Mage_Adminhtml">Flagbit_MEP_Adminhtml</mep>
+                    </modules>
+                </args>
+            </adminhtml>
+        </routers>
+    </admin>
+
+    <adminhtml>
+        <layout>
+            <updates>
+                <croncli>
+                    <file>mep.xml</file>
+                </croncli>
+            </updates>
+        </layout>
+    </adminhtml>
+
+</config>

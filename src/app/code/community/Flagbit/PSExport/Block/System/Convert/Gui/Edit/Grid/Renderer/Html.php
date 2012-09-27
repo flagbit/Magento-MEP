@@ -1,0 +1,7 @@
+<?php
+
+class Flagbit_PSExport_Block_System_Convert_Gui_Edit_Grid_Renderer_Html extends Mage_Adminhtml_Block_Widget_Grid_Column_Renderer_Abstract
+{
+
+
+}

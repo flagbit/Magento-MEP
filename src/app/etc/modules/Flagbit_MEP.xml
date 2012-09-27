@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<config>
+    <modules>
+        <Flagbit_MEP>
+            <active>true</active>
+            <codePool>community</codePool>
+        </Flagbit_MEP>
+    </modules>
+</config>

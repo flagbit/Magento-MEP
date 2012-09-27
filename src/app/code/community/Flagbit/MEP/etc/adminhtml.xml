@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<config>
+    <menu>
+        <menu1 translate="title" module="mep">
+            <title>MEP</title>
+            <sort_order>100</sort_order>
+            <children>
+                <menuitem1 module="mep">
+                    <title>Export</title>
+                    <action>adminhtml/mep/index</action>
+                </menuitem1>
+            </children>
+        </menu1>
+    </menu>
+    <acl>
+        <resources>
+            <admin>
+                <children>
+                    <menu1 translate="title" module="mep">
+                        <title>MEP</title>
+                        <sort_order>60</sort_order>
+                        <children>
+                            <menuitem1>
+                                <title>Export</title>
+                            </menuitem1>
+                        </children>
+                    </menu1>
+                </children>
+            </admin>
+        </resources>
+    </acl>
+</config>
