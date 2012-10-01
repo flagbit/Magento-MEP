@@ -157,10 +157,9 @@ class Flagbit_MEP_Adminhtml_ProfilController
 
     public function fieldsAction(){
         $this->loadLayout();
-        $this->getResponse()->setBody(
-            $this->getLayout()->createBlock('mep/adminhtml_profil_view_edit_tab_fields')
-                ->toHtml()
-        );
+        $this->getLayout()->getBlock('fields.grid');
+            //->setProfile($this->getRequest()->getPost('profile', null));
+        $this->renderLayout();
     }
 
 

@@ -22,4 +22,24 @@
         </reference>
     </adminhtml_profil_index>
 
+
+    <adminhtml_profil_fields>
+        <block type="core/text_list" name="root" output="toHtml">
+            <block type="mep/adminhtml_profil_view_grid" name="fields.grid"/>
+            <block type="adminhtml/widget_grid_serializer" name="grid_serializer">
+                <reference name="grid_serializer">
+                    <action method="initSerializerBlock">
+                        <grid_block_name>fields.grid</grid_block_name>
+                        <data_callback>getSelectedCustomers</data_callback>
+                        <hidden_input_name>links[customers]</hidden_input_name>
+                        <reload_param_name>customers</reload_param_name>
+                    </action>
+                    <action method="addColumnInputName">
+                        <input_name>position</input_name>
+                    </action>
+                </reference>
+            </block>
+        </block>
+    </adminhtml_profil_fields>
+
 </layout>
