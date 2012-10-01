@@ -74,9 +74,9 @@
     <adminhtml>
         <layout>
             <updates>
-                <croncli>
+                <mep>
                     <file>mep.xml</file>
-                </croncli>
+                </mep>
             </updates>
         </layout>
     </adminhtml>

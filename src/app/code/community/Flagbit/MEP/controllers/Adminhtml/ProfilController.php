@@ -6,7 +6,7 @@ class Flagbit_MEP_Adminhtml_ProfilController
     /**
      * _initAction
      * 
-     * @return Proselma_Billings_Adminhtml_Billings_ViewController Self;
+     * @return Flagbit_MEP_Adminhtml_ProfilController Self;
      */
     protected function _initAction()
     {
@@ -41,16 +41,19 @@ class Flagbit_MEP_Adminhtml_ProfilController
             if ($data) {
                 $model->setData($data)->setId($id);
             }
+            else{
+                Mage::getSingleton('adminhtml/session')->setMepProfileData($model->getData());
+            }
 
             Mage::register('mep_profil_data', $model);
 
             $this->_initAction();
             $this->getLayout()->getBlock('head')->setCanLoadExtJs(true);
-            $this->_addContent($this->getLayout()->createBlock('billings/adminhtml_billings_view_edit'));
-            $this->_addLeft($this->getLayout()->createBlock('billings/adminhtml_billings_view_edit_tabs'));
+            $this->_addContent($this->getLayout()->createBlock('mep/adminhtml_profil_view_edit'));
+            $this->_addLeft($this->getLayout()->createBlock('mep/adminhtml_profil_view_edit_tabs'));
             $this->renderLayout();
         } else {
-            Mage::getSingleton('adminhtml/session')->addError(Mage::helper('billings')->__('Billing does not exist'));
+            Mage::getSingleton('adminhtml/session')->addError(Mage::helper('mep')->__('Profil does not exist'));
             $this->_redirect('*/*/');
         }
     }
@@ -151,4 +154,16 @@ class Flagbit_MEP_Adminhtml_ProfilController
         }
         $this->_redirect('*/*/');
     }
+
+    public function fieldsAction(){
+        $this->loadLayout();
+        $this->getResponse()->setBody(
+            $this->getLayout()->createBlock('mep/adminhtml_profil_view_edit_tab_fields')
+                ->toHtml()
+        );
+    }
+
+
+
+
 }

@@ -4,10 +4,10 @@ class Flagbit_MEP_Block_Adminhtml_Profil_View_Edit_Form extends Mage_Adminhtml_B
 {
 	/**
      * _prepareForm
-     * 
+     *
      * Prepares the form
-     * 
-     * @return Proselma_Billings_Block_Adminhtml_Billings_View_Edit_Form Self.
+     *
+     * @return Flagbit_MEP_Block_Adminhtml_Profil_View_Edit_Form Self.
      */
 	protected function _prepareForm()
 	{

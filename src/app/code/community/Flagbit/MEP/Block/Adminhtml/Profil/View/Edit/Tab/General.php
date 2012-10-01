@@ -12,11 +12,11 @@ class Flagbit_MEP_Block_Adminhtml_Profil_View_Edit_Tab_General extends Mage_Admi
      */
 	protected function _prepareForm()
 	{
-        if (Mage::getSingleton('adminhtml/session')->getProselmaBillingsData()) {
-			$data = Mage::getSingleton('adminhtml/session')->getProselmaBillingsData();
-			Mage::getSingleton('adminhtml/session')->setProselmaBillingsData(null);
-		} elseif (Mage::registry('proselma_billings_data')) {
-			$data = Mage::registry('proselma_billings_data')->getData();
+        if (Mage::getSingleton('adminhtml/session')->getMepProfileData()) {
+			$data = Mage::getSingleton('adminhtml/session')->getMepProfileData();
+			Mage::getSingleton('adminhtml/session')->setMepProfileData(null);
+		} elseif (Mage::registry('mep_profile_data')) {
+			$data = Mage::registry('mep_profile_data')->getData();
 		}
 		else {
 			$data = array();
@@ -27,133 +27,55 @@ class Flagbit_MEP_Block_Adminhtml_Profil_View_Edit_Tab_General extends Mage_Admi
 
 		// PROMOTION FIELDSET
 		$fieldset = $form->addFieldset(
-			'billings_promotion_form',
+			'mep_profile_form',
 		    array(
-				'legend' => Mage::helper('billings')->__('Promotion')
+				'legend' => Mage::helper('mep')->__('Profil')
 		    )
 		);
         $fieldset->addField(
-        	'vendor_id',
+        	'id',
         	'label',
             array(
-				'label'    => Mage::helper('billings')->__('Vendor ID'),
-				'name'     => 'vendor_id',
+				'label'    => Mage::helper('mep')->__('Profile ID'),
+				'name'     => 'id',
 		    )
         );
-        $fieldset->addField(
-        	'promotion_id',
-        	'label',
-            array(
-				'label'    => Mage::helper('billings')->__('Promotion ID'),
-				'name'     => 'promotion_id',
-		    )
-		);
+
 		$fieldset->addField(
 			'name',
-			'label',
+			'text',
 		    array(
-				'label'    => Mage::helper('billings')->__('Promotion Name'),
-				'name'     => 'name',
+				'label'    => Mage::helper('mep')->__('Profile Name'),
+                'class'    => 'required-entry',
+                'required' => true,
+                'name'     => 'name',
 		    )
         );
+
         $fieldset->addField(
-        	'sku',
-        	'label',
+            'status',
+            'select',
             array(
-				'label'    => Mage::helper('billings')->__('SKU'),
-                'name'     => 'sku',
-		    )
-		);
-        $fieldset->addField(
-        	'promotion_price',
-        	'text',
-            array(
-				'label'    => Mage::helper('billings')->__('Promotion Price'),
-				'class'    => 'required-entry',
-				'required' => true,
-				'name'     => 'promotion_price',
-		    )
-		);
-        $fieldset->addField(
-        	'cost_rate',
-        	'text',
-            array(
-				'label'    => Mage::helper('billings')->__('Cost Rate (in %)'),
-				'class'    => 'required-entry',
-				'required' => true,
-				'name'     => 'cost_rate',
-		    )
-		);
-		
-		// ORDER FIELDSET
-        $fieldset = $form->addFieldset(
-			'billings_order_form',
-		    array(
-				'legend' => Mage::helper('billings')->__('Order')
-		    )
-		);
-        $fieldset->addField(
-        	'order_id',
-        	'label',
-            array(
-				'label'    => Mage::helper('billings')->__('Order ID'),
-				'name'     => 'order_id',
-		    )
+                'label'    => Mage::helper('mep')->__('Status'),
+                'class'    => 'required-entry',
+                'required' => true,
+                'name'     => 'status',
+                'options'	=> $this->_getStatusOptionsHash()
+            )
         );
-        $fieldset->addField(
-        	'increment_id',
-        	'label',
-            array(
-				'label'    => Mage::helper('billings')->__('Increment ID'),
-				'name'     => 'increment_id',
-		    )
-        );
-        $fieldset->addField(
-        	'customer_id',
-        	'label',
-            array(
-				'label'    => Mage::helper('billings')->__('Customer'),
-				'name'     => 'customer_id',
-		    )
-        );
-        $fieldset->addField(
-        	'date',
-        	'label',
-            array(
-				'label'    => Mage::helper('billings')->__('Date'),
-				'name'     => 'date',
-		    )
-		);
-        $fieldset->addField(
-        	'qty',
-        	'text',
-            array(
-				'label'    => Mage::helper('billings')->__('Qty'),
-				'class'    => 'required-entry',
-				'required' => true,
-				'name'     => 'qty',
-		    )
-        );
-        $fieldset->addField(
-        	'total',
-        	'label',
-            array(
-				'label'    => Mage::helper('billings')->__('Total'),
-				'class'    => 'required-entry',
-				'name'     => 'total',
-		    )
-		);
-        $fieldset->addField(
-        	'revenue',
-        	'label',
-            array(
-				'label'    => Mage::helper('billings')->__('Revenue for Proselma'),
-				'readonly' => true,
-                'disabled' => true,
-				'name'     => 'revenue'
-		    )
-		);
+
 		$form->setValues($data);
 		return parent::_prepareForm();
 	}
+
+
+
+    protected function _getStatusOptionsHash()
+    {
+        $options = array(
+            0 => Mage::helper('mep')->__('Disable'),
+            1 => Mage::helper('mep')->__('Enable'),
+        );
+        return $options;
+    }
 }

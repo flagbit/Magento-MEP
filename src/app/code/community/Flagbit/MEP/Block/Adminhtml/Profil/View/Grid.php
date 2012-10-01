@@ -26,6 +26,7 @@ class Flagbit_MEP_Block_Adminhtml_Profil_View_Grid extends Mage_Adminhtml_Block_
      */
 	protected function _prepareCollection()
 	{
+        /* @var $collection Flagbit_MEP_Model_Profil */
 		$collection = Mage::getModel('mep/profil')->getCollection();
 		$this->setCollection($collection);
 		return parent::_prepareCollection();
