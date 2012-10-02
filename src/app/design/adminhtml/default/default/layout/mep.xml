@@ -25,7 +25,7 @@
 
     <adminhtml_profil_fields>
         <block type="core/text_list" name="root" output="toHtml">
-            <block type="mep/adminhtml_profil_view_grid" name="fields.grid"/>
+            <block type="mep/adminhtml_profil_view_gridMapping" name="fields.grid"/>
             <block type="adminhtml/widget_grid_serializer" name="grid_serializer">
                 <reference name="grid_serializer">
                     <action method="initSerializerBlock">

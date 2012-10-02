@@ -157,8 +157,8 @@ class Flagbit_MEP_Adminhtml_ProfilController
 
     public function fieldsAction(){
         $this->loadLayout();
-        $this->getLayout()->getBlock('fields.grid');
-            //->setProfile($this->getRequest()->getPost('profile', null));
+        $this->getLayout()->getBlock('fields.grid')
+            ->setProfile($this->getRequest()->getParam('id', null));
         $this->renderLayout();
     }
 

@@ -2,7 +2,7 @@
 <config>
     <modules>
         <Flagbit_MEP>
-            <version>0.1.0</version>
+            <version>0.1.2</version>
         </Flagbit_MEP>
     </modules>
     
@@ -30,6 +30,9 @@
                     <profil>
                         <table>mep_profile</table>
                     </profil>
+                    <mapping>
+                        <table>mep_profile_attribute</table>
+                    </mapping>
                 </entities>
             </mep_mysql4>
         </models>
