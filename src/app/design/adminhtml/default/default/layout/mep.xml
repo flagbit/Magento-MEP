@@ -32,7 +32,7 @@
                         <grid_block_name>fields.grid</grid_block_name>
                         <data_callback>getSelectedCustomers</data_callback>
                         <hidden_input_name>links[customers]</hidden_input_name>
-                        <reload_param_name>customers</reload_param_name>
+                        <reload_param_name>profile</reload_param_name>
                     </action>
                     <action method="addColumnInputName">
                         <input_name>position</input_name>

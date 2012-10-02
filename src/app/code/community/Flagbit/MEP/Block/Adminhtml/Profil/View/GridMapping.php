@@ -16,7 +16,40 @@ class Flagbit_MEP_Block_Adminhtml_Profil_View_GridMapping extends Mage_Adminhtml
         $this->setDefaultDir('desc');
         //$this->setDefaultFilter(array('in_products'=>1)); // By default we have added a filter for the rows, that in_products value to be 1
         $this->setSaveParametersInSession(false);  //Dont save paramters in session or else it creates problems
-	}
+
+
+
+    }
+
+    protected function _prepareLayout()
+    {
+        parent::_prepareLayout();
+
+        $this->setChild('addfilter_button',
+            $this->getLayout()->createBlock('adminhtml/widget_button')
+                ->setData(array(
+                'label'     => Mage::helper('adminhtml')->__('Add Attribute'),
+                'onclick'   => $this->getJsObjectName().'.doFilter()',
+                'class'   => 'task'
+            ))
+        );
+        return $this;
+    }
+
+
+    public function getAddfilterButtonHtml()
+    {
+        return $this->getChildHtml('addfilter_button');
+    }
+
+
+    public function getMainButtonsHtml()
+    {
+        $html = parent::getMainButtonsHtml();
+        $html.= $this->getAddfilterButtonHtml();
+
+        return $html;
+    }
 
 	/**
      * _prepareCollection
