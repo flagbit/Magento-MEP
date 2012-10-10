@@ -162,7 +162,11 @@ class Flagbit_MEP_Adminhtml_ProfilController
         $this->renderLayout();
     }
 
-
+    public function popupAction()
+    {
+        $this->_initAction();
+        $this->renderLayout();
+    }
 
 
 }

@@ -42,4 +42,21 @@
         </block>
     </adminhtml_profil_fields>
 
+
+
+    <adminhtml_profil_popup translate="label">
+        <label>Field Mapping</label>
+        <reference name="root">
+            <action method="setTemplate"><template>mep/popup.phtml</template></action>
+        </reference>
+        <reference name="head">
+            <action method="addJs"><script>scriptaculous/scriptaculous.js</script></action>
+            <action method="addJs"><script>varien/product.js</script></action>
+        </reference>
+        <reference name="content">
+            <block type="mep/adminhtml_profil_popup" name="mep.popup" template="mep/popup2.phtml"/>
+        </reference>
+    </adminhtml_profil_popup>
+
+
 </layout>
