@@ -7,4 +7,6 @@ class Flagbit_MEP_Block_Adminhtml_Profil_Popup
     {
         parent::__construct();
     }
+
+
 }

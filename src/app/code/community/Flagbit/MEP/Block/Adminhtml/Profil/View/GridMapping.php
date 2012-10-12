@@ -71,14 +71,69 @@ class Flagbit_MEP_Block_Adminhtml_Profil_View_GridMapping extends Mage_Adminhtml
 
     protected function _afterToHtml($html){
         $html = parent::_afterToHtml($html);
+        $aha = Mage::helper('mep')->getExternalAttributes();
+        $html .= '
+<div id="container" style="display:none">
+        	   <div id="test_content" style="float:right;width:200px; height:250px;background:#DFA; color:#000; font-size:12px;">
+        		  <form action="" id="mappingform"> In Database:';
 
-        $html .= '<script type="text/javascript">
+                   $html .= '<select name="gui_data[map][db][]"">';
+            foreach ($aha as $_value=>$_label){
+
+
+            if(is_array($_label)){
+            $html .= '<optgroup label='.$_value.'">';
+            foreach($_label as $_attribute){
+                $html .= '<option value="'.$_value.':'.$_attribute.'">'.$_attribute.'</option>';
+
+            }
+
+            $html .= '</optgroup>';
+            }
+            else{
+            $html .= '<option value="'.$_value.'">'.$_label.'</option>';
+            }
+
+            }
+            $html .= '</select><br/>
+To Field<br/>
+<input type="text" name="tofield"><br/>
+Format<br/>
+<input type="text" name="format"><br/>
+<input type="submit" value=" Absenden ">
+</form>
+        	  </div>
+      	</div>
+
+
+<script type="text/javascript">
 // <![CDATA[
+    var contentWin = null;
+
     var doFieldMapping = function (){
-    var url = "'.Mage::helper("adminhtml")->getUrl('adminhtml/profil/popup').'";
-    winCompare = new Window({className:"magento",title:"Field Mapping",url:url,width:820,height:600,minimizable:false,maximizable:false,showEffectOptions:{duration:0.4},hideEffectOptions:{duration:0.4}});
-    winCompare.setZIndex(100);
-    winCompare.showCenter(true);
+    if (contentWin != null) {
+  Dialog.alert("Close the Mapping Field Window before opening it again!",{width:200, height:130});
+}
+else {
+  $("container").show();
+  contentWin = new Window({maximizable: false, resizable: false, hideEffect:Element.hide, showEffect:Element.show, minWidth: 10, destroyOnClose: true})
+  contentWin.setContent("test_content", true, true)
+  contentWin.show();
+
+  // Set up a windows observer, check ou debug window to get messages
+  myObserver = {
+    onDestroy: function(eventName, win) {
+      if (win == contentWin) {
+        $("container").hide();
+        $("container").appendChild($("test_content"));
+        contentWin = null;
+        Windows.removeObserver(this);
+      }
+      console.log(eventName + " on " + win.getId())
+    }
+  }
+  Windows.addObserver(myObserver);
+}
 }
 window.doFieldMapping = doFieldMapping;
 // ]]>

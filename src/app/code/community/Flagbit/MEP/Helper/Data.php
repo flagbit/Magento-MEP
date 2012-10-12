@@ -1,26 +1,5 @@
 <?php
 /**
-* This file is part of the Flagbit_CronCli project.
-*
-* Flagbit_CronCli is free software; you can redistribute it and/or
-* modify it under the terms of the GNU General Public License version 3 as
-* published by the Free Software Foundation.
-*
-* This script is distributed in the hope that it will be useful, but WITHOUT
-* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-* FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
-*
-* PHP version 5
-*
-* @category Flagbit_CronCli
-* @package Flagbit_CronCli
-* @author Damian Luszczymak <damian.luszczymak@flagbit.de>
-* @copyright 2012 Flagbit GmbH & Co. KG (http://www.flagbit.de). All rights served.
-* @license http://opensource.org/licenses/gpl-3.0 GNU General Public License, version 3 (GPLv3)
-* @version 0.1.0
-* @since 0.1.0
-*/
-/**
  * Helper
  *
  * @category Flagbit_MEP
@@ -34,5 +13,78 @@
 
 class Flagbit_MEP_Helper_Data extends Mage_Core_Helper_Abstract
 {
+    private $_internalFields = array();
+    private $_externalFields  = array();
+    private $_inventoryFields  = array();
+    /**
+     * @desc Retrieve accessible external product attributes
+     * @return array
+     * @see Mage_Catalog_Model_Convert_Parser_Product::getExternalAttributes()
+     */
+    public function getExternalAttributes()
+    {
+        $entityTypeId = Mage::getSingleton('eav/config')->getEntityType('catalog_product')->getId();
+        $attributes = $this->_externalFields;
 
+        $collection = Mage::getResourceModel('eav/entity_attribute_set_collection')
+            ->setEntityTypeFilter(Mage::getModel('catalog/product')->getResource()->getTypeId())
+            ->load();
+
+        foreach($collection as $attributeSet){
+
+            $attributes[preg_replace('/([^A-Za-z_-]*)/', '', $attributeSet->getAttributeSetName())] = $this->getAttributesBySet($attributeSet->getAttributeSetId());
+        }
+
+        foreach ($this->_inventoryFields as $field) {
+            $attributes[$field] = $field;
+        }
+
+        // added for url mapping
+        $attributes['url'] = 'url';
+        $attributes['image_url'] = 'image_url';
+        $attributes['gross_price'] = 'gross_price';
+        $attributes['fixed_value_format'] = 'fixed_value_format';
+        $attributes['psexport_description'] = 'psexport_description';
+        $attributes['psexport_name'] = 'psexport_name';
+
+        return $attributes;
+    }
+
+    /**
+     * @desc Retrieve Attribute Set Group Tree as JSON format
+     * @param $setId
+     * @return string
+     */
+    public function getAttributesBySet($setId)
+    {
+        $items = array();
+
+        /* @var $groups Mage_Eav_Model_Mysql4_Entity_Attribute_Group_Collection */
+        $groups = Mage::getModel('eav/entity_attribute_group')
+            ->getResourceCollection()
+            ->setAttributeSetFilter($setId)
+            ->load();
+
+        /* @var $node Mage_Eav_Model_Entity_Attribute_Group */
+        foreach ($groups as $node) {
+
+            $nodeChildren = Mage::getResourceModel('catalog/product_attribute_collection')
+                ->setAttributeGroupFilter($node->getId())
+                ->addVisibleFilter()
+                ->checkConfigurableProducts();
+
+            $nodeChildren->getSelect()->where('main_table.is_user_defined = ?', 1);
+
+            foreach($nodeChildren as $child ){
+
+                if (in_array($child->getAttributeCode(), $this->_internalFields) || $child->getFrontendInput() == 'hidden') {
+                    continue;
+                }
+
+                $items[$child->getAttributeCode()] = $child->getAttributeCode();
+            }
+        }
+
+        return $items;
+    }
 }
