@@ -73,18 +73,19 @@ class Flagbit_MEP_Block_Adminhtml_Profil_View_GridMapping extends Mage_Adminhtml
         $html = parent::_afterToHtml($html);
         $aha = Mage::helper('mep')->getExternalAttributes();
         $html .= '
-<div id="container" style="display:none">
+        <div id="container" style="display:none">
         	   <div id="test_content" style="float:right;width:200px; height:250px;background:#DFA; color:#000; font-size:12px;">
-        		  <form action="" id="mappingform"> In Database:';
+        		  <form action="'.Mage::getUrl("adminhtml/profil/attribute").'" id="mappingform"> In Database:';
 
-                   $html .= '<select name="gui_data[map][db][]"">';
+                   $html .= '<select name="attribute_code"">';
             foreach ($aha as $_value=>$_label){
 
 
             if(is_array($_label)){
             $html .= '<optgroup label='.$_value.'">';
             foreach($_label as $_attribute){
-                $html .= '<option value="'.$_value.':'.$_attribute.'">'.$_attribute.'</option>';
+                //$html .= '<option value="'.$_value.':'.$_attribute.'">'.$_attribute.'</option>';
+                $html .= '<option value="'.$_attribute.'">'.$_attribute.'</option>';
 
             }
 
@@ -97,10 +98,11 @@ class Flagbit_MEP_Block_Adminhtml_Profil_View_GridMapping extends Mage_Adminhtml
             }
             $html .= '</select><br/>
 To Field<br/>
-<input type="text" name="tofield"><br/>
+<input type="text" name="to_field"><br/>
 Format<br/>
 <input type="text" name="format"><br/>
 <input type="submit" value=" Absenden ">
+<input type="hidden" name="profile_id" value="'.Mage::app()->getRequest()->getParam('id').'">
 </form>
         	  </div>
       	</div>
@@ -136,6 +138,19 @@ else {
 }
 }
 window.doFieldMapping = doFieldMapping;
+
+
+Event.observe("mappingform", "submit", function(event) {
+    $("mappingform").request({
+        onFailure: function() { alert("Error beim speichern") },
+        onSuccess: function(t) {
+            alert("Gespeichert")
+        }
+    });
+    Event.stop(event); // stop the form from submitting
+});
+
+
 // ]]>
 </script>';
         return $html;
@@ -159,10 +174,10 @@ window.doFieldMapping = doFieldMapping;
             'align' => 'left',
             'index' => 'id',
         ));
-        $this->addColumn('attribute_id', array(
-            'header' => Mage::helper('mep')->__('Attribute ID'),
+        $this->addColumn('attribute_code', array(
+            'header' => Mage::helper('mep')->__('Attribute Code'),
             'align' => 'left',
-            'index' => 'attribute_id',
+            'index' => 'attribute_code',
         ));
 
         $this->addColumn('to_field', array(

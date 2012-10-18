@@ -168,5 +168,25 @@ class Flagbit_MEP_Adminhtml_ProfilController
         $this->renderLayout();
     }
 
+    public function attributeAction()
+    {
+        if ($data = $this->getRequest()->getPost()) {
+
+            $model = Mage::getModel('mep/mapping');
+
+            $id = $this->getRequest()->getParam('id');
+            if ($id) {
+                $model->setId($id);
+            }
+
+            $model->setData($data);
+            $model->save();
+
+
+        }
+    }
+
+
+
 
 }

@@ -18,16 +18,15 @@
  * @copyright 2012 Flagbit GmbH & Co. KG (http://www.flagbit.de). All rights served.
  * @license http://opensource.org/licenses/gpl-3.0 GNU General Public License, version 3 (GPLv3)
  * @version 0.1.0
- * @since 0.1.2
+ * @since 0.1.3
  */
 $installer = $this;
 $installer->startSetup();
 
 $installer->run("
 ALTER TABLE {$this->getTable('mep_profile_attribute')}
-ADD `profile_id` int(10) unsigned NOT NULL AFTER `id`,
+CHANGE `attribute_id` `attribute_code` varchar(255) COLLATE 'utf8_general_ci' NOT NULL AFTER `profile_id`,
 COMMENT='';
 ");
 $installer->endSetup();
-?>
 
