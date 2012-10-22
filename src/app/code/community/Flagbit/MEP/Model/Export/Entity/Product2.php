@@ -650,16 +650,17 @@ class Flagbit_MEP_Model_Export_Entity_Product2 extends Mage_ImportExport_Model_E
                         }
                         else{
 
-                            /*foreach($mapping->getItems() as $item){
-                                if ($item->getToField() == $attrCode){
-                                    $map_value = $item->getValue();
+                            foreach($mapping->getItems() as $ole2){
+                                if ($ole2->getToField() == $attrCode){
+                                    $map_value = $ole2->getValue();
+                                    $ole2->setValue(null); //reset
                                     if(!empty($map_value))
                                     {
                                         $dataRows[$itemId][$storeId][$attrCode] = $map_value;
                                         $rowIsEmpty = false; // mark row as not empty
                                     }
                                 }
-                            }*/
+                            }
 
                         }
 
