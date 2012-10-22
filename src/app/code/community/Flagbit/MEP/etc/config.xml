@@ -58,6 +58,15 @@
                 </connection>
             </mep_read>
         </resources>
+
+        <importexport module="importexport">
+            <export_entities>
+                <catalog_product2 translate="label">
+                    <model_token>mep/export_entity_product2</model_token>
+                    <label>Products</label>
+                </catalog_product2>
+            </export_entities>
+        </importexport>
     </global>
 
 

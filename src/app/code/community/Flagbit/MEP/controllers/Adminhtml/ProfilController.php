@@ -1,7 +1,6 @@
 <?php
 
-class Flagbit_MEP_Adminhtml_ProfilController
-    extends Mage_Adminhtml_Controller_Action
+class Flagbit_MEP_Adminhtml_ProfilController extends Mage_Adminhtml_Controller_Action
 {
     /**
      * _initAction
@@ -24,6 +23,11 @@ class Flagbit_MEP_Adminhtml_ProfilController
     {
         $this->_initAction();
         $this->renderLayout();
+    }
+
+    public function newAction()
+    {
+        $this->_forward('edit');
     }
 
     /**
@@ -84,7 +88,7 @@ class Flagbit_MEP_Adminhtml_ProfilController
                 $model->save();
 
                 if (!$model->getId()) {
-                    Mage::throwException(Mage::helper('mep')->__('Error saving billing'));
+                    Mage::throwException(Mage::helper('mep')->__('Error saving profil'));
                 }
 
                 Mage::getSingleton('adminhtml/session')->addSuccess(Mage::helper('mep')->__('Profil was successfully saved'));
@@ -185,6 +189,34 @@ class Flagbit_MEP_Adminhtml_ProfilController
 
         }
     }
+
+
+    public function runClickAction()
+    {
+        try {
+            /** @var $model Mage_ImportExport_Model_Export */
+            $model = Mage::getModel('importexport/export');
+            $model->setData($this->getRequest()->getParams());
+            $model->setEntity("catalog_product2");
+            $model->setFileFormat("csv");
+            $model->setExportFilter(array());
+
+
+
+            return $this->_prepareDownloadResponse(
+                $model->getFileName(),
+                $model->export(),
+                $model->getContentType()
+            );
+        } catch (Mage_Core_Exception $e) {
+            $this->_getSession()->addError($e->getMessage());
+        } catch (Exception $e) {
+            Mage::logException($e);
+            $this->_getSession()->addError($this->__('No valid data sent'));
+        }
+    }
+
+
 
 
 

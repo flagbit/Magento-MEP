@@ -26,7 +26,7 @@ class Flagbit_MEP_Block_Adminhtml_Profil_View_Edit_Tab_Fields extends Mage_Admin
 		$this->setForm($form);
 
 		$fieldset = $form->addFieldset(
-			'mep_profile_form',
+			'mep_fieldmapping_form',
 		    array(
 				'legend' => Mage::helper('mep')->__('Field Mapping')
 		    )
