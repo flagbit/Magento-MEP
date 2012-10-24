@@ -535,8 +535,20 @@ class Flagbit_MEP_Model_Export_Entity_Product2 extends Mage_ImportExport_Model_E
         $validAttrCodes  = $this->_getExportAttrCodes();
         $writer          = $this->getWriter();
         $defaultStoreId  = Mage_Catalog_Model_Abstract::DEFAULT_STORE_ID;
+        $profil_id       = (int) $this->_parameters['id'];
+
+        //TODO
+        $delimiter       = ";";
+        $enclosure       = '"';
+
+        $writer->setDelimiter($delimiter);
+        $writer->setEnclosure($enclosure);
+
+
+
 
         $memoryLimit = trim(ini_get('memory_limit'));
+
         $lastMemoryLimitLetter = strtolower($memoryLimit[strlen($memoryLimit)-1]);
         switch($lastMemoryLimitLetter) {
             case 'g':
@@ -564,13 +576,16 @@ class Flagbit_MEP_Model_Export_Entity_Product2 extends Mage_ImportExport_Model_E
         }
         $offsetProducts = 0;
 
-        // Hole Field Mapping
-        /* @var $mapping Flagbit_MEP_Model_Mysql4_Mapping_Collection */
-        $mapping = Mage::getModel('mep/mapping')->getCollection();
-        $mapping->addFieldToFilter('profile_id' ,array('eq' => '1'));
 
-        foreach($mapping->getItems() as $item){
-               $validAttrCodes[] = $item->getToField();
+        if(!empty($profil_id) && $profil_id > 0){
+            // Hole Field Mapping
+            /* @var $mapping Flagbit_MEP_Model_Mysql4_Mapping_Collection */
+            $mapping = Mage::getModel('mep/mapping')->getCollection();
+            $mapping->addFieldToFilter('profile_id' ,array('eq' => '1'));
+
+            foreach($mapping->getItems() as $item){
+                   $validAttrCodes[] = $item->getToField();
+            }
         }
 
         while (true) {

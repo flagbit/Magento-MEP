@@ -71,7 +71,7 @@ class Flagbit_MEP_Block_Adminhtml_Profil_View_GridMapping extends Mage_Adminhtml
 
     protected function _afterToHtml($html){
         $html = parent::_afterToHtml($html);
-        $aha = Mage::helper('mep')->getExternalAttributes();
+        $aha = Mage::getModel('mep/data')->getExternalAttributes();
         $html .= '
         <div id="container" style="display:none">
         	   <div id="test_content" style="float:right;width:200px; height:250px;background:#DFA; color:#000; font-size:12px;">

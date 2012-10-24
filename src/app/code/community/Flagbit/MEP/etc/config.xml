@@ -2,7 +2,7 @@
 <config>
     <modules>
         <Flagbit_MEP>
-            <version>0.1.3</version>
+            <version>0.1.4</version>
         </Flagbit_MEP>
     </modules>
     
@@ -23,6 +23,12 @@
                 <class>Flagbit_MEP_Model</class>
                 <resourceModel>mep_mysql4</resourceModel>
             </mep>
+
+            <importexport>
+                <rewrite>
+                    <export_adapter_csv>Flagbit_MEP_Model_Export_Adapter_Csv</export_adapter_csv>
+                </rewrite>
+            </importexport>
 
             <mep_mysql4>
                 <class>Flagbit_MEP_Model_Mysql4</class>
@@ -63,7 +69,7 @@
             <export_entities>
                 <catalog_product2 translate="label">
                     <model_token>mep/export_entity_product2</model_token>
-                    <label>Products</label>
+                    <label>Products MEP </label>
                 </catalog_product2>
             </export_entities>
         </importexport>

@@ -33,10 +33,12 @@ class Flagbit_MEP_Block_Adminhtml_Profil_View_Edit_Tab_Format extends Mage_Admin
 		);
         $fieldset->addField(
         	'dataformat',
-        	'text',
+        	'select',
             array(
 				'label'    => Mage::helper('mep')->__('Type'),
 				'name'     => 'dataformat',
+                'options'	=> $this->_getDataFormatOptionsHash(),
+                'note' => "only csv"
 		    )
         );
 
@@ -53,37 +55,39 @@ class Flagbit_MEP_Block_Adminhtml_Profil_View_Edit_Tab_Format extends Mage_Admin
 
 
         $fieldset->addField(
-            'status',
-            'select',
+            'enclose',
+            'text',
             array(
                 'label'    => Mage::helper('mep')->__('Enclose Values In:'),
                 //'class'    => 'required-entry',
                 //'required' => true,
-                'name'     => 'status',
+                'name'     => 'enclose',
                 'options'	=> $this->_getStatusOptionsHash()
             )
         );
 
         $fieldset->addField(
             'originalrow',
-            'text',
+            'select',
             array(
                 'label'    => Mage::helper('mep')->__('Original Magento attributenames in first row'),
                 //'class'    => 'required-entry',
                 //'required' => true,
                 'name'     => 'originalrow',
+                'options'	=> $this->_getYesNoOptionsHash()
             )
         );
 
 
         $fieldset->addField(
             'export',
-            'text',
+            'select',
             array(
                 'label'    => Mage::helper('mep')->__('Export'),
                 //'class'    => 'required-entry',
                 //'required' => true,
                 'name'     => 'export',
+                'options'	=> $this->_getFilterOptionsHash()
             )
         );
 
@@ -102,4 +106,33 @@ class Flagbit_MEP_Block_Adminhtml_Profil_View_Edit_Tab_Format extends Mage_Admin
         );
         return $options;
     }
+
+
+    protected function _getYesNoOptionsHash()
+    {
+        $options = array(
+            0 => Mage::helper('mep')->__('No'),
+            1 => Mage::helper('mep')->__('Yes'),
+        );
+        return $options;
+    }
+
+    protected function _getFilterOptionsHash()
+    {
+        $options = array(
+            0 => Mage::helper('mep')->__('All fields'),
+            1 => Mage::helper('mep')->__('Only mapped fields'),
+        );
+        return $options;
+    }
+
+    protected function _getDataFormatOptionsHash()
+    {
+        $options = array(
+            0 => Mage::helper('mep')->__('CSV'),
+            //1 => Mage::helper('mep')->__('XML'),
+        );
+        return $options;
+    }
+
 }

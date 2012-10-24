@@ -24,10 +24,10 @@ class Flagbit_MEP_Block_Adminhtml_Profil_View_Edit extends Mage_Adminhtml_Block_
 				'class' => 'save',
 		), -100);
 
-
+        $profil_id = $this->getRequest()->getParam('id');
         $this->_addButton('Run', array(
             'label'     => Mage::helper('adminhtml')->__('RUN'),
-            'onclick'   => 'setLocation(\'' . $this->getUrl('*/*/runClick') . '\')',
+            'onclick'   => 'setLocation(\'' . $this->getUrl('*/*/runClick') . 'id/'.$profil_id.'\')',
             'class'     => 'run',
         ),-1,5);
 
