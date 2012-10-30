@@ -43,6 +43,13 @@ class Flagbit_MEP_Block_Adminhtml_Profil_View_Edit_Tabs extends Mage_Adminhtml_B
             'content' => $this->getLayout()->createBlock('mep/adminhtml_profil_view_edit_tab_format')->toHtml(),
         ));
 
+        $this->addTab('form_data_xslt', array(
+            'label'   => Mage::helper('mep')->__('XSLT'),
+            'title'   => Mage::helper('mep')->__('XSLT'),
+            'content' => $this->getLayout()->createBlock('mep/adminhtml_profil_view_edit_tab_xslt')->toHtml(),
+        ));
+
+
         /*$this->addTab('form_export_filters', array(
             'label'   => Mage::helper('mep')->__('Export Filters'),
             'title'   => Mage::helper('mep')->__('Export Filters'),

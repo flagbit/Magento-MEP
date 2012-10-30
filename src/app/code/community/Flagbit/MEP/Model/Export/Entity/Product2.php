@@ -538,12 +538,33 @@ class Flagbit_MEP_Model_Export_Entity_Product2 extends Mage_ImportExport_Model_E
         $profil_id       = (int) $this->_parameters['id'];
 
         //TODO
-        $delimiter       = ";";
-        $enclosure       = '"';
 
-        $writer->setDelimiter($delimiter);
-        $writer->setEnclosure($enclosure);
 
+        if (!empty($profil_id) && $profil_id > 0) {
+            /* @var $obj_profil Flagbit_MEP_Model_Profil */
+            $obj_profil = Mage::getModel('mep/profil')->load($profil_id);
+            $delimiter = $obj_profil->getDelimiter();
+            $enclosure = $obj_profil->getEnclose();
+
+            $writer->setDelimiter($delimiter);
+            $writer->setEnclosure($enclosure);
+
+            if($obj_profil->getOriginalrow() == 1){
+                $writer->setHeaderrow(true);
+            }
+            else{
+                $writer->setHeaderrow(false);
+            }
+
+
+            // Hole Field Mapping
+            /* @var $mapping Flagbit_MEP_Model_Mysql4_Mapping_Collection */
+            $mapping = Mage::getModel('mep/mapping')->getCollection();
+            $mapping->addFieldToFilter('profile_id', array('eq' => '1'));
+
+            foreach ($mapping->getItems() as $item) {
+                $validAttrCodes[] = $item->getToField();
+            }
 
 
 
@@ -578,14 +599,7 @@ class Flagbit_MEP_Model_Export_Entity_Product2 extends Mage_ImportExport_Model_E
 
 
         if(!empty($profil_id) && $profil_id > 0){
-            // Hole Field Mapping
-            /* @var $mapping Flagbit_MEP_Model_Mysql4_Mapping_Collection */
-            $mapping = Mage::getModel('mep/mapping')->getCollection();
-            $mapping->addFieldToFilter('profile_id' ,array('eq' => '1'));
 
-            foreach($mapping->getItems() as $item){
-                   $validAttrCodes[] = $item->getToField();
-            }
         }
 
         while (true) {
@@ -884,7 +898,6 @@ class Flagbit_MEP_Model_Export_Entity_Product2 extends Mage_ImportExport_Model_E
                         '_super_attribute_option', '_super_attribute_price_corr'
                     ));
                 }
-
                 $writer->setHeaderCols($headerCols);
             }
 
@@ -1023,6 +1036,7 @@ class Flagbit_MEP_Model_Export_Entity_Product2 extends Mage_ImportExport_Model_E
         }
         return $writer->getContents();
     }
+    }
 
     /**
      * Clean up already loaded attribute collection.
@@ -1082,6 +1096,21 @@ class Flagbit_MEP_Model_Export_Entity_Product2 extends Mage_ImportExport_Model_E
             $this->_attributeValues[$attribute->getAttributeCode()] = $this->getAttributeOptions($attribute);
             $this->_attributeTypes[$attribute->getAttributeCode()] =
                 Mage_ImportExport_Model_Import::getAttributeType($attribute);
+        }
+        return $this;
+    }
+
+
+    public function setHeaderCols(array $headerCols)
+    {
+        if (null !== $this->_headerCols) {
+            Mage::throwException(Mage::helper('importexport')->__('Header column names already set'));
+        }
+        if ($headerCols) {
+            foreach ($headerCols as $colName) {
+                $this->_headerCols[$colName] = false;
+            }
+            fputcsv($this->_fileHandler, array_keys($this->_headerCols), $this->_delimiter, $this->_enclosure);
         }
         return $this;
     }
