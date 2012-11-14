@@ -58,5 +58,10 @@
         </reference>
     </adminhtml_profil_popup>
 
+	<default>
+		<reference name="head">
+			<action method="addCss"><name>mep.css</name></action>
+		</reference>
+	</default>
 
 </layout>
