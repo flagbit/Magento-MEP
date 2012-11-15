@@ -72,106 +72,122 @@ class Flagbit_MEP_Block_Adminhtml_Profil_View_GridMapping extends Mage_Adminhtml
     protected function _afterToHtml($html){
         $html = parent::_afterToHtml($html);
         $aha = Mage::getModel('mep/data')->getExternalAttributes();
-        $html .= '
-        <div id="container" style="display:none">
-        	   <div id="test_content" class="mapping-dialog">
-        		  <form action="'.Mage::getUrl("adminhtml/profil/attribute").'" id="mappingform"> In Database:';
-
-                   $html .= '<select name="attribute_code"">';
-            foreach ($aha as $_value=>$_label){
-
-
-            if(is_array($_label)){
-            $html .= '<optgroup label='.$_value.'">';
-            foreach($_label as $_attribute){
-                //$html .= '<option value="'.$_value.':'.$_attribute.'">'.$_attribute.'</option>';
-                $html .= '<option value="'.$_attribute.'">'.$_attribute.'</option>';
-
-            }
-
-            $html .= '</optgroup>';
-            }
-            else{
-            $html .= '<option value="'.$_value.'">'.$_label.'</option>';
-            }
-
-            }
-            $html .= '</select><br/>
-To Field<br/>
-<input type="text" name="to_field"><br/>
-Format<br/>
-<input type="text" name="format"><br/>
-<button onclick="document.getElementById(\'mappingform\').submit();">
-	<span>
-		<span>Absenden</span>
-	</span>
-</button>
-<input type="hidden" name="profile_id" value="'.Mage::app()->getRequest()->getParam('id').'">
-</form>
-        	  </div>
-      	</div>
-
-
-<script type="text/javascript">
-// <![CDATA[
-
-var contentWin = null;
-
-var doFieldMapping = function() {
-	if (contentWin != null) {
-		Dialog.alert("Close the Mapping Field Window before opening it again!", {
-			width : 200,
-			height : 130
-		});
-	} else {
-		$("container").show();
-		contentWin = new Window({
-			className : "attribute-mapping-window",
-			maximizable : false,
-			resizable : false,
-			hideEffect : Element.hide,
-			showEffect : Element.show,
-			minWidth : 10,
-			destroyOnClose : true,
-			width : 200,
-			height: 160
-		})
-		contentWin.setContent("test_content", false, true)
-		contentWin.showCenter(true);
-		contentWin.show();
 		
-		// Set up a windows observer, check ou debug window to get messages
-		myObserver = {
-			onDestroy : function(eventName, win) {
-				if (win == contentWin) {
-					$("container").hide();
-					$("container").appendChild($("test_content"));
-					contentWin = null;
-					Windows.removeObserver(this);
+		$html .= '
+			<div id="container" style="display:none">
+				<div id="test_content" class="mapping-dialog">
+					<form action="' . Mage::getUrl("adminhtml/profil/attribute") . '" id="mappingform">
+						<ul>
+							<li>
+								<label for="attribute_code">In Database</label>
+								<div class="input-box">
+									<select name="attribute_code" id="attribute_code" class="select">';
+			
+			foreach ($aha as $_value=>$_label){
+	            if(is_array($_label)){
+	            	$html .= '<optgroup label='.$_value.'">';
+		            
+		            foreach($_label as $_attribute){
+		                //$html .= '<option value="'.$_value.':'.$_attribute.'">'.$_attribute.'</option>';
+		                $html .= '<option value="'.$_attribute.'">'.$_attribute.'</option>';
+		            }
+	
+	            	$html .= '</optgroup>';
+	            } else {
+	            	$html .= '<option value="'.$_value.'">'.$_label.'</option>';
+	            }
+            }
+		
+		$html .='					</select>
+								</div>
+							</li>
+							<li>
+								<label for="to_field">To Field</label>
+								<div class="input-box">
+									<input type="text" name="to_field" id="to_field" class="input-text">
+								</div>
+							</li>
+							<li>
+								<label for="format">Format</label>
+								<div class="input-box">
+									<input type="text" name="format" id="format" class="input-text">
+								</div>
+							</li>
+							<li>
+								<button onclick="document.getElementById(\'mappingform\').submit();">
+									<span> <span>Absenden</span> </span>
+								</button>
+							</li>
+						</ul>
+						' . Mage::getUrl("adminhtml/profil/attribute") . '
+						<input type="hidden" name="profile_id" value="'.Mage::app()->getRequest()->getParam('id').'">
+					</form>
+				</div>
+			</div>
+		';
+		
+		$html .= '
+			<script type="text/javascript">
+			// <![CDATA[
+			
+			var contentWin = null;
+			
+			var doFieldMapping = function() {
+				if (contentWin != null) {
+					Dialog.alert("Close the Mapping Field Window before opening it again!", {
+						width : 200,
+						height : 130
+					});
+				} else {
+					$("container").show();
+					contentWin = new Window({
+						className : "attribute-mapping-window",
+						maximizable : false,
+						resizable : false,
+						hideEffect : Element.hide,
+						showEffect : Element.show,
+						minWidth : 10,
+						destroyOnClose : true,
+						width : 200,
+						height: 160
+					})
+					contentWin.setContent("test_content", false, true)
+					contentWin.showCenter(true);
+					contentWin.show();
+					
+					// Set up a windows observer, check ou debug window to get messages
+					myObserver = {
+						onDestroy : function(eventName, win) {
+							if (win == contentWin) {
+								$("container").hide();
+								$("container").appendChild($("test_content"));
+								contentWin = null;
+								Windows.removeObserver(this);
+							}
+							console.log(eventName + " on " + win.getId())
+						}
+					}
+					Windows.addObserver(myObserver);
 				}
-				console.log(eventName + " on " + win.getId())
 			}
-		}
-		Windows.addObserver(myObserver);
-	}
-}
-window.doFieldMapping = doFieldMapping;
-
-Event.observe("mappingform", "submit", function(event) {
-	$("mappingform").request({
-		onFailure : function() {
-			alert("Error beim speichern")
-		},
-		onSuccess : function(t) {
-			alert("Gespeichert")
-		}
-	});
-	Event.stop(event);
-	// stop the form from submitting
-});
-
-// ]]>
-</script>';
+			window.doFieldMapping = doFieldMapping;
+			
+			Event.observe("mappingform", "submit", function(event) {
+				$("mappingform").request({
+					onFailure : function() {
+						alert("Error beim speichern")
+					},
+					onSuccess : function(t) {
+						console.log(t.reponseText);
+						alert("Gespeichert")
+					}
+				});
+				Event.stop(event);
+				// stop the form from submitting
+			});
+			
+			// ]]>
+			</script>';
         return $html;
     }
 
