@@ -25,11 +25,7 @@ $installer->startSetup();
 
 $installer->run("
 ALTER TABLE {$this->getTable('mep_profile')}
-ADD `dataformat` int unsigned NOT NULL AFTER `status`,
-ADD `originalrow` int unsigned NOT NULL AFTER `dataformat`,
-ADD `export` int unsigned NOT NULL AFTER `originalrow`,
-ADD `delimiter` varchar(255) COLLATE 'utf8_general_ci' NOT NULL AFTER `export`,
-ADD `enclose` varchar(255) COLLATE 'utf8_general_ci' NOT NULL AFTER `delimiter`,
+ADD `conditions_serialized` mediumtext COLLATE 'utf8_general_ci' NOT NULL,
 COMMENT='';
 ");
 $installer->endSetup();

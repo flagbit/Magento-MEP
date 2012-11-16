@@ -40,7 +40,10 @@ class Flagbit_MEP_Adminhtml_ProfilController extends Mage_Adminhtml_Controller_A
         $id = $this->getRequest()->getParam('id');
         $model = Mage::getModel('mep/profil')->load((int) $id);
 
+
+
         if ($model->getId() || !$id) {
+            Mage::register('mep_profil',$model);
             $data = Mage::getSingleton('adminhtml/session')->getFormData(true);
             if ($data) {
                 $model->setData($data)->setId($id);
@@ -75,6 +78,17 @@ class Flagbit_MEP_Adminhtml_ProfilController extends Mage_Adminhtml_Controller_A
             $id = $this->getRequest()->getParam('id');
             if ($id) {
                 $model->setId($id);
+            }
+
+            if (isset($data['rule'])) {
+
+                $data = $this->_filterDates($data, array('from_date', 'to_date'));
+
+                if (isset($data['rule']['conditions'])) {
+                    //$model->setConditionsSerialized($data['rule']['conditions']);
+                    $data['conditions_serialized'] = $data['rule']['conditions'];
+                    unset($data['rule']);
+                }
             }
 
             Mage::getSingleton('adminhtml/session')->setFormData($data);
@@ -215,10 +229,4 @@ class Flagbit_MEP_Adminhtml_ProfilController extends Mage_Adminhtml_Controller_A
             $this->_getSession()->addError($this->__('No valid data sent'));
         }
     }
-
-
-
-
-
-
 }
