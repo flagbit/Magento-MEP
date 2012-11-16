@@ -15,8 +15,6 @@ class Flagbit_MEP_Block_Adminhtml_Profil_View_GridMapping extends Mage_Adminhtml
         $this->setDefaultSort('id');
         $this->setDefaultDir('desc');
         $this->setSaveParametersInSession(false); //Dont save paramters in session or else it creates problems
-
-
     }
 
     protected function _prepareLayout()
@@ -119,7 +117,6 @@ class Flagbit_MEP_Block_Adminhtml_Profil_View_GridMapping extends Mage_Adminhtml
 								</button>
 							</li>
 						</ul>
-						' . Mage::getUrl("adminhtml/profil/attribute") . '
 						<input type="hidden" name="profile_id" value="'.Mage::app()->getRequest()->getParam('id').'">
 					</form>
 				</div>
@@ -175,11 +172,11 @@ class Flagbit_MEP_Block_Adminhtml_Profil_View_GridMapping extends Mage_Adminhtml
 			Event.observe("mappingform", "submit", function(event) {
 				$("mappingform").request({
 					onFailure : function() {
-						alert("Error beim speichern")
+						//alert("Error beim speichern")
 					},
 					onSuccess : function(t) {
 						console.log(t.reponseText);
-						alert("Gespeichert")
+						//alert("Gespeichert")
 					}
 				});
 				Event.stop(event);
@@ -289,4 +286,13 @@ class Flagbit_MEP_Block_Adminhtml_Profil_View_GridMapping extends Mage_Adminhtml
         $url = $this->getUrl('*/*/edit', array('id' => $row->getId()));
         return $url;
     }
+	
+	
+	/**
+	 * call from ajax to get the grid
+	 */
+	public function getGridUrl()
+	{
+		return $this->getUrl('*/*/grid', array('_current'=>true));
+	}
 }

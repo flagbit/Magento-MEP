@@ -229,4 +229,14 @@ class Flagbit_MEP_Adminhtml_ProfilController extends Mage_Adminhtml_Controller_A
             $this->_getSession()->addError($this->__('No valid data sent'));
         }
     }
+	
+	
+	/**
+	 * Grid for AJAX request
+	 */
+	public function gridAction()
+	{
+		$this->getResponse()->setBody($this->getLayout()->createBlock('mep/adminhtml_profil_view_gridmapping')->toHtml());
+	}
+	
 }
