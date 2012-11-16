@@ -74,7 +74,7 @@ class Flagbit_MEP_Block_Adminhtml_Profil_View_GridMapping extends Mage_Adminhtml
 		$html .= '
 			<div id="container" style="display:none">
 				<div id="test_content" class="mapping-dialog">
-					<form action="' . Mage::getUrl("adminhtml/profil/attribute") . '" id="mappingform">
+					<form action="' . Mage::helper("adminhtml")->getUrl("adminhtml/profil/attribute") . '" id="mappingform">
 						<ul>
 							<li>
 								<label for="attribute_code">In Database</label>
