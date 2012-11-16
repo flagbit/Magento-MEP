@@ -13,8 +13,17 @@ class Flagbit_MEP_Model_Mysql4_Profil extends Mage_Core_Model_Mysql4_Abstract {
 
     protected function _beforeSave(Mage_Core_Model_Abstract $object)
     {
+        $attrCode = 'conditions_serialized';
+        $object->setData($attrCode, serialize($object->getData($attrCode)));
+
         $now =Varien_Date::now(false);
         $object->setUpdatedAt($now);
     }
 
+
+    public function afterLoad($object)
+    {
+        $attrCode = 'conditions_serialized';
+        $object->setData($attrCode, unserialize($object->getData($attrCode)));
+    }
 }

@@ -1,5 +1,11 @@
 <?xml version="1.0"?>
 <layout>
+    <default>
+        <reference name="head">
+                <action method="addItem"><type>js</type><name>mage/adminhtml/rules.js</name><params/></action>
+        </reference>
+    </default>
+
 	<adminhtml_mep_index>
         <reference name="content">
             <block type="adminhtml/template" template="mep/form/before.phtml" name="mep.form.before" alias="form_before"/>

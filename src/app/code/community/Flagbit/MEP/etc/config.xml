@@ -39,6 +39,9 @@
                     <mapping>
                         <table>mep_profile_attribute</table>
                     </mapping>
+                    <rule>
+                        <table>mep_rule</table>
+                    </rule>
                 </entities>
             </mep_mysql4>
         </models>
