@@ -174,7 +174,7 @@ class Flagbit_MEP_Block_Adminhtml_Profil_View_GridMapping extends Mage_Adminhtml
 					onFailure : function() {
 					},
 					onSuccess : function(t) {
-						var parameters = {isAjax: true};
+						var parameters = {isAjax: true, id: ' . $this->getProfile() . '};
 						
 						// make another ajax call to reload the fields table
 						new Ajax.Request("' . Mage::helper("adminhtml")->getUrl("adminhtml/profil/fields") . '", {
