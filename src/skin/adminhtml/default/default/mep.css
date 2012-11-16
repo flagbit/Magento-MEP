@@ -52,6 +52,7 @@
 		.adminhtml-profil-edit .dialog div.attribute-mapping-window_content input {
 			width: 167px;
 		}
-		.adminhtml-profil-edit .dialog div.attribute-mapping-window_content button {
+		.adminhtml-profil-edit .dialog div.attribute-mapping-window_content input.form-button {
+			width: 100px;
 			margin-top: 10px;
 		}

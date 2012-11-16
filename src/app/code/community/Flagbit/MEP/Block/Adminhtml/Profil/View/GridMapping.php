@@ -112,9 +112,7 @@ class Flagbit_MEP_Block_Adminhtml_Profil_View_GridMapping extends Mage_Adminhtml
 								</div>
 							</li>
 							<li>
-								<button onclick="document.getElementById(\'mappingform\').submit();">
-									<span> <span>Absenden</span> </span>
-								</button>
+								<input type="submit" value="Absenden" class="form-button">
 							</li>
 						</ul>
 						<input type="hidden" name="profile_id" value="'.Mage::app()->getRequest()->getParam('id').'">
@@ -170,15 +168,29 @@ class Flagbit_MEP_Block_Adminhtml_Profil_View_GridMapping extends Mage_Adminhtml
 			window.doFieldMapping = doFieldMapping;
 			
 			Event.observe("mappingform", "submit", function(event) {
+				contentWin.close();
+				
 				$("mappingform").request({
 					onFailure : function() {
-						//alert("Error beim speichern")
 					},
 					onSuccess : function(t) {
-						console.log(t.reponseText);
-						//alert("Gespeichert")
+						var parameters = {isAjax: true};
+						
+						// make another ajax call to reload the fields table
+						new Ajax.Request("' . Mage::helper("adminhtml")->getUrl("adminhtml/profil/fields") . '", {
+                            method: "post",
+                            parameters: parameters,
+                            onSuccess: function(transport)  {
+                                if(transport.status == 200) {
+                                    var response = transport.responseText;
+                                	
+									$("rule_tabs_form_fields_content").update(response);
+                                }
+                            }
+                        });
 					}
 				});
+				
 				Event.stop(event);
 				// stop the form from submitting
 			});
