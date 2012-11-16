@@ -21,7 +21,7 @@ class Flagbit_MEP_Model_Mysql4_Profil extends Mage_Core_Model_Mysql4_Abstract {
     }
 
 
-    public function afterLoad($object)
+    public function afterLoad(Mage_Core_Model_Abstract $object)
     {
         $attrCode = 'conditions_serialized';
         $object->setData($attrCode, unserialize($object->getData($attrCode)));
