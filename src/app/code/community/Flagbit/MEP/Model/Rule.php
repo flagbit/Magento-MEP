@@ -117,27 +117,24 @@ class Flagbit_MEP_Model_Rule extends Mage_CatalogRule_Model_Rule
      *
      * @return array
      */
-    public function getMatchingProductIds()
+    public function getMatchingProductIds(Mage_Catalog_Model_Resource_Product_Collection $collection = null)
     {
         if (is_null($this->_productIds)) {
             $this->_productIds = array();
             $this->setCollectedAttributes(array());
-            $websiteIds = explode(',', $this->getWebsiteIds());
+            //$websiteIds = explode(',', $this->getWebsiteIds());
 
-            if ($websiteIds) {
-                $productCollection = Mage::getResourceModel('catalog/product_collection');
-                $productCollection->addWebsiteFilter($websiteIds);
-
-                $this->getConditions()->collectValidatedAttributes($productCollection);
+            //if ($websiteIds) {
+                $this->getConditions()->collectValidatedAttributes($collection);
                 Mage::getSingleton('core/resource_iterator')->walk(
-                    $productCollection->getSelect(),
+                    $collection->getSelect(),
                     array(array($this, 'callbackValidateProduct')),
                     array(
                         'attributes' => $this->getCollectedAttributes(),
                         'product'    => Mage::getModel('catalog/product'),
                     )
                 );
-            }
+            //}
         }
         return $this->_productIds;
     }

@@ -619,6 +619,17 @@ class Flagbit_MEP_Model_Export_Entity_Product2 extends Mage_ImportExport_Model_E
                 $collection
                     ->setStoreId($storeId)
                     ->setPage($offsetProducts, $limitProducts);
+
+                /* @var $test Flagbit_MEP_Model_Rule */
+                $test = Mage::getModel('mep/rule');
+                $bla = unserialize($obj_profil->getConditionsSerialized());
+                $bla2 = array('conditions' => $bla);
+                //$test = $test->loadPost($bla);
+                //$test->getConditions()->setConditions($bla);
+                $test->getConditions()->setConditions(array())->loadArray($bla2);
+                $ids = $test->getMatchingProductIds($collection);
+                $collection->addFieldToFilter("entity_id" ,array('nin' => $ids));
+                $sqlplain = $collection->getSelect();
                 if ($collection->getCurPage() < $offsetProducts) {
                     break;
                 }
