@@ -537,14 +537,12 @@ class Flagbit_MEP_Model_Export_Entity_Product2 extends Mage_ImportExport_Model_E
         $defaultStoreId  = Mage_Catalog_Model_Abstract::DEFAULT_STORE_ID;
         $profil_id       = (int) $this->_parameters['id'];
 
-        //TODO
-
-
         if (!empty($profil_id) && $profil_id > 0) {
             /* @var $obj_profil Flagbit_MEP_Model_Profil */
             $obj_profil = Mage::getModel('mep/profil')->load($profil_id);
             $delimiter = $obj_profil->getDelimiter();
             $enclosure = $obj_profil->getEnclose();
+            $originalrow = (boolean) $obj_profil->getExport();
 
             $writer->setDelimiter($delimiter);
             $writer->setEnclosure($enclosure);
@@ -560,7 +558,11 @@ class Flagbit_MEP_Model_Export_Entity_Product2 extends Mage_ImportExport_Model_E
             // Hole Field Mapping
             /* @var $mapping Flagbit_MEP_Model_Mysql4_Mapping_Collection */
             $mapping = Mage::getModel('mep/mapping')->getCollection();
-            $mapping->addFieldToFilter('profile_id', array('eq' => '1'));
+            $mapping->addFieldToFilter('profile_id', array('eq' => $profil_id));
+
+            if($originalrow) {
+                $validAttrCodes = array();
+            }
 
             foreach ($mapping->getItems() as $item) {
                 $validAttrCodes[] = $item->getToField();
@@ -598,10 +600,6 @@ class Flagbit_MEP_Model_Export_Entity_Product2 extends Mage_ImportExport_Model_E
         $offsetProducts = 0;
 
 
-        if(!empty($profil_id) && $profil_id > 0){
-
-        }
-
         while (true) {
             ++$offsetProducts;
 
@@ -623,16 +621,17 @@ class Flagbit_MEP_Model_Export_Entity_Product2 extends Mage_ImportExport_Model_E
                 /* @var $test Flagbit_MEP_Model_Rule */
                 $test = Mage::getModel('mep/rule');
                 $bla = unserialize($obj_profil->getConditionsSerialized());
-                $bla2 = array('conditions' => $bla);
-                //$test = $test->loadPost($bla);
-                //$test->getConditions()->setConditions($bla);
-                $test->getConditions()->setConditions(array())->loadArray($bla2);
-                $ids = $test->getMatchingProductIds($collection);
-                $collection->addFieldToFilter("entity_id" ,array('nin' => $ids));
-                $sqlplain = $collection->getSelect();
+                if(!empty($bla) && count($bla) > 1) {
+                    $bla2 = array('conditions' => $bla);
+                    $test->getConditions()->setConditions(array())->loadArray($bla2);
+                    $ids = $test->getMatchingProductIds($collection);
+                    $collection->addFieldToFilter("entity_id" ,array('nin' => $ids));
+                }
+
                 if ($collection->getCurPage() < $offsetProducts) {
                     break;
                 }
+                $collection->addUrlRewrite();
                 $collection->load();
 
                 if ($collection->count() == 0) {
@@ -649,63 +648,102 @@ class Flagbit_MEP_Model_Export_Entity_Product2 extends Mage_ImportExport_Model_E
                     // getting media gallery data
                     $mediaGalery = $this->_prepareMediaGallery($collection->getAllIds());
                 }
+                /* @var $item Mage_Catalog_Model_Product */
                 foreach ($collection as $itemId => $item) { // go through all products
                     $rowIsEmpty = true; // row is empty by default
 
-                    foreach ($validAttrCodes as &$attrCode) { // go through all valid attribute codes
-                        $attrValue = $item->getData($attrCode);
+                    if(!$originalrow){
+                        foreach ($validAttrCodes as &$attrCode) { // go through all valid attribute codes
+                            $attrValue = $item->getData($attrCode);
+                            // TODO dirty?
+                            if($attrCode == 'url') $attrValue = $item->getProductUrl();
 
-                        if (!empty($this->_attributeValues[$attrCode])) {
-                            if ($this->_attributeTypes[$attrCode] == 'multiselect') {
-                                $attrValue = explode(',', $attrValue);
-                                $attrValue = array_intersect_key(
-                                    $this->_attributeValues[$attrCode],
-                                    array_flip($attrValue)
-                                );
-                                $rowMultiselects[$itemId][$attrCode] = $attrValue;
-                            } else if (isset($this->_attributeValues[$attrCode][$attrValue])) {
-                                $attrValue = $this->_attributeValues[$attrCode][$attrValue];
-                            } else {
-                                $attrValue = null;
-                            }
-                        }
-                        // do not save value same as default or not existent
-                        if ($storeId != $defaultStoreId
-                            && isset($dataRows[$itemId][$defaultStoreId][$attrCode])
-                            && $dataRows[$itemId][$defaultStoreId][$attrCode] == $attrValue
-                        ) {
-                            $attrValue = null;
-                        }
-                        if (is_scalar($attrValue)) {
-                            $dataRows[$itemId][$storeId][$attrCode] = $attrValue;
-                            $rowIsEmpty = false; // mark row as not empty
-
-
-                            foreach($mapping->getItems() as $ole){
-                                if ($ole->getAttributeCode() == $attrCode){
-                                    $ole->setValue($attrValue);
+                            if (!empty($this->_attributeValues[$attrCode])) {
+                                if ($this->_attributeTypes[$attrCode] == 'multiselect') {
+                                    $attrValue = explode(',', $attrValue);
+                                    $attrValue = array_intersect_key(
+                                        $this->_attributeValues[$attrCode],
+                                        array_flip($attrValue)
+                                    );
+                                    $rowMultiselects[$itemId][$attrCode] = $attrValue;
+                                } else if (isset($this->_attributeValues[$attrCode][$attrValue])) {
+                                    $attrValue = $this->_attributeValues[$attrCode][$attrValue];
+                                } else {
+                                    $attrValue = null;
                                 }
                             }
+                            // do not save value same as default or not existent
+                            if ($storeId != $defaultStoreId
+                                && isset($dataRows[$itemId][$defaultStoreId][$attrCode])
+                                && $dataRows[$itemId][$defaultStoreId][$attrCode] == $attrValue
+                            ) {
+                                $attrValue = null;
+                            }
+                            if (is_scalar($attrValue)) {
+                                $dataRows[$itemId][$storeId][$attrCode] = $attrValue;
+                                $rowIsEmpty = false;
+                                foreach($mapping->getItems() as $ole){
+                                    if ($ole->getAttributeCode() == $attrCode){
+                                        $ole->setValue($attrValue);
+                                    }
+                                }
 
-                        }
-                        else{
+                            }
+                            else{
 
-                            foreach($mapping->getItems() as $ole2){
-                                if ($ole2->getToField() == $attrCode){
-                                    $map_value = $ole2->getValue();
-                                    $ole2->setValue(null); //reset
-                                    if(!empty($map_value))
-                                    {
-                                        $dataRows[$itemId][$storeId][$attrCode] = $map_value;
-                                        $rowIsEmpty = false; // mark row as not empty
+                                foreach($mapping->getItems() as $ole2){
+                                    if ($ole2->getToField() == $attrCode){
+                                        $map_value = $ole2->getValue();
+                                        $ole2->setValue(null); //reset
+                                        if(!empty($map_value))
+                                        {
+                                            $dataRows[$itemId][$storeId][$attrCode] = $map_value;
+                                            $rowIsEmpty = false; // mark row as not empty
+                                        }
                                     }
                                 }
                             }
-
                         }
+                    } else {
+                        foreach ($mapping->getItems() as $mapitem) {
+                            $attrCode = $mapitem->getAttributeCode();
+                            $attrValue = $item->getData($attrCode);
 
+                            // TODO dirty?
+                            if($attrCode == 'url') {
+                                $attrValue = $item->getProductUrl();
+                            }
 
+                            if (!empty($this->_attributeValues[$attrCode])) {
+                                if ($this->_attributeTypes[$attrCode] == 'multiselect') {
+                                    $attrValue = explode(',', $attrValue);
+                                    $attrValue = array_intersect_key(
+                                        $this->_attributeValues[$mapitem->getToField()],
+                                        array_flip($attrValue)
+                                    );
+                                    $rowMultiselects[$itemId][$mapitem->getToField()] = $attrValue;
+                                } else if (isset($this->_attributeValues[$mapitem->getToField()][$attrValue])) {
+                                    $attrValue = $this->_attributeValues[$mapitem->getToField()][$attrValue];
+                                } else {
+                                    $attrValue = null;
+                                }
+                            }
+                            // do not save value same as default or not existent
+                            if ($storeId != $defaultStoreId
+                                && isset($dataRows[$itemId][$defaultStoreId][$mapitem->getToField()])
+                                && $dataRows[$itemId][$defaultStoreId][$mapitem->getToField()] == $attrValue
+                            ) {
+                                $attrValue = null;
+                            }
+                            if (is_scalar($attrValue)) {
+                                $dataRows[$itemId][$storeId][$mapitem->getToField()] = $attrValue;
+                                $rowIsEmpty = false;
+                            }
+                        }
                     }
+
+
+
                     if ($rowIsEmpty) { // remove empty rows
                         unset($dataRows[$itemId][$storeId]);
                     } else {
@@ -909,7 +947,9 @@ class Flagbit_MEP_Model_Export_Entity_Product2 extends Mage_ImportExport_Model_E
                         '_super_attribute_option', '_super_attribute_price_corr'
                     ));
                 }
+                if(!$originalrow) {
                 $writer->setHeaderCols($headerCols);
+                }
             }
 
             foreach ($dataRows as $productId => &$productData) {

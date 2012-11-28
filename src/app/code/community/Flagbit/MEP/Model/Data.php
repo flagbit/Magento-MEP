@@ -11,10 +11,9 @@
  * @since 0.1.0
  */
 
-class Flagbit_MEP_Model_Data extends Mage_Catalog_Model_Convert_Adapter_Product
+class Flagbit_MEP_Model_Data extends Mage_Catalog_Model_Convert_Parser_Product
 {
-    private $_internalFields = array();
-    private $_externalFields  = array();
+    protected  $_externalFields  = array();
     /**
      * @desc Retrieve accessible external product attributes
      * @return array
