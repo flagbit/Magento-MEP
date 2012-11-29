@@ -27,7 +27,8 @@ class Flagbit_MEP_Adminhtml_ProfilController extends Mage_Adminhtml_Controller_A
 
     public function newAction()
     {
-        $this->_forward('edit');
+        $this->_initAction();
+        $this->renderLayout();
     }
 
     /**
@@ -39,8 +40,6 @@ class Flagbit_MEP_Adminhtml_ProfilController extends Mage_Adminhtml_Controller_A
     {
         $id = $this->getRequest()->getParam('id');
         $model = Mage::getModel('mep/profil')->load((int) $id);
-
-
 
         if ($model->getId() || !$id) {
             Mage::register('mep_profil',$model);
@@ -80,7 +79,9 @@ class Flagbit_MEP_Adminhtml_ProfilController extends Mage_Adminhtml_Controller_A
                 $model->setId($id);
             }
 
-            if (isset($data['rule'])) {
+
+
+                if (isset($data['rule'])) {
 
                 $data = $this->_filterDates($data, array('from_date', 'to_date'));
 
@@ -103,6 +104,10 @@ class Flagbit_MEP_Adminhtml_ProfilController extends Mage_Adminhtml_Controller_A
 
                 if (!$model->getId()) {
                     Mage::throwException(Mage::helper('mep')->__('Error saving profil'));
+                }
+
+                if (isset($data['template'])) {
+                    $result = Mage::helper('mep')->setTemplateProfil($model->getId(),$data['template']);
                 }
 
                 Mage::getSingleton('adminhtml/session')->addSuccess(Mage::helper('mep')->__('Profil was successfully saved'));
@@ -190,6 +195,7 @@ class Flagbit_MEP_Adminhtml_ProfilController extends Mage_Adminhtml_Controller_A
     {
         if ($data = $this->getRequest()->getPost()) {
 
+            /* @var $model Flagbit_MEP_Model_Mapping */
             $model = Mage::getModel('mep/mapping');
 
             $id = $this->getRequest()->getParam('id');

@@ -28,6 +28,15 @@
         </reference>
     </adminhtml_profil_index>
 
+    <adminhtml_profil_new>
+        <reference name="content">
+            <block type="mep/adminhtml_profil_view_new" name="profil_new"></block>
+        </reference>
+        <reference name="left">
+            <block type="mep/adminhtml_profil_view_new_tabs" name="profil_tabs"></block>
+        </reference>>
+
+    </adminhtml_profil_new>
 
     <adminhtml_profil_fields>
         <block type="core/text_list" name="root" output="toHtml">
