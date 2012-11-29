@@ -1,7 +1,7 @@
 <?php
 
 // Mage_ImportExport_Model_Export_Entity_Product
-class Flagbit_MEP_Model_Export_Entity_Product2 extends Mage_ImportExport_Model_Export_Entity_Abstract
+class Flagbit_MEP_Model_Export_Entity_Product2 extends Mage_ImportExport_Model_Export_Entity_Product
 {
 
     const CONFIG_KEY_PRODUCT_TYPES = 'global/importexport/export_product_types';

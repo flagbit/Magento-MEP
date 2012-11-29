@@ -5,7 +5,7 @@
             <version>0.1.5</version>
         </Flagbit_MEP>
     </modules>
-    
+
     <global>
         <blocks>
             <mep>
@@ -72,12 +72,11 @@
             <export_entities>
                 <catalog_product2 translate="label">
                     <model_token>mep/export_entity_product2</model_token>
-                    <label>Products MEP </label>
+                    <label>Products MEP</label>
                 </catalog_product2>
             </export_entities>
         </importexport>
     </global>
-
 
 
     <admin>
@@ -101,5 +100,18 @@
             </updates>
         </layout>
     </adminhtml>
+
+    <crontab>
+        <jobs>
+            <sales_clean_quotes>
+                <schedule>
+                    <cron_expr>0 5 * * *</cron_expr>
+                </schedule>
+                <run>
+                    <model>mep/observer::</model>
+                </run>
+            </sales_clean_quotes>
+        </jobs>
+    </crontab>
 
 </config>
