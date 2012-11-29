@@ -100,18 +100,16 @@
             </updates>
         </layout>
     </adminhtml>
-
     <crontab>
         <jobs>
-            <sales_clean_quotes>
+            <mep_profiles_enabled>
                 <schedule>
                     <cron_expr>0 5 * * *</cron_expr>
                 </schedule>
                 <run>
-                    <model>mep/observer::</model>
+                    <model>mep/observer::exportEnabledProfiles</model>
                 </run>
-            </sales_clean_quotes>
+            </mep_profiles_enabled>
         </jobs>
     </crontab>
-
 </config>
