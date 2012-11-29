@@ -559,6 +559,7 @@ class Flagbit_MEP_Model_Export_Entity_Product2 extends Mage_ImportExport_Model_E
             /* @var $mapping Flagbit_MEP_Model_Mysql4_Mapping_Collection */
             $mapping = Mage::getModel('mep/mapping')->getCollection();
             $mapping->addFieldToFilter('profile_id', array('eq' => $profil_id));
+            $mapping->setOrder('position','ASC');
 
             if($originalrow) {
                 $validAttrCodes = array();
@@ -711,7 +712,8 @@ class Flagbit_MEP_Model_Export_Entity_Product2 extends Mage_ImportExport_Model_E
 
                             // TODO dirty?
                             if($attrCode == 'url') {
-                                $attrValue = $item->getProductUrl();
+                                $attrValue = Mage::app()->getStore($storeId)->getBaseUrl().$item->getUrlPath();
+                                if($storeId == 0) $attrValue = str_replace('/index.php/','/',$attrValue);
                             }
 
                             if (!empty($this->_attributeValues[$attrCode])) {

@@ -39,10 +39,7 @@ class Flagbit_MEP_Block_Adminhtml_Category_Dynamic
      *
      * @var Mage_Catalog_Model_Category Category
      */
-
-
-
-    protected $_category;
+    protected $_category = null;
 
     /**
      * Retrieve the current categoy
@@ -51,7 +48,7 @@ class Flagbit_MEP_Block_Adminhtml_Category_Dynamic
      */
     public function getCategory()
     {
-        if (!$this->_category) {
+        if (!$this->_category == null) {
             $this->_category = Mage::registry('mep_profil');
         }
         return $this->_category;
@@ -68,7 +65,9 @@ class Flagbit_MEP_Block_Adminhtml_Category_Dynamic
 
         $model = Mage::getSingleton('mep/rule');
         $data = array();
-        $data['conditions'] = unserialize($this->getCategory()->getConditionsSerialized());
+        if ($this->getCategory() != null) {
+            $data['conditions'] = unserialize($this->getCategory()->getConditionsSerialized());
+        }
         $model->loadPost($data);
 
         $form = new Varien_Data_Form();
@@ -79,8 +78,8 @@ class Flagbit_MEP_Block_Adminhtml_Category_Dynamic
         $renderer = Mage::getBlockSingleton('adminhtml/widget_form_renderer_fieldset')
             ->setTemplate('mep/fieldset.phtml')
             ->setNewChildUrl(
-                $this->getUrl('adminhtml/dynamic/newConditionHtml/form/mep_conditions_fieldset')
-            );
+            $this->getUrl('adminhtml/dynamic/newConditionHtml/form/mep_conditions_fieldset')
+        );
 
         $fieldset = $form->addFieldset(
             'conditions_fieldset',

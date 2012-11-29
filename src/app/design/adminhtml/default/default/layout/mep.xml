@@ -28,8 +28,17 @@
         </reference>
     </adminhtml_profil_index>
 
+    <adminhtml_profil_new>
+        <reference name="content">
+            <block type="mep/adminhtml_profil_view_new" name="profil_new"></block>
+        </reference>
+        <reference name="left">
+            <block type="mep/adminhtml_profil_view_new_tabs" name="profil_tabs"></block>
+        </reference>>
 
-    <adminhtml_profil_fields>
+    </adminhtml_profil_new>
+
+    <adminhtml_profil_attribute_index>
         <block type="core/text_list" name="root" output="toHtml">
             <block type="mep/adminhtml_profil_view_gridMapping" name="fields.grid"/>
             <block type="adminhtml/widget_grid_serializer" name="grid_serializer">
@@ -46,7 +55,7 @@
                 </reference>
             </block>
         </block>
-    </adminhtml_profil_fields>
+    </adminhtml_profil_attribute_index>
 
 
 

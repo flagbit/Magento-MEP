@@ -4,7 +4,7 @@ class Flagbit_MEP_Adminhtml_ProfilController extends Mage_Adminhtml_Controller_A
 {
     /**
      * _initAction
-     * 
+     *
      * @return Flagbit_MEP_Adminhtml_ProfilController Self;
      */
     protected function _initAction()
@@ -16,7 +16,7 @@ class Flagbit_MEP_Adminhtml_ProfilController extends Mage_Adminhtml_Controller_A
 
     /**
      * indexAction
-     * 
+     *
      * @return void
      */
     public function indexAction()
@@ -32,7 +32,7 @@ class Flagbit_MEP_Adminhtml_ProfilController extends Mage_Adminhtml_Controller_A
 
     /**
      * editAction
-     * 
+     *
      * @return void
      */
     public function editAction()
@@ -67,7 +67,7 @@ class Flagbit_MEP_Adminhtml_ProfilController extends Mage_Adminhtml_Controller_A
 
     /**
      * saveAction
-     * 
+     *
      * @return void
      */
     public function saveAction()
@@ -105,6 +105,10 @@ class Flagbit_MEP_Adminhtml_ProfilController extends Mage_Adminhtml_Controller_A
                     Mage::throwException(Mage::helper('mep')->__('Error saving profil'));
                 }
 
+                if (isset($data['template'])) {
+                    $result = Mage::helper('mep')->setTemplateProfil($model->getId(),$data['template']);
+                }
+
                 Mage::getSingleton('adminhtml/session')->addSuccess(Mage::helper('mep')->__('Profil was successfully saved'));
                 Mage::getSingleton('adminhtml/session')->setFormData(false);
 
@@ -129,7 +133,7 @@ class Flagbit_MEP_Adminhtml_ProfilController extends Mage_Adminhtml_Controller_A
 
     /**
      * deleteAction
-     * 
+     *
      * @return void
      */
     public function deleteAction()
@@ -148,7 +152,7 @@ class Flagbit_MEP_Adminhtml_ProfilController extends Mage_Adminhtml_Controller_A
 
     /**
      * massDeleteAction
-     * 
+     *
      * @return void
      */
     public function massDeleteAction()
@@ -173,38 +177,6 @@ class Flagbit_MEP_Adminhtml_ProfilController extends Mage_Adminhtml_Controller_A
         $this->_redirect('*/*/');
     }
 
-    public function fieldsAction(){
-        $this->loadLayout();
-        $this->getLayout()->getBlock('fields.grid')
-            ->setProfile($this->getRequest()->getParam('id', null));
-        $this->renderLayout();
-    }
-
-    public function popupAction()
-    {
-        $this->_initAction();
-        $this->renderLayout();
-    }
-
-    public function attributeAction()
-    {
-        if ($data = $this->getRequest()->getPost()) {
-
-            $model = Mage::getModel('mep/mapping');
-
-            $id = $this->getRequest()->getParam('id');
-            if ($id) {
-                $model->setId($id);
-            }
-
-            $model->setData($data);
-            $model->save();
-
-
-        }
-    }
-
-
     public function runClickAction()
     {
         try {
@@ -214,8 +186,6 @@ class Flagbit_MEP_Adminhtml_ProfilController extends Mage_Adminhtml_Controller_A
             $model->setEntity("catalog_product2");
             $model->setFileFormat("csv");
             $model->setExportFilter(array());
-
-
 
             return $this->_prepareDownloadResponse(
                 $model->getFileName(),
@@ -229,14 +199,4 @@ class Flagbit_MEP_Adminhtml_ProfilController extends Mage_Adminhtml_Controller_A
             $this->_getSession()->addError($this->__('No valid data sent'));
         }
     }
-	
-	
-	/**
-	 * Grid for AJAX request
-	 */
-	public function gridAction()
-	{
-		$this->getResponse()->setBody($this->getLayout()->createBlock('mep/adminhtml_profil_view_gridmapping')->toHtml());
-	}
-	
 }

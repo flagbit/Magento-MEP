@@ -56,7 +56,7 @@ class Flagbit_MEP_Block_Adminhtml_Profil_View_GridMapping extends Mage_Adminhtml
      */
     protected function _prepareCollection()
     {
-        /* @var $collection Flagbit_MEP_Model_Profil */
+        /* @var $collection Flagbit_MEP_Model_Mysql4_Mapping_Collection */
         $collection = Mage::getModel('mep/mapping')->getCollection();
         $profil_id = $this->getProfile();
         if (!empty($profil_id)) {
@@ -67,139 +67,141 @@ class Flagbit_MEP_Block_Adminhtml_Profil_View_GridMapping extends Mage_Adminhtml
         return parent::_prepareCollection();
     }
 
-    protected function _afterToHtml($html){
+    protected function _afterToHtml($html)
+    {
         $html = parent::_afterToHtml($html);
         $aha = Mage::getModel('mep/data')->getExternalAttributes();
-		
-		$html .= '
-			<div id="container" style="display:none">
-				<div id="test_content" class="mapping-dialog">
-					<form action="' . Mage::helper("adminhtml")->getUrl("adminhtml/profil/attribute") . '" id="mappingform">
-						<ul>
-							<li>
-								<label for="attribute_code">In Database</label>
-								<div class="input-box">
-									<select name="attribute_code" id="attribute_code" class="select">';
-			
-			foreach ($aha as $_value=>$_label){
-	            if(is_array($_label)){
-	            	$html .= '<optgroup label='.$_value.'">';
-		            
-		            foreach($_label as $_attribute){
-		                //$html .= '<option value="'.$_value.':'.$_attribute.'">'.$_attribute.'</option>';
-		                $html .= '<option value="'.$_attribute.'">'.$_attribute.'</option>';
-		            }
-	
-	            	$html .= '</optgroup>';
-	            } else {
-	            	$html .= '<option value="'.$_value.'">'.$_label.'</option>';
-	            }
+
+        $html .= '
+                        <div id="container" style="display:none">
+                                <div id="field_content" class="mapping-dialog">
+                                        <form action="' . Mage::helper("adminhtml")->getUrl("adminhtml/profil_attribute/add") . '" id="mappingform">
+                                                <ul>
+                                                        <li>
+                                                                <label for="attribute_code">In Database</label>
+                                                                <div class="input-box">
+                                                                        <select name="attribute_code" id="attribute_code" class="select">';
+
+        foreach ($aha as $_value => $_label) {
+            if (is_array($_label)) {
+                $html .= '<optgroup label=' . $_value . '">';
+
+                foreach ($_label as $_attribute) {
+                    //$html .= '<option value="'.$_value.':'.$_attribute.'">'.$_attribute.'</option>';
+                    $html .= '<option value="' . $_attribute . '">' . $_attribute . '</option>';
+                }
+
+                $html .= '</optgroup>';
+            } else {
+                $html .= '<option value="' . $_value . '">' . $_label . '</option>';
             }
-		
-		$html .='					</select>
-								</div>
-							</li>
-							<li>
-								<label for="to_field">To Field</label>
-								<div class="input-box">
-									<input type="text" name="to_field" id="to_field" class="input-text">
-								</div>
-							</li>
-							<li>
-								<label for="format">Format</label>
-								<div class="input-box">
-									<input type="text" name="format" id="format" class="input-text">
-								</div>
-							</li>
-							<li>
-								<input type="submit" value="Absenden" class="form-button">
-							</li>
-						</ul>
-						<input type="hidden" name="profile_id" value="'.Mage::app()->getRequest()->getParam('id').'">
-					</form>
-				</div>
-			</div>
-		';
-		
-		$html .= '
-			<script type="text/javascript">
-			// <![CDATA[
-			
-			var contentWin = null;
-			
-			var doFieldMapping = function() {
-				if (contentWin != null) {
-					Dialog.alert("Close the Mapping Field Window before opening it again!", {
-						width : 200,
-						height : 130
-					});
-				} else {
-					$("container").show();
-					contentWin = new Window({
-						className : "attribute-mapping-window",
-						maximizable : false,
-						resizable : false,
-						hideEffect : Element.hide,
-						showEffect : Element.show,
-						minWidth : 10,
-						destroyOnClose : true,
-						width : 200,
-						height: 160
-					})
-					contentWin.setContent("test_content", false, true)
-					contentWin.showCenter(true);
-					contentWin.show();
-					
-					// Set up a windows observer, check ou debug window to get messages
-					myObserver = {
-						onDestroy : function(eventName, win) {
-							if (win == contentWin) {
-								$("container").hide();
-								$("container").appendChild($("test_content"));
-								contentWin = null;
-								Windows.removeObserver(this);
-							}
-							console.log(eventName + " on " + win.getId())
-						}
-					}
-					Windows.addObserver(myObserver);
-				}
-			}
-			window.doFieldMapping = doFieldMapping;
-			
-			Event.observe("mappingform", "submit", function(event) {
-				contentWin.close();
-				
-				$("mappingform").request({
-					onFailure : function() {
-					},
-					onSuccess : function(t) {
-						var parameters = {isAjax: true, id: ' . $this->getProfile() . '};
-						
-						// make another ajax call to reload the fields table
-						new Ajax.Request("' . Mage::helper("adminhtml")->getUrl("adminhtml/profil/fields") . '", {
-                            method: "post",
-                            parameters: parameters,
-                            onSuccess: function(transport)  {
-                                if(transport.status == 200) {
-                                    var response = transport.responseText;
-                                	
-									$("rule_tabs_form_fields_content").update(response);
-                                }
+        }
+        $html .= '</select>
+                    </div>
+            </li>
+            <li>
+                <label for="to_field">To Field</label>
+                <div class="input-box">
+                        <input type="text" name="to_field" id="to_field" class="input-text">
+                </div>
+            </li>
+            <li>
+                <label for="format">Format</label>
+                <div class="input-box">
+                        <input type="text" name="format" id="format" class="input-text">
+                </div>
+            </li>
+            <li>
+                <label for="position">Position</label>
+                <div class="input-box">
+                        <input type="text" name="position" id="position" class="input-text">
+                </div>
+            </li>
+            <li>
+                <input type="submit" value="Submit" class="form-button">
+            </li>
+            </ul>
+                    <input type="hidden" name="profile_id" value="' . $this->getProfile() . '">
+            </form>
+                </div>
+        </div>
+        ';
+
+        $html .= '<script type="text/javascript">
+            // <![CDATA[
+            var contentWin = null;
+
+            var doFieldMapping = function() {
+                    if (contentWin != null) {
+                            Dialog.alert("Close the Mapping Field Window before opening it again!", {
+                                    width : 200,
+                                    height : 130
+                            });
+                    } else {
+                            $("container").show();
+                            contentWin = new Window({
+                                    className : "attribute-mapping-window",
+                                    maximizable : false,
+                                    resizable : false,
+                                    hideEffect : Element.hide,
+                                    showEffect : Element.show,
+                                    minWidth : 10,
+                                    destroyOnClose : true,
+                                    width : 200,
+                                    height: 190
+                            })
+                            contentWin.setContent("field_content", false, true)
+                            contentWin.showCenter(true);
+                            contentWin.show();
+
+                            // Set up a windows observer, check ou debug window to get messages
+                            myObserver = {
+                                    onDestroy : function(eventName, win) {
+                                            if (win == contentWin) {
+                                                    $("container").hide();
+                                                    $("container").appendChild($("field_content"));
+                                                    contentWin = null;
+                                                    Windows.removeObserver(this);
+                                            }
+                                    }
                             }
-                        });
-					}
-				});
-				
-				Event.stop(event);
-				// stop the form from submitting
-			});
-			
-			// ]]>
-			</script>';
+                            Windows.addObserver(myObserver);
+                    }
+            }
+            window.doFieldMapping = doFieldMapping;
+
+            Event.observe("mappingform", "submit", function(event) {
+                    contentWin.close();
+
+                    $("mappingform").request({
+                            onFailure : function() {
+                            },
+                            onSuccess : function(t) {
+                                    var parameters = {isAjax: true, profile_id: ' . $this->getProfile() . '};
+
+                                    // make another ajax call to reload the fields table
+                                    new Ajax.Request("' . Mage::helper("adminhtml")->getUrl("adminhtml/profil_attribute/index") . '", {
+                method: "post",
+                parameters: parameters,
+                onSuccess: function(transport)  {
+                    if(transport.status == 200) {
+                        var response = transport.responseText;
+
+                                                            $("rule_tabs_form_fields_content").update(response);
+                    }
+                }
+            });
+                            }
+                    });
+
+                    Event.stop(event);
+                    // stop the form from submitting
+            });
+
+            // ]]>
+            </script>';
         return $html;
     }
-
 
 
     /**
@@ -217,17 +219,23 @@ class Flagbit_MEP_Block_Adminhtml_Profil_View_GridMapping extends Mage_Adminhtml
             'header' => Mage::helper('mep')->__('ID'),
             'align' => 'left',
             'index' => 'id',
+            'filter' => false,
+            'sortable' => false
         ));
         $this->addColumn('attribute_code', array(
             'header' => Mage::helper('mep')->__('Attribute Code'),
             'align' => 'left',
             'index' => 'attribute_code',
+            'filter' => false,
+            'sortable' => false
         ));
 
         $this->addColumn('to_field', array(
             'header' => Mage::helper('mep')->__('To Field'),
             'align' => 'left',
             'index' => 'to_field',
+            'filter' => false,
+            'sortable' => false
         ));
 
         $this->addColumn('format', array(
@@ -235,8 +243,16 @@ class Flagbit_MEP_Block_Adminhtml_Profil_View_GridMapping extends Mage_Adminhtml
             'align' => 'left',
             'index' => 'format',
             'filter' => false,
+            'sortable' => false
         ));
 
+        $this->addColumn('position', array(
+            'header' => Mage::helper('mep')->__('Position'),
+            'align' => 'left',
+            'index' => 'position',
+            'filter' => false,
+            'sortable' => false,
+        ));
 
         $this->addColumn('action', array(
             'header' => Mage::helper('adminhtml')->__('Action'),
@@ -245,23 +261,17 @@ class Flagbit_MEP_Block_Adminhtml_Profil_View_GridMapping extends Mage_Adminhtml
             'getter' => 'getId',
             'actions' => array(
                 array(
-                    'caption' => Mage::helper('adminhtml')->__('Edit'),
-                    'url' => array('base' => '*/*/edit'),
-                    'field' => 'id',
-                ),
-                array(
                     'caption' => Mage::helper('adminhtml')->__('Delete'),
-                    'url' => array('base' => '*/*/delete'),
+                    'url' => array('base' => '*/profil_attribute/delete/profile_id/' . $this->getRequest()->getParam('profile_id')),
                     'field' => 'id',
+                    'confirm' => $this->__('Do you really wnat to delete this field mapping.'),
                 ),
-
             ),
             'filter' => false,
             'sortable' => false,
-            'index' => 'stores',
+            'index' => 'id',
             'is_system' => true,
         ));
-
         parent::_prepareColumns();
         return $this;
     }
@@ -289,22 +299,10 @@ class Flagbit_MEP_Block_Adminhtml_Profil_View_GridMapping extends Mage_Adminhtml
     }
 
     /**
-     * Returns the row url
-     *
-     * @return string URL
+     * call from ajax to get the grid
      */
-    public function getRowUrl($row)
+    public function getGridUrl()
     {
-        $url = $this->getUrl('*/*/edit', array('id' => $row->getId()));
-        return $url;
+        return $this->getUrl('*/*/grid', array('_current' => true));
     }
-	
-	
-	/**
-	 * call from ajax to get the grid
-	 */
-	public function getGridUrl()
-	{
-		return $this->getUrl('*/*/grid', array('_current'=>true));
-	}
 }
