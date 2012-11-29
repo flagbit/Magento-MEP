@@ -74,7 +74,7 @@ class Flagbit_MEP_Block_Adminhtml_Profil_View_GridMapping extends Mage_Adminhtml
 
         $html .= '
                         <div id="container" style="display:none">
-                                <div id="test_content" class="mapping-dialog">
+                                <div id="field_content" class="mapping-dialog">
                                         <form action="' . Mage::helper("adminhtml")->getUrl("adminhtml/profil_attribute/add") . '" id="mappingform">
                                                 <ul>
                                                         <li>
@@ -118,7 +118,7 @@ class Flagbit_MEP_Block_Adminhtml_Profil_View_GridMapping extends Mage_Adminhtml
                 </div>
             </li>
             <li>
-                <input type="submit" value="Absenden" class="form-button">
+                <input type="submit" value="Submit" class="form-button">
             </li>
             </ul>
                     <input type="hidden" name="profile_id" value="' . $this->getProfile() . '">
@@ -150,7 +150,7 @@ class Flagbit_MEP_Block_Adminhtml_Profil_View_GridMapping extends Mage_Adminhtml
                                     width : 200,
                                     height: 190
                             })
-                            contentWin.setContent("test_content", false, true)
+                            contentWin.setContent("field_content", false, true)
                             contentWin.showCenter(true);
                             contentWin.show();
 
@@ -159,7 +159,7 @@ class Flagbit_MEP_Block_Adminhtml_Profil_View_GridMapping extends Mage_Adminhtml
                                     onDestroy : function(eventName, win) {
                                             if (win == contentWin) {
                                                     $("container").hide();
-                                                    $("container").appendChild($("test_content"));
+                                                    $("container").appendChild($("field_content"));
                                                     contentWin = null;
                                                     Windows.removeObserver(this);
                                             }
@@ -219,17 +219,23 @@ class Flagbit_MEP_Block_Adminhtml_Profil_View_GridMapping extends Mage_Adminhtml
             'header' => Mage::helper('mep')->__('ID'),
             'align' => 'left',
             'index' => 'id',
+            'filter' => false,
+            'sortable' => false
         ));
         $this->addColumn('attribute_code', array(
             'header' => Mage::helper('mep')->__('Attribute Code'),
             'align' => 'left',
             'index' => 'attribute_code',
+            'filter' => false,
+            'sortable' => false
         ));
 
         $this->addColumn('to_field', array(
             'header' => Mage::helper('mep')->__('To Field'),
             'align' => 'left',
             'index' => 'to_field',
+            'filter' => false,
+            'sortable' => false
         ));
 
         $this->addColumn('format', array(
@@ -237,6 +243,15 @@ class Flagbit_MEP_Block_Adminhtml_Profil_View_GridMapping extends Mage_Adminhtml
             'align' => 'left',
             'index' => 'format',
             'filter' => false,
+            'sortable' => false
+        ));
+
+        $this->addColumn('position', array(
+            'header' => Mage::helper('mep')->__('Position'),
+            'align' => 'left',
+            'index' => 'position',
+            'filter' => false,
+            'sortable' => false,
         ));
 
         $this->addColumn('action', array(

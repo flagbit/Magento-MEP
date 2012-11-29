@@ -25,9 +25,6 @@ class Flagbit_MEP_Adminhtml_ProfilController extends Mage_Adminhtml_Controller_A
         $this->renderLayout();
     }
 
-    /**
-     * create a new profile.
-     */
     public function newAction()
     {
         $this->_forward('edit');
@@ -41,14 +38,17 @@ class Flagbit_MEP_Adminhtml_ProfilController extends Mage_Adminhtml_Controller_A
     public function editAction()
     {
         $id = $this->getRequest()->getParam('id');
-        $model = Mage::getModel('mep/profil')->load((int)$id);
+        $model = Mage::getModel('mep/profil')->load((int) $id);
+
+
 
         if ($model->getId() || !$id) {
-            Mage::register('mep_profil', $model);
+            Mage::register('mep_profil',$model);
             $data = Mage::getSingleton('adminhtml/session')->getFormData(true);
             if ($data) {
                 $model->setData($data)->setId($id);
-            } else {
+            }
+            else{
                 Mage::getSingleton('adminhtml/session')->setMepProfileData($model->getData());
             }
 
@@ -105,6 +105,10 @@ class Flagbit_MEP_Adminhtml_ProfilController extends Mage_Adminhtml_Controller_A
                     Mage::throwException(Mage::helper('mep')->__('Error saving profil'));
                 }
 
+                if (isset($data['template'])) {
+                    $result = Mage::helper('mep')->setTemplateProfil($model->getId(),$data['template']);
+                }
+
                 Mage::getSingleton('adminhtml/session')->addSuccess(Mage::helper('mep')->__('Profil was successfully saved'));
                 Mage::getSingleton('adminhtml/session')->setFormData(false);
 
@@ -156,7 +160,8 @@ class Flagbit_MEP_Adminhtml_ProfilController extends Mage_Adminhtml_Controller_A
         $productIds = $this->getRequest()->getParam('product');
         if (!is_array($productIds)) {
             $this->_getSession()->addError($this->__('Please select product(s).'));
-        } else {
+        }
+        else {
             try {
                 foreach ($productIds as $productId) {
                     Mage::getModel('mep/profil')->load($productId)->delete();
@@ -172,9 +177,6 @@ class Flagbit_MEP_Adminhtml_ProfilController extends Mage_Adminhtml_Controller_A
         $this->_redirect('*/*/');
     }
 
-    /**
-     * @return Mage_Core_Controller_Varien_Action
-     */
     public function runClickAction()
     {
         try {
