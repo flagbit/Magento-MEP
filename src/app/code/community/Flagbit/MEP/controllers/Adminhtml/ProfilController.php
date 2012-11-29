@@ -77,7 +77,7 @@ class Flagbit_MEP_Adminhtml_ProfilController extends Mage_Adminhtml_Controller_A
 
             $id = $this->getRequest()->getParam('id');
             if ($id) {
-                $model->setId($id);
+                $model->load($id);
             }
 
             if (isset($data['rule'])) {
@@ -95,10 +95,6 @@ class Flagbit_MEP_Adminhtml_ProfilController extends Mage_Adminhtml_Controller_A
 
             try {
                 $model->setData($data);
-                if ($id) {
-                    $model->setId($id);
-                }
-
                 $model->save();
 
                 if (!$model->getId()) {
