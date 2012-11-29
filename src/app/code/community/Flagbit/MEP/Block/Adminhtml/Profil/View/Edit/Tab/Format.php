@@ -47,8 +47,8 @@ class Flagbit_MEP_Block_Adminhtml_Profil_View_Edit_Tab_Format extends Mage_Admin
 			'text',
 		    array(
 				'label'    => Mage::helper('mep')->__('Value Delimiter'),
-                //'class'    => 'required-entry',
-                //'required' => true,
+                'class'    => 'required-entry',
+                'required' => true,
                 'name'     => 'delimiter',
 		    )
         );
@@ -59,8 +59,8 @@ class Flagbit_MEP_Block_Adminhtml_Profil_View_Edit_Tab_Format extends Mage_Admin
             'text',
             array(
                 'label'    => Mage::helper('mep')->__('Enclose Values In:'),
-                //'class'    => 'required-entry',
-                //'required' => true,
+                'class'    => 'required-entry',
+                'required' => true,
                 'name'     => 'enclose',
                 'options'	=> $this->_getStatusOptionsHash()
             )
