@@ -77,6 +77,7 @@ class Flagbit_MEP_Adminhtml_ProfilController extends Mage_Adminhtml_Controller_A
             $model = Mage::getModel('mep/profil');
 
             $id = $this->getRequest()->getParam('id');
+            $data['id'] = $id;
             if ($id) {
                 $model->load($id);
             }
@@ -102,6 +103,7 @@ class Flagbit_MEP_Adminhtml_ProfilController extends Mage_Adminhtml_Controller_A
                     Mage::throwException(Mage::helper('mep')->__('Error saving profil'));
                 }
 
+                // Template Stuff
                 if (isset($data['template'])) {
                     $result = Mage::helper('mep')->setTemplateProfil($model->getId(),$data['template']);
                 }
