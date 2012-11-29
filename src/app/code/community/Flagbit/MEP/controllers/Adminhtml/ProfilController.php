@@ -27,7 +27,8 @@ class Flagbit_MEP_Adminhtml_ProfilController extends Mage_Adminhtml_Controller_A
 
     public function newAction()
     {
-        $this->_forward('edit');
+        $this->_initAction();
+        $this->renderLayout();
     }
 
     /**
