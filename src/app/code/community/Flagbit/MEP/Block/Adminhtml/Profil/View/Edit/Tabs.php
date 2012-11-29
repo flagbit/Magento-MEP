@@ -4,7 +4,7 @@ class Flagbit_MEP_Block_Adminhtml_Profil_View_Edit_Tabs extends Mage_Adminhtml_B
 {
 	/**
      * Class Constructor
-     * 
+     *
      * @return void
      */
 	public function __construct()
@@ -16,11 +16,11 @@ class Flagbit_MEP_Block_Adminhtml_Profil_View_Edit_Tabs extends Mage_Adminhtml_B
 
 	/**
      * _beforeToHtml
-     * 
+     *
      * Adds the tabs
-     * 
+     *
      * @see Mage_Adminhtml_Block_Widget_Tabs::_beforeToHtml()
-     * 
+     *
      * @return Flagbit_MEP_Block_Adminhtml_Profil_View_Edit_Tabs Self.
      */
 	protected function _beforeToHtml()
@@ -33,7 +33,7 @@ class Flagbit_MEP_Block_Adminhtml_Profil_View_Edit_Tabs extends Mage_Adminhtml_B
 
         $this->addTab('form_fields', array(
             'label'     => Mage::helper('mep')->__('Field Mapping'),
-            'url'       => $this->getUrl('*/*/fields', array('_current' => true)),
+            'url'       => $this->getUrl('*/profil_attribute/index', array('profile_id' => $this->getRequest()->getParam('id'))),
             'class'     => 'ajax',
         ));
 

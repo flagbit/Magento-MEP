@@ -63,7 +63,4 @@ class Flagbit_MEP_Adminhtml_MepController extends Mage_Adminhtml_Controller_Acti
         }
         $this->_redirect('*/*/index');
     }
-
-
-
 }
