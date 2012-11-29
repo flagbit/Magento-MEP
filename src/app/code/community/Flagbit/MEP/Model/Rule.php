@@ -55,31 +55,6 @@ class Flagbit_MEP_Model_Rule extends Mage_CatalogRule_Model_Rule
     }
 
     /**
-     * Regenerate all Stores index
-     *
-     * Examples:
-     * (null, null) => Regenerate index for all stores
-     * (1, null)    => Regenerate index for store Id=1
-     * (1, 2)       => Regenerate index for product Id=2 and its store view Id=1
-     * (null, 2)    => Regenerate index for all store views of product Id=2
-     *
-     * @param int $storeId   Store View Id
-     * @param int $productId Product Entity Id
-     * @return FireGento_DynamicCategory_Model_Rule Self.
-     */
-    public function rebuildIndex($storeId = null, $categoryIds = null, $productIds = null)
-    {
-        if ($categoryIds !== null && !is_array($categoryIds)) {
-            $categoryIds = array($categoryIds);
-        }
-
-        $this->setWebsiteIds(($storeId === null ? implode(',', array_keys(Mage::app()->getWebsites())) : $storeId));
-        $this->getResource()->rebuildIndex($this, $storeId, $categoryIds);
-
-        return $this;
-    }
-
-    /**
      * Enter description here ...
      *
      * @param array $rule
