@@ -87,8 +87,13 @@ class Flagbit_MEP_Block_Adminhtml_Profil_View_New_Tab_General extends Mage_Admin
     {
         $options = array(
             0 => Mage::helper('mep')->__('No Template'),
-            1 => Mage::helper('mep')->__('Günstiger'),
+            /*1 => Mage::helper('mep')->__('Günstiger'),
             2 => Mage::helper('mep')->__('Geizkragen'),
+            3 => Mage::helper('mep')->__('Billiger'),
+            4 => Mage::helper('mep')->__('Ciao'),
+            5 => Mage::helper('mep')->__('Geizhals'),
+            6 => Mage::helper('mep')->__('Idealo'),
+            7 => Mage::helper('mep')->__('Preissuchmaschine'),*/
         );
         return $options;
     }
