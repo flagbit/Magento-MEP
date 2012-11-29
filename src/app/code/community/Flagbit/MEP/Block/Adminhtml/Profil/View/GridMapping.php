@@ -112,6 +112,12 @@ class Flagbit_MEP_Block_Adminhtml_Profil_View_GridMapping extends Mage_Adminhtml
 								</div>
 							</li>
 							<li>
+								<label for="position">Position</label>
+								<div class="input-box">
+									<input type="text" name="position" id="position" class="input-text">
+								</div>
+							</li>
+							<li>
 								<input type="submit" value="Absenden" class="form-button">
 							</li>
 						</ul>
@@ -144,7 +150,7 @@ class Flagbit_MEP_Block_Adminhtml_Profil_View_GridMapping extends Mage_Adminhtml
 						minWidth : 10,
 						destroyOnClose : true,
 						width : 200,
-						height: 160
+						height: 190
 					})
 					contentWin.setContent("test_content", false, true)
 					contentWin.showCenter(true);
@@ -217,17 +223,23 @@ class Flagbit_MEP_Block_Adminhtml_Profil_View_GridMapping extends Mage_Adminhtml
             'header' => Mage::helper('mep')->__('ID'),
             'align' => 'left',
             'index' => 'id',
+            'filter' => false,
+            'sortable' => false,
         ));
         $this->addColumn('attribute_code', array(
             'header' => Mage::helper('mep')->__('Attribute Code'),
             'align' => 'left',
             'index' => 'attribute_code',
+            'filter' => false,
+            'sortable' => false,
         ));
 
         $this->addColumn('to_field', array(
             'header' => Mage::helper('mep')->__('To Field'),
             'align' => 'left',
             'index' => 'to_field',
+            'filter' => false,
+            'sortable' => false,
         ));
 
         $this->addColumn('format', array(
@@ -235,6 +247,15 @@ class Flagbit_MEP_Block_Adminhtml_Profil_View_GridMapping extends Mage_Adminhtml
             'align' => 'left',
             'index' => 'format',
             'filter' => false,
+            'sortable' => false,
+        ));
+
+        $this->addColumn('position', array(
+            'header' => Mage::helper('mep')->__('Position'),
+            'align' => 'left',
+            'index' => 'position',
+            'filter' => false,
+            'sortable' => false,
         ));
 
 
