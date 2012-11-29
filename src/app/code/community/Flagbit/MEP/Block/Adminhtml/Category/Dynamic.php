@@ -48,7 +48,7 @@ class Flagbit_MEP_Block_Adminhtml_Category_Dynamic
      */
     public function getCategory()
     {
-        if (!$this->_category == null) {
+        if ($this->_category == null) {
             $this->_category = Mage::registry('mep_profil');
         }
         return $this->_category;
