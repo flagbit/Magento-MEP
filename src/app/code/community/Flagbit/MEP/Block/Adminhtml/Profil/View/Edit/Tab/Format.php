@@ -50,6 +50,7 @@ class Flagbit_MEP_Block_Adminhtml_Profil_View_Edit_Tab_Format extends Mage_Admin
                 'class' => 'required-entry',
                 'required' => true,
                 'name' => 'delimiter',
+                'note' => 'Use \t to use TAB as delimiter.'
             )
         );
 
@@ -70,8 +71,6 @@ class Flagbit_MEP_Block_Adminhtml_Profil_View_Edit_Tab_Format extends Mage_Admin
             'select',
             array(
                 'label' => Mage::helper('mep')->__('Original Magento attributenames in first row'),
-                //'class'    => 'required-entry',
-                //'required' => true,
                 'name' => 'originalrow',
                 'options' => $this->_getYesNoOptionsHash()
             )
@@ -82,8 +81,6 @@ class Flagbit_MEP_Block_Adminhtml_Profil_View_Edit_Tab_Format extends Mage_Admin
             'select',
             array(
                 'label' => Mage::helper('mep')->__('Export'),
-                //'class'    => 'required-entry',
-                //'required' => true,
                 'name' => 'export',
                 'options' => $this->_getFilterOptionsHash()
             )
