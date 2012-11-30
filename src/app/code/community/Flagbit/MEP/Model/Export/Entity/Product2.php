@@ -716,6 +716,10 @@ class Flagbit_MEP_Model_Export_Entity_Product2 extends Mage_ImportExport_Model_E
                                 if($storeId == 0) $attrValue = str_replace('/index.php/','/',$attrValue);
                             }
 
+                            if($attrCode == 'fixed_value_format') {
+                                $attrValue = $mapitem->getFormat();
+                            }
+
                             if (!empty($this->_attributeValues[$attrCode])) {
                                 if ($this->_attributeTypes[$attrCode] == 'multiselect') {
                                     $attrValue = explode(',', $attrValue);
