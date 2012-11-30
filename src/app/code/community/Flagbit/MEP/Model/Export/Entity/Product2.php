@@ -94,26 +94,20 @@ class Flagbit_MEP_Model_Export_Entity_Product2 extends Mage_ImportExport_Model_E
     protected $_attributeTypes = array();
 
     /**
+     * @var Flagbit_MEP_Model_Profil
+     */
+    protected $_profile = null;
+
+    /**
      * Constructor.
      *
      * @return void
      */
     public function __construct()
     {
-        //parent::__construct();
-        // Statt parent
-
         $entityCode = 'catalog_product';
         $this->_entityTypeId = Mage::getSingleton('eav/config')->getEntityType($entityCode)->getEntityTypeId();
         $this->_connection = Mage::getSingleton('core/resource')->getConnection('write');
-
-
-        $this->_initTypeModels()
-            ->_initAttributes()
-            ->_initStores()
-            ->_initAttributeSets()
-            ->_initWebsites()
-            ->_initCategories();
     }
 
     /**
@@ -150,7 +144,7 @@ class Flagbit_MEP_Model_Export_Entity_Product2 extends Mage_ImportExport_Model_E
                 }
                 $this->_rootCategories[$category->getId()] = array_shift($path);
                 if ($pathSize > 2) {
-                    $this->_categories[$category->getId()] = implode('/', $path);
+                    $this->_categories[$category->getId()] = implode($this->getProfile()->getCategoryDelimiter(), $path);
                 }
             }
 
@@ -528,6 +522,12 @@ class Flagbit_MEP_Model_Export_Entity_Product2 extends Mage_ImportExport_Model_E
      */
     public function export()
     {
+        $this->_initTypeModels()
+            ->_initAttributes()
+            ->_initStores()
+            ->_initAttributeSets()
+            ->_initWebsites()
+            ->_initCategories();
         //Execution time may be very long
         set_time_limit(0);
 
@@ -535,11 +535,10 @@ class Flagbit_MEP_Model_Export_Entity_Product2 extends Mage_ImportExport_Model_E
         $validAttrCodes = $this->_getExportAttrCodes();
         $writer = $this->getWriter();
         $defaultStoreId = Mage_Catalog_Model_Abstract::DEFAULT_STORE_ID;
-        $profil_id = (int)$this->_parameters['id'];
 
-        if (!empty($profil_id) && $profil_id > 0) {
+        if ($this->hasProfileId()) {
             /* @var $obj_profil Flagbit_MEP_Model_Profil */
-            $obj_profil = Mage::getModel('mep/profil')->load($profil_id);
+            $obj_profil = $this->getProfile();
             $delimiter = $obj_profil->getDelimiter();
             $enclosure = $obj_profil->getEnclose();
             $originalrow = (boolean)$obj_profil->getExport();
@@ -557,7 +556,7 @@ class Flagbit_MEP_Model_Export_Entity_Product2 extends Mage_ImportExport_Model_E
             // Hole Field Mapping
             /* @var $mapping Flagbit_MEP_Model_Mysql4_Mapping_Collection */
             $mapping = Mage::getModel('mep/mapping')->getCollection();
-            $mapping->addFieldToFilter('profile_id', array('eq' => $profil_id));
+            $mapping->addFieldToFilter('profile_id', array('eq' => $this->getProfileId()));
             $mapping->setOrder('position', 'ASC');
 
             if ($originalrow) {
@@ -1168,20 +1167,31 @@ class Flagbit_MEP_Model_Export_Entity_Product2 extends Mage_ImportExport_Model_E
         return $this;
     }
 
-
-    public function setHeaderCols(array $headerCols)
+    /**
+     * @return Flagbit_MEP_Model_Profil|Mage_Core_Model_Abstract|null
+     */
+    public function getProfile()
     {
-        if (null !== $this->_headerCols) {
-            Mage::throwException(Mage::helper('importexport')->__('Header column names already set'));
+        if ($this->_profile == null && $this->hasProfileId()) {
+            $this->_profile = Mage::getModel('mep/profil')->load($this->getProfileId());
         }
-        if ($headerCols) {
-            foreach ($headerCols as $colName) {
-                $this->_headerCols[$colName] = false;
-            }
-            fputcsv($this->_fileHandler, array_keys($this->_headerCols), $this->_delimiter, $this->_enclosure);
-        }
-        return $this;
+        return $this->_profile;
     }
 
+    /**
+     * @return bool
+     */
+    public function hasProfileId()
+    {
+        return array_key_exists('id', $this->_parameters);
+    }
+
+    /**
+     * @return int
+     */
+    public function getProfileId()
+    {
+        return (int)$this->_parameters['id'];
+    }
 
 }

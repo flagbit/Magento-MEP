@@ -101,6 +101,13 @@ class Flagbit_MEP_Block_Adminhtml_Profil_View_Edit_Tab_Format extends Mage_Admin
             'note' => 'Path relative to document root'
         ));
 
+        $fieldset->addField('category_delimiter', 'text', array(
+            'label' => Mage::helper('mep')->__('Separator between categories'),
+            'class' => 'required-entry',
+            'required' => true,
+            'name' => 'category_delimiter'
+        ));
+
         $form->setValues($data);
         return parent::_prepareForm();
     }

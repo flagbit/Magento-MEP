@@ -79,23 +79,6 @@ class Flagbit_MEP_Model_Export_Adapter_Csv extends Mage_ImportExport_Model_Expor
         return $this;
     }
 
-    public function setHeaderCols(array $headerCols)
-    {
-
-        if (null !== $this->_headerCols) {
-            Mage::throwException(Mage::helper('importexport')->__('Header column names already set'));
-        }
-        if ($headerCols) {
-            foreach ($headerCols as $colName) {
-                $this->_headerCols[$colName] = false;
-            }
-            if ($this->_headerRow) {
-                fputcsv($this->_fileHandler, array_keys($this->_headerCols), $this->_delimiter, $this->_enclosure);
-            }
-        }
-        return $this;
-    }
-
     /**
      * Get destination path.
      *
