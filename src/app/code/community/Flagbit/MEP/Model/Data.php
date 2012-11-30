@@ -39,11 +39,22 @@ class Flagbit_MEP_Model_Data extends Mage_Catalog_Model_Convert_Parser_Product
         }
 
         // added for url mapping
-        $attributes['url'] = 'url';
-        $attributes['_category'] = 'category';
-        $attributes['image_url'] = 'image_url';
-        $attributes['gross_price'] = 'gross_price';
-        $attributes['fixed_value_format'] = 'fixed_value_format';
+        $attributes['url']                      = 'url';
+        $attributes['_category']                = 'category';
+        $attributes['image_url']                = 'image_url';
+        $attributes['gross_price']              = 'gross_price';
+        $attributes['fixed_value_format']       = 'fixed_value_format';
+
+        //TODO HACK THE PLANET
+        $attributes['versandkosten_paypal']     = 'Versandkosten PayPal Standard';
+        $attributes['versandkosten_vorkasse']   = 'Versandkosten Vorkasse';
+        $attributes['versandkosten_nachnahme']  = 'Versandkosten Nachnahme';
+        $attributes['versandkosten_sofort']     = 'Versandkosten Sofortüberweisung';
+        $attributes['versandkosten_creditcard'] = 'Versandkosten Kreditkarte';
+
+
+
+
 
         return $attributes;
     }

@@ -715,6 +715,56 @@ class Flagbit_MEP_Model_Export_Entity_Product2 extends Mage_ImportExport_Model_E
                                     $attrValue = $mapitem->getFormat();
                                 }
 
+                                if ($attrCode == 'versandkosten_vorkasse') {
+                                    $obj_versand = Mage::helper('screenmaxx_shipping/config');
+                                    $versand_klasse = $item->getAttributeText('a000001018');
+                                    $versand_base = $obj_versand->getShippingClassCosts($versand_klasse,'DE');
+                                    $versand_extra = $obj_versand->getExtraChargeByPaymentMethod($mapitem->getFormat(),'DE');
+                                    $attrValue = $versand_base + $versand_extra;
+                                }
+
+                                if ($attrCode == 'versandkosten_nachnahme') {
+                                    $obj_versand = Mage::helper('screenmaxx_shipping/config');
+                                    $versand_klasse = $item->getAttributeText('a000001018');
+                                    $versand_base = $obj_versand->getCashOnDeliveryExtraCharge($versand_klasse,'DE');
+                                    $versand_extra = $obj_versand->getExtraChargeByPaymentMethod($mapitem->getFormat(),'DE');
+                                    $attrValue = $versand_base + $versand_extra;
+                                }
+
+
+
+                                if ($attrCode == 'versandkosten_paypal') {
+                                    $obj_versand = Mage::helper('screenmaxx_shipping/config');
+                                    $versand_klasse = $item->getAttributeText('a000001018');
+                                    $versand_base = $obj_versand->getShippingClassCosts($versand_klasse,'DE');
+                                    $versand_extra = $obj_versand->getExtraChargeByPaymentMethod($mapitem->getFormat(),'DE');
+                                    $versand_prozent = $versand_base * (1 + ($versand_extra/100));
+                                    $attrValue = $versand_prozent;
+                                }
+
+                                if ($attrCode == 'versandkosten_sofort') {
+                                    $obj_versand = Mage::helper('screenmaxx_shipping/config');
+                                    $versand_klasse = $item->getAttributeText('a000001018');
+                                    $versand_base = $obj_versand->getShippingClassCosts($versand_klasse,'DE');
+                                    $versand_extra = $obj_versand->getExtraChargeByPaymentMethod($mapitem->getFormat(),'DE');
+                                    $attrValue = $versand_base + $versand_extra;
+                                }
+
+                                if ($attrCode == 'versandkosten_creditcard') {
+                                    $obj_versand = Mage::helper('screenmaxx_shipping/config');
+                                    $versand_klasse = $item->getAttributeText('a000001018');
+                                    $versand_base = $obj_versand->getShippingClassCosts($versand_klasse,'DE');
+                                    $versand_extra = $obj_versand->getExtraChargeByPaymentMethod($mapitem->getFormat(),'DE');
+                                    //Mage::log("Ship Klasse ".Zend_Debug::dump($versand_klasse));
+                                    //Mage::log("Ship Base ".$versand_base);
+                                    //Mage::log("Ship extra ".$versand_extra);
+
+                                    $versand_prozent = $versand_base * (1 + ($versand_extra/100));
+                                    $attrValue = $versand_prozent;
+                                }
+
+
+
                                 if (!empty($this->_attributeValues[$attrCode])) {
                                     if ($this->_attributeTypes[$attrCode] == 'multiselect') {
                                         $attrValue = explode(',', $attrValue);
