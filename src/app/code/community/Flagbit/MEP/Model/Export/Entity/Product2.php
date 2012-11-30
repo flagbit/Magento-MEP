@@ -548,10 +548,10 @@ class Flagbit_MEP_Model_Export_Entity_Product2 extends Mage_ImportExport_Model_E
             $writer->setEnclosure($enclosure);
 
             if($obj_profil->getOriginalrow() == 1){
-                $writer->setHeaderrow(true);
+                $writer->setHeaderRow(true);
             }
             else{
-                $writer->setHeaderrow(false);
+                $writer->setHeaderRow(false);
             }
 
 
