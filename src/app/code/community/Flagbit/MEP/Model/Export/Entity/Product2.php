@@ -961,13 +961,7 @@ class Flagbit_MEP_Model_Export_Entity_Product2 extends Mage_ImportExport_Model_E
                     $writer->setHeaderCols($headerCols);
                 }
                 else {
-                    $headerCols = array_merge(
-                        array(
-                            self::COL_CATEGORY
-                        ),
-                        $validAttrCodes
-                        );
-                    $writer->setHeaderCols($headerCols);
+                    $writer->setHeaderCols($validAttrCodes);
                 }
             }
 
@@ -983,6 +977,16 @@ class Flagbit_MEP_Model_Export_Entity_Product2 extends Mage_ImportExport_Model_E
                     }
 
                     $this->_updateDataWithCategoryColumns($dataRow, $rowCategories, $productId);
+
+                    //INSERT _category mapping
+
+                    foreach ($mapping->getItems() as $mapitem) {
+                        $attrCode = $mapitem->getAttributeCode();
+                        if($attrCode == '_category') {
+                            $dataRow[$mapitem->getToField()] = $dataRow['_category'];
+                        }
+                    }
+
                     if ($rowWebsites[$productId]) {
                         $dataRow['_product_websites'] = $this->_websiteIdToCode[array_shift($rowWebsites[$productId])];
                     }
