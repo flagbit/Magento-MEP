@@ -1,12 +1,14 @@
 <?php
 
-class Flagbit_MEP_Model_Mysql4_Mapping_Collection extends Mage_Core_Model_Mysql4_Collection_Abstract {
+class Flagbit_MEP_Model_Mysql4_Mapping_Collection extends Mage_Core_Model_Mysql4_Collection_Abstract
+{
 
     /**
      * Constructor
      *
      */
-    protected function _construct() {
+    protected function _construct()
+    {
         $this->_init('mep/mapping');
     }
 

@@ -13,7 +13,8 @@
 
 class Flagbit_MEP_Model_Data extends Mage_Catalog_Model_Convert_Parser_Product
 {
-    protected  $_externalFields  = array();
+    protected $_externalFields = array();
+
     /**
      * @desc Retrieve accessible external product attributes
      * @return array
@@ -28,7 +29,7 @@ class Flagbit_MEP_Model_Data extends Mage_Catalog_Model_Convert_Parser_Product
             ->setEntityTypeFilter(Mage::getModel('catalog/product')->getResource()->getTypeId())
             ->load();
 
-        foreach($collection as $attributeSet){
+        foreach ($collection as $attributeSet) {
 
             $attributes[preg_replace('/([^A-Za-z_-]*)/', '', $attributeSet->getAttributeSetName())] = $this->getAttributesBySet($attributeSet->getAttributeSetId());
         }
@@ -72,7 +73,7 @@ class Flagbit_MEP_Model_Data extends Mage_Catalog_Model_Convert_Parser_Product
 
             $nodeChildren->getSelect()->where('main_table.is_user_defined = ?', 1);
 
-            foreach($nodeChildren as $child ){
+            foreach ($nodeChildren as $child) {
 
                 if (in_array($child->getAttributeCode(), $this->_internalFields) || $child->getFrontendInput() == 'hidden') {
                     continue;

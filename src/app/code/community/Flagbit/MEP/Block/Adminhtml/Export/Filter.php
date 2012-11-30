@@ -39,16 +39,16 @@ class Flagbit_MEP_Block_Adminhtml_Export_Filter extends Mage_Adminhtml_Block_Wid
     protected function _getDateFromToHtml(Mage_Eav_Model_Entity_Attribute $attribute)
     {
         $dateBlock = new Mage_Core_Block_Html_Date(array(
-            'name'         => $this->getFilterElementName($attribute->getAttributeCode()) . '[]',
-            'id'           => $this->getFilterElementId($attribute->getAttributeCode()),
-            'class'        => 'input-text',
-            'format'       => Mage::app()->getLocale()->getDateFormat(Mage_Core_Model_Locale::FORMAT_TYPE_SHORT),
+            'name' => $this->getFilterElementName($attribute->getAttributeCode()) . '[]',
+            'id' => $this->getFilterElementId($attribute->getAttributeCode()),
+            'class' => 'input-text',
+            'format' => Mage::app()->getLocale()->getDateFormat(Mage_Core_Model_Locale::FORMAT_TYPE_SHORT),
             'extra_params' => 'style="width:85px !important"',
-            'image'        => $this->getSkinUrl('images/grid-cal.gif')
+            'image' => $this->getSkinUrl('images/grid-cal.gif')
         ));
         return '<strong>' . $this->_helper->__('From') . ':</strong>&nbsp;' . $dateBlock->getHtml()
-             . '&nbsp;<strong>' . $this->_helper->__('To') . ':</strong>&nbsp;'
-             . $dateBlock->setId($dateBlock->getId() . '_to')->getHtml();
+            . '&nbsp;<strong>' . $this->_helper->__('To') . ':</strong>&nbsp;'
+            . $dateBlock->setId($dateBlock->getId() . '_to')->getHtml();
     }
 
     /**
@@ -61,7 +61,7 @@ class Flagbit_MEP_Block_Adminhtml_Export_Filter extends Mage_Adminhtml_Block_Wid
     protected function _getInputHtml(Mage_Eav_Model_Entity_Attribute $attribute)
     {
         return '<input type="text" name="' . $this->getFilterElementName($attribute->getAttributeCode())
-             . '" class="input-text" style="width:274px;"/>';
+            . '" class="input-text" style="width:274px;"/>';
     }
 
     /**
@@ -87,11 +87,11 @@ class Flagbit_MEP_Block_Adminhtml_Export_Filter extends Mage_Adminhtml_Block_Wid
         }
         if (($size = count($options))) {
             $selectBlock = new Mage_Core_Block_Html_Select(array(
-                'name'         => $this->getFilterElementName($attribute->getAttributeCode()). '[]',
-                'id'           => $this->getFilterElementId($attribute->getAttributeCode()),
-                'class'        => 'multiselect',
+                'name' => $this->getFilterElementName($attribute->getAttributeCode()) . '[]',
+                'id' => $this->getFilterElementId($attribute->getAttributeCode()),
+                'class' => 'multiselect',
                 'extra_params' => 'multiple="multiple" size="' . ($size > 5 ? 5 : ($size < 2 ? 2 : $size))
-                                . '" style="width:280px"'
+                    . '" style="width:280px"'
             ));
             return $selectBlock->setOptions($options)->getHtml();
         } else {
@@ -110,10 +110,10 @@ class Flagbit_MEP_Block_Adminhtml_Export_Filter extends Mage_Adminhtml_Block_Wid
     {
         $name = $this->getFilterElementName($attribute->getAttributeCode());
         return '<strong>' . $this->_helper->__('From') . ':</strong>&nbsp;'
-             . '<input type="text" name="' . $this->getFilterElementName($attribute->getAttributeCode())
-             . '[]" class="input-text" style="width:100px;"/>&nbsp;<strong>' . $this->_helper->__('To')
-             . ':</strong>&nbsp;<input type="text" name="' . $name
-             . '[]" class="input-text" style="width:100px;"/>';
+            . '<input type="text" name="' . $this->getFilterElementName($attribute->getAttributeCode())
+            . '[]" class="input-text" style="width:100px;"/>&nbsp;<strong>' . $this->_helper->__('To')
+            . ':</strong>&nbsp;<input type="text" name="' . $name
+            . '[]" class="input-text" style="width:100px;"/>';
     }
 
     /**
@@ -144,9 +144,9 @@ class Flagbit_MEP_Block_Adminhtml_Export_Filter extends Mage_Adminhtml_Block_Wid
                 array_unshift($options, array('value' => '', 'label' => ''));
             }
             $selectBlock = new Mage_Core_Block_Html_Select(array(
-                'name'         => $this->getFilterElementName($attribute->getAttributeCode()),
-                'id'           => $this->getFilterElementId($attribute->getAttributeCode()),
-                'class'        => 'select',
+                'name' => $this->getFilterElementName($attribute->getAttributeCode()),
+                'id' => $this->getFilterElementId($attribute->getAttributeCode()),
+                'class' => 'select',
                 'extra_params' => 'style="width:280px"'
             ));
             return $selectBlock->setOptions($options)->getHtml();
@@ -165,17 +165,17 @@ class Flagbit_MEP_Block_Adminhtml_Export_Filter extends Mage_Adminhtml_Block_Wid
     protected function _getDateFromToHtmlWithValue(Mage_Eav_Model_Entity_Attribute $attribute, $value)
     {
         $dateBlock = new Mage_Core_Block_Html_Date(array(
-            'name'         => $this->getFilterElementName($attribute->getAttributeCode()) . '[]',
-            'id'           => $this->getFilterElementId($attribute->getAttributeCode()),
-            'class'        => 'input-text input-text-range-date',
-            'format'       => Mage::app()->getLocale()->getDateFormat(Mage_Core_Model_Locale::FORMAT_TYPE_SHORT),
-            'image'        => $this->getSkinUrl('images/grid-cal.gif')
+            'name' => $this->getFilterElementName($attribute->getAttributeCode()) . '[]',
+            'id' => $this->getFilterElementId($attribute->getAttributeCode()),
+            'class' => 'input-text input-text-range-date',
+            'format' => Mage::app()->getLocale()->getDateFormat(Mage_Core_Model_Locale::FORMAT_TYPE_SHORT),
+            'image' => $this->getSkinUrl('images/grid-cal.gif')
         ));
         $fromValue = null;
-        $toValue   = null;
+        $toValue = null;
         if (is_array($value) && count($value) == 2) {
             $fromValue = $this->_helper->escapeHtml(reset($value));
-            $toValue   = $this->_helper->escapeHtml(next($value));
+            $toValue = $this->_helper->escapeHtml(next($value));
         }
 
 
@@ -195,7 +195,7 @@ class Flagbit_MEP_Block_Adminhtml_Export_Filter extends Mage_Adminhtml_Block_Wid
     protected function _getInputHtmlWithValue(Mage_Eav_Model_Entity_Attribute $attribute, $value)
     {
         $html = '<input type="text" name="' . $this->getFilterElementName($attribute->getAttributeCode())
-             . '" class="input-text input-text-export-filter"';
+            . '" class="input-text input-text-export-filter"';
         if ($value) {
             $html .= ' value="' . $this->_helper->escapeHtml($value) . '"';
         }
@@ -226,9 +226,9 @@ class Flagbit_MEP_Block_Adminhtml_Export_Filter extends Mage_Adminhtml_Block_Wid
         }
         if (($size = count($options))) {
             $selectBlock = new Mage_Core_Block_Html_Select(array(
-                'name'         => $this->getFilterElementName($attribute->getAttributeCode()). '[]',
-                'id'           => $this->getFilterElementId($attribute->getAttributeCode()),
-                'class'        => 'multiselect multiselect-export-filter',
+                'name' => $this->getFilterElementName($attribute->getAttributeCode()) . '[]',
+                'id' => $this->getFilterElementId($attribute->getAttributeCode()),
+                'class' => 'multiselect multiselect-export-filter',
                 'extra_params' => 'multiple="multiple" size="' . ($size > 5 ? 5 : ($size < 2 ? 2 : $size))
             ));
             return $selectBlock->setOptions($options)
@@ -253,15 +253,15 @@ class Flagbit_MEP_Block_Adminhtml_Export_Filter extends Mage_Adminhtml_Block_Wid
         $name = $this->getFilterElementName($attribute->getAttributeCode());
         if (is_array($value) && count($value) == 2) {
             $fromValue = $this->_helper->escapeHtml(reset($value));
-            $toValue   = $this->_helper->escapeHtml(next($value));
+            $toValue = $this->_helper->escapeHtml(next($value));
         }
 
         return '<strong>' . $this->_helper->__('From') . ':</strong>&nbsp;'
-             . '<input type="text" name="' . $name . '[]" class="input-text input-text-range"'
-             . ' value="' . $fromValue . '"/>&nbsp;'
-             . '<strong>' . $this->_helper->__('To')
-             . ':</strong>&nbsp;<input type="text" name="' . $name
-             . '[]" class="input-text input-text-range" value="' . $toValue . '" />';
+            . '<input type="text" name="' . $name . '[]" class="input-text input-text-range"'
+            . ' value="' . $fromValue . '"/>&nbsp;'
+            . '<strong>' . $this->_helper->__('To')
+            . ':</strong>&nbsp;<input type="text" name="' . $name
+            . '[]" class="input-text input-text-range" value="' . $toValue . '" />';
     }
 
     /**
@@ -292,9 +292,9 @@ class Flagbit_MEP_Block_Adminhtml_Export_Filter extends Mage_Adminhtml_Block_Wid
                 array_unshift($options, array('value' => '', 'label' => ''));
             }
             $selectBlock = new Mage_Core_Block_Html_Select(array(
-                'name'         => $this->getFilterElementName($attribute->getAttributeCode()),
-                'id'           => $this->getFilterElementId($attribute->getAttributeCode()),
-                'class'        => 'select select-export-filter'
+                'name' => $this->getFilterElementName($attribute->getAttributeCode()),
+                'id' => $this->getFilterElementId($attribute->getAttributeCode()),
+                'class' => 'select select-export-filter'
             ));
             return $selectBlock->setOptions($options)
                 ->setValue($value)
@@ -314,41 +314,38 @@ class Flagbit_MEP_Block_Adminhtml_Export_Filter extends Mage_Adminhtml_Block_Wid
         parent::_prepareColumns();
 
         $this->addColumn('skip', array(
-            'header'     => $this->_helper->__('Skip'),
-            'type'       => 'checkbox',
-            'name'       => 'skip',
+            'header' => $this->_helper->__('Skip'),
+            'type' => 'checkbox',
+            'name' => 'skip',
             'field_name' => Mage_ImportExport_Model_Export::FILTER_ELEMENT_SKIP . '[]',
-            'filter'     => false,
-            'sortable'   => false,
-            'align'      => 'center',
-            'index'      => 'attribute_id'
+            'filter' => false,
+            'sortable' => false,
+            'align' => 'center',
+            'index' => 'attribute_id'
         ));
         $this->addColumn('frontend_label', array(
-            'header'   => $this->_helper->__('Attribute Label'),
-            'index'    => 'frontend_label',
+            'header' => $this->_helper->__('Attribute Label'),
+            'index' => 'frontend_label',
             'sortable' => false,
         ));
         $this->addColumn('attribute_code', array(
             'header' => $this->_helper->__('Attribute Code'),
-            'index'  => 'attribute_code'
+            'index' => 'attribute_code'
         ));
         $this->addColumn('filter', array(
-            'header'         => $this->_helper->__('Filter'),
-            'sortable'       => false,
-            'filter'         => false,
+            'header' => $this->_helper->__('Filter'),
+            'sortable' => false,
+            'filter' => false,
             'frame_callback' => array($this, 'decorateFilter')
         ));
 
         $this->addColumn('map_field', array(
-            'header'         => $this->_helper->__('Mapping Field'),
-            'sortable'       => false,
-            'filter'         => false,
-            'type'  => 'input',
-            'name'  => 'map_field[]'
+            'header' => $this->_helper->__('Mapping Field'),
+            'sortable' => false,
+            'filter' => false,
+            'type' => 'input',
+            'name' => 'map_field[]'
         ));
-
-
-
 
 
         if ($this->hasOperation()) {
@@ -379,7 +376,7 @@ class Flagbit_MEP_Block_Adminhtml_Export_Filter extends Mage_Adminhtml_Block_Wid
      */
     public function decorateFilter($value, Mage_Eav_Model_Entity_Attribute $row, Varien_Object $column, $isExport)
     {
-        $value  = null;
+        $value = null;
         $values = $column->getValues();
         if (is_array($values) && isset($values[$row->getAttributeCode()])) {
             $value = $values[$row->getAttributeCode()];

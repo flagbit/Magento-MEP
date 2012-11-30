@@ -77,8 +77,8 @@ class Flagbit_MEP_Model_Rule_Condition_Product_Found
             $this->getValueElement()->getHtml(),
             $this->getAggregatorElement()->getHtml()
         );
-        if ($this->getId()!='1') {
-            $html.= $this->getRemoveLinkHtml();
+        if ($this->getId() != '1') {
+            $html .= $this->getRemoveLinkHtml();
         }
         return $html;
     }

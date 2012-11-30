@@ -43,14 +43,14 @@ class Flagbit_MEP_Adminhtml_Profil_AttributeController extends Mage_Adminhtml_Co
      */
     public function deleteAction()
     {
-        if($this->getRequest()->has('id')) {
+        if ($this->getRequest()->has('id')) {
             $id = $this->getRequest()->getParam('id');
             $mapping = Mage::getModel('mep/mapping')->load($id);
-            if($mapping){
+            if ($mapping) {
                 $mapping->delete();
             }
         }
-        if($this->getRequest()->has('profile_id')) {
+        if ($this->getRequest()->has('profile_id')) {
             $profile_id = $this->getRequest()->getParam('profile_id');
             $this->_redirect('*/profil/edit', array('id' => $profile_id, 'tab' => 'rule_tabs_form_fields'));
         }

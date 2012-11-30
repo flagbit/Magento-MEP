@@ -38,7 +38,8 @@ class Flagbit_MEP_Adminhtml_MepController extends Mage_Adminhtml_Controller_Acti
 
     }
 
-    public function getFilterAction(){
+    public function getFilterAction()
+    {
         $data = $this->getRequest()->getParams();
         if ($this->getRequest()->isXmlHttpRequest() && $data) {
             try {

@@ -18,38 +18,37 @@ class Flagbit_MEP_Helper_Data extends Mage_Core_Helper_Abstract
      * @param $template_id
      * @return bool
      */
-    public function setTemplateProfil($profil_id,$template_id) {
+    public function setTemplateProfil($profil_id, $template_id)
+    {
 
-        if($profil_id > 0 && $template_id){
+        if ($profil_id > 0 && $template_id) {
             /* @var $transaction Mage_Core_Model_Resource_Transaction */
             $transaction = Mage::getResourceModel('core/transaction');
             $template_fields = array();
 
-            if($template_id == 1) {
-                $template_fields[] = array('profile_id'         => $profil_id,
-                    'attribute_code'    => 'sku',
-                    'to_field'          => 'Karl'
+            if ($template_id == 1) {
+                $template_fields[] = array('profile_id' => $profil_id,
+                    'attribute_code' => 'sku',
+                    'to_field' => 'Karl'
                 );
 
-                $template_fields[] = array('profile_id'         => $profil_id,
-                    'attribute_code'    => 'name',
-                    'to_field'          => 'Karl2'
+                $template_fields[] = array('profile_id' => $profil_id,
+                    'attribute_code' => 'name',
+                    'to_field' => 'Karl2'
                 );
-            }
-            elseif ($template_id == 2)
-            {
-                $template_fields[] = array('profile_id'         => $profil_id,
-                    'attribute_code'    => 'sku',
-                    'to_field'          => 'Damian'
+            } elseif ($template_id == 2) {
+                $template_fields[] = array('profile_id' => $profil_id,
+                    'attribute_code' => 'sku',
+                    'to_field' => 'Damian'
                 );
 
-                $template_fields[] = array('profile_id'         => $profil_id,
-                    'attribute_code'    => 'name',
-                    'to_field'          => 'Damain2'
+                $template_fields[] = array('profile_id' => $profil_id,
+                    'attribute_code' => 'name',
+                    'to_field' => 'Damain2'
                 );
             }
 
-            foreach($template_fields as $template) {
+            foreach ($template_fields as $template) {
                 /* @var $a Flagbit_MEP_Model_Mapping */
                 $a = Mage::getModel('mep/mapping');
                 $a->setData($template);
@@ -60,7 +59,7 @@ class Flagbit_MEP_Helper_Data extends Mage_Core_Helper_Abstract
             try {
                 $transaction->save();
                 return true;
-            } catch(Exception $e) {
+            } catch (Exception $e) {
                 return false;
             }
         } else {

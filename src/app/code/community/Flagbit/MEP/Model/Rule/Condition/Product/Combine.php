@@ -58,15 +58,15 @@ class Flagbit_MEP_Model_Rule_Condition_Product_Combine
 
         $pAttributes = array();
         $iAttributes = array();
-        foreach ($productAttributes as $code=>$label) {
+        foreach ($productAttributes as $code => $label) {
             if (strpos($code, 'quote_item_') === 0) {
                 $iAttributes[] = array(
-                    'value' => 'dynamiccategory/rule_condition_product|'.$code,
+                    'value' => 'dynamiccategory/rule_condition_product|' . $code,
                     'label' => $label
                 );
             } else {
                 $pAttributes[] = array(
-                    'value' => 'dynamiccategory/rule_condition_product|'.$code,
+                    'value' => 'dynamiccategory/rule_condition_product|' . $code,
                     'label' => $label
                 );
             }

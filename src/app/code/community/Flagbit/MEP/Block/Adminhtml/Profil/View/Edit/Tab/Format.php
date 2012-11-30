@@ -101,9 +101,9 @@ class Flagbit_MEP_Block_Adminhtml_Profil_View_Edit_Tab_Format extends Mage_Admin
             'note' => 'Path relative to document root'
         ));
 
-		$form->setValues($data);
-		return parent::_prepareForm();
-	}
+        $form->setValues($data);
+        return parent::_prepareForm();
+    }
 
 
     protected function _getStatusOptionsHash()

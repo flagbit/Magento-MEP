@@ -61,8 +61,7 @@ class Flagbit_MEP_Model_Rule_Condition_Product
     {
         try {
             $obj = Mage::getSingleton('eav/config')->getAttribute('catalog_product', $this->getAttribute());
-        }
-        catch (Exception $e) {
+        } catch (Exception $e) {
             $obj = new Varien_Object();
             $obj->setEntity(Mage::getResourceSingleton('catalog/product'))->setFrontendInput('text');
         }
@@ -78,7 +77,7 @@ class Flagbit_MEP_Model_Rule_Condition_Product
     protected function _addSpecialAttributes(array &$attributes)
     {
         $attributes['attribute_set_id'] = Mage::helper('dynamiccategory')->__('Attribute Set');
-        $attributes['category_ids']     = Mage::helper('dynamiccategory')->__('Category');
+        $attributes['category_ids'] = Mage::helper('dynamiccategory')->__('Category');
     }
 
     /**
@@ -107,10 +106,10 @@ class Flagbit_MEP_Model_Rule_Condition_Product
      * @param mixed $option
      * @return string Value of an Option
      */
-    public function getValueOption($option=null)
+    public function getValueOption($option = null)
     {
         if (!$this->getData('value_option')) {
-            if ($this->getAttribute()==='attribute_set_id') {
+            if ($this->getAttribute() === 'attribute_set_id') {
                 $entityTypeId = Mage::getSingleton('eav/config')->getEntityType('catalog_product')->getId();
 
                 $options = Mage::getResourceModel('eav/entity_attribute_set_collection')
@@ -137,7 +136,7 @@ class Flagbit_MEP_Model_Rule_Condition_Product
                 $this->setData('value_option', $options);
             }
         }
-        return $this->getData('value_option'.(!is_null($option) ? '/'.$option : ''));
+        return $this->getData('value_option' . (!is_null($option) ? '/' . $option : ''));
     }
 
     /**
@@ -148,7 +147,7 @@ class Flagbit_MEP_Model_Rule_Condition_Product
     public function getValueSelectOptions()
     {
         if (!$this->getData('value_select_options')) {
-            if ($this->getAttribute()==='attribute_set_id') {
+            if ($this->getAttribute() === 'attribute_set_id') {
                 $entityTypeId = Mage::getSingleton('eav/config')
                     ->getEntityType('catalog_product')->getId();
                 $options = Mage::getResourceModel('eav/entity_attribute_set_collection')
@@ -178,7 +177,8 @@ class Flagbit_MEP_Model_Rule_Condition_Product
         $html = '';
 
         switch ($this->getAttribute()) {
-            case 'sku': case 'category_ids':
+            case 'sku':
+            case 'category_ids':
                 $image = Mage::getDesign()->getSkinUrl('images/rule_chooser_trigger.gif');
                 break;
         }
@@ -379,10 +379,10 @@ class Flagbit_MEP_Model_Rule_Condition_Product
 
         if ('category_ids' == $attrCode) {
             return $this->validateAttribute($object->getAvailableInCategories());
-        } elseif (! isset($this->_entityAttributeValues[$object->getId()])) {
+        } elseif (!isset($this->_entityAttributeValues[$object->getId()])) {
             $attr = $object->getResource()->getAttribute($attrCode);
 
-            if ($attr && $attr->getBackendType() == 'datetime' && ! is_int($this->getValue())) {
+            if ($attr && $attr->getBackendType() == 'datetime' && !is_int($this->getValue())) {
                 $this->setValue(strtotime($this->getValue()));
                 $value = strtotime($object->getData($attrCode));
                 return $this->validateAttribute($value);
@@ -415,7 +415,7 @@ class Flagbit_MEP_Model_Rule_Condition_Product
                 $object->setData($attrCode, $oldAttrValue);
             }
 
-            return (bool) $result;
+            return (bool)$result;
         }
     }
 }

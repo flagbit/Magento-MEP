@@ -100,15 +100,15 @@ class Flagbit_MEP_Model_Rule extends Mage_CatalogRule_Model_Rule
             //$websiteIds = explode(',', $this->getWebsiteIds());
 
             //if ($websiteIds) {
-                $this->getConditions()->collectValidatedAttributes($collection);
-                Mage::getSingleton('core/resource_iterator')->walk(
-                    $collection->getSelect(),
-                    array(array($this, 'callbackValidateProduct')),
-                    array(
-                        'attributes' => $this->getCollectedAttributes(),
-                        'product'    => Mage::getModel('catalog/product'),
-                    )
-                );
+            $this->getConditions()->collectValidatedAttributes($collection);
+            Mage::getSingleton('core/resource_iterator')->walk(
+                $collection->getSelect(),
+                array(array($this, 'callbackValidateProduct')),
+                array(
+                    'attributes' => $this->getCollectedAttributes(),
+                    'product' => Mage::getModel('catalog/product'),
+                )
+            );
             //}
         }
         return $this->_productIds;

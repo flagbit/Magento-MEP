@@ -25,7 +25,7 @@ class Flagbit_MEP_Block_Adminhtml_Export_Edit extends Mage_Adminhtml_Block_Widge
     {
         parent::_construct();
 
-        $this->_objectId   = 'export_id';
+        $this->_objectId = 'export_id';
         $this->_blockGroup = 'mep';
         $this->_controller = 'adminhtml_export';
     }
