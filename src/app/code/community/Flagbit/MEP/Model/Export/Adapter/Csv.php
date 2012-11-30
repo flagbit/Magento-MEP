@@ -24,25 +24,16 @@
 class Flagbit_MEP_Model_Export_Adapter_Csv extends Mage_ImportExport_Model_Export_Adapter_Csv
 {
     /**
-     * Field delimiter.
-     *
-     * @var string
-     */
-    protected $_delimiter = ',';
-
-    /**
-     * Field enclosure character.
-     *
-     * @var string
-     */
-    protected $_enclosure = '"';
-
-    /**
      * Field headerrow.
      *
      * @var boolean
      */
     protected $_headerRow = true;
+
+    /**
+     * @var Varien_File_Csv
+     */
+    protected $_csvWriter;
 
     /**
      * @param boolean $headerrow
@@ -52,6 +43,11 @@ class Flagbit_MEP_Model_Export_Adapter_Csv extends Mage_ImportExport_Model_Expor
     {
         $this->_headerRow = $headerrow;
         return $this;
+    }
+
+    public function _init() {
+        parent::_init();
+        $this->_csvWriter = new Varien_File_Csv();
     }
 
 
@@ -66,6 +62,7 @@ class Flagbit_MEP_Model_Export_Adapter_Csv extends Mage_ImportExport_Model_Expor
         } else {
             $this->_delimiter = $delimiter;
         }
+        $this->_csvWriter->setDelimiter($this->_delimiter);
         return $this;
     }
 
@@ -76,16 +73,50 @@ class Flagbit_MEP_Model_Export_Adapter_Csv extends Mage_ImportExport_Model_Expor
     public function setEnclosure($enclosure)
     {
         $this->_enclosure = $enclosure;
+        $this->_csvWriter->setEnclosure($this->_enclosure);
         return $this;
     }
 
     /**
-     * Get destination path.
+     * Write row data to source file.
      *
-     * @return null|string
+     * @param array $rowData
+     * @throws Exception
+     * @return Mage_ImportExport_Model_Export_Adapter_Abstract
      */
-    public function getDestination()
+    public function writeRow(array $rowData)
     {
-        return $this->_destination;
+        if (null === $this->_headerCols) {
+            $this->setHeaderCols(array_keys($rowData));
+        }
+        $this->_csvWriter->fputcsv(
+            $this->_fileHandler,
+            array_merge($this->_headerCols, array_intersect_key($rowData, $this->_headerCols)),
+            $this->_delimiter,
+            $this->_enclosure
+        );
+
+        return $this;
+    }
+
+    /**
+     * Set column names.
+     *
+     * @param array $headerCols
+     * @throws Exception
+     * @return Mage_ImportExport_Model_Export_Adapter_Abstract
+     */
+    public function setHeaderCols(array $headerCols)
+    {
+        if (null !== $this->_headerCols) {
+            Mage::throwException(Mage::helper('importexport')->__('Header column names already set'));
+        }
+        if ($headerCols) {
+            foreach ($headerCols as $colName) {
+                $this->_headerCols[$colName] = false;
+            }
+            $this->_csvWriter->fputcsv($this->_fileHandler, array_keys($this->_headerCols), $this->_delimiter, $this->_enclosure);
+        }
+        return $this;
     }
 }
