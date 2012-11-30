@@ -1021,15 +1021,6 @@ class Flagbit_MEP_Model_Export_Entity_Product2 extends Mage_ImportExport_Model_E
 
                         $this->_updateDataWithCategoryColumns($dataRow, $rowCategories, $productId);
 
-                        //INSERT _category mapping
-
-                        foreach ($mapping->getItems() as $mapitem) {
-                            $attrCode = $mapitem->getAttributeCode();
-                            if ($attrCode == '_category') {
-                                $dataRow[$mapitem->getToField()] = $dataRow['_category'];
-                            }
-                        }
-
                         if ($rowWebsites[$productId]) {
                             $dataRow['_product_websites'] = $this->_websiteIdToCode[array_shift($rowWebsites[$productId])];
                         }
@@ -1066,6 +1057,30 @@ class Flagbit_MEP_Model_Export_Entity_Product2 extends Mage_ImportExport_Model_E
                                 }
                             }
                         }
+
+
+                        //INSERT _category mapping
+
+                        foreach ($mapping->getItems() as $mapitem) {
+                            $attrCode = $mapitem->getAttributeCode();
+                            if ($attrCode == '_category') {
+                                $dataRow[$mapitem->getToField()] = $dataRow['_category'];
+                            }
+                            if ($attrCode == 'image_url') {
+                                $dataRow[$mapitem->getToField()] = $dataRow['_media_image'];
+                            }
+                            if ($attrCode == 'qty') {
+                                $qty = (int) $dataRow['qty'];
+                                if($qty > 0) {
+                                    $dataRow[$mapitem->getToField()] = $mapitem->getFormat();
+                                } else {
+                                    $dataRow[$mapitem->getToField()] = 'nicht verfuegbar';
+                                }
+
+
+                            }
+                        }
+
 
                         $writer->writeRow($dataRow);
                     }

@@ -52,10 +52,6 @@ class Flagbit_MEP_Model_Data extends Mage_Catalog_Model_Convert_Parser_Product
         $attributes['versandkosten_sofort']     = 'Versandkosten Sofortüberweisung';
         $attributes['versandkosten_creditcard'] = 'Versandkosten Kreditkarte';
 
-
-
-
-
         return $attributes;
     }
 
