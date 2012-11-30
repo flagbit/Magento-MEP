@@ -913,44 +913,57 @@ class Flagbit_MEP_Model_Export_Entity_Product2 extends Mage_ImportExport_Model_E
 
             if ($offsetProducts == 1) {
                 // create export file
-                $headerCols = array_merge(
-                    array(
-                        self::COL_SKU, self::COL_STORE, self::COL_ATTR_SET,
-                        self::COL_TYPE, self::COL_CATEGORY, self::COL_ROOT_CATEGORY, '_product_websites'
-                    ),
-                    $validAttrCodes,
-                    reset($stockItemRows) ? array_keys(end($stockItemRows)) : array(),
-                    array(),
-                    array(
-                        '_links_related_sku', '_links_related_position', '_links_crosssell_sku',
-                        '_links_crosssell_position', '_links_upsell_sku', '_links_upsell_position',
-                        '_associated_sku', '_associated_default_qty', '_associated_position'
-                    ),
-                    array('_tier_price_website', '_tier_price_customer_group', '_tier_price_qty', '_tier_price_price'),
-                    array('_group_price_website', '_group_price_customer_group', '_group_price_price'),
-                    array(
-                        '_media_attribute_id',
-                        '_media_image',
-                        '_media_lable',
-                        '_media_position',
-                        '_media_is_disabled'
-                    )
-                );
-
-                // have we merge custom options columns
-                if ($customOptionsData) {
-                    $headerCols = array_merge($headerCols, $customOptCols);
-                }
-
-                // have we merge configurable products data
-                if ($configurableData) {
-                    $headerCols = array_merge($headerCols, array(
-                        '_super_products_sku', '_super_attribute_code',
-                        '_super_attribute_option', '_super_attribute_price_corr'
-                    ));
-                }
                 if(!$originalrow) {
-                $writer->setHeaderCols($headerCols);
+                    $headerCols = array_merge(
+                        array(
+                            self::COL_SKU, self::COL_STORE, self::COL_ATTR_SET,
+                            self::COL_TYPE, self::COL_CATEGORY, self::COL_ROOT_CATEGORY, '_product_websites'
+                        ),
+                        $validAttrCodes,
+                        reset($stockItemRows) ? array_keys(end($stockItemRows)) : array(),
+                        array(),
+                        array(
+                            '_links_related_sku', '_links_related_position', '_links_crosssell_sku',
+                            '_links_crosssell_position', '_links_upsell_sku', '_links_upsell_position',
+                            '_associated_sku', '_associated_default_qty', '_associated_position'
+                        ),
+                        array('_tier_price_website', '_tier_price_customer_group', '_tier_price_qty', '_tier_price_price'),
+                        array('_group_price_website', '_group_price_customer_group', '_group_price_price'),
+                        array(
+                            '_media_attribute_id',
+                            '_media_image',
+                            '_media_lable',
+                            '_media_position',
+                            '_media_is_disabled'
+                        )
+                    );
+
+                    // have we merge custom options columns
+                    if ($customOptionsData) {
+                        $headerCols = array_merge($headerCols, $customOptCols);
+                    }
+
+                    // have we merge configurable products data
+                    if ($configurableData) {
+                        $headerCols = array_merge($headerCols, array(
+                            '_super_products_sku', '_super_attribute_code',
+                            '_super_attribute_option', '_super_attribute_price_corr'
+                            ),
+                            reset($stockItemRows) ? array_keys(end($stockItemRows)) : array(),
+                            array()
+                        );
+                    }
+
+                    $writer->setHeaderCols($headerCols);
+                }
+                else {
+                    $headerCols = array_merge(
+                        array(
+                            self::COL_CATEGORY
+                        ),
+                        $validAttrCodes
+                        );
+                    $writer->setHeaderCols($headerCols);
                 }
             }
 
