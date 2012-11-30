@@ -3,66 +3,65 @@ class Flagbit_MEP_Block_Adminhtml_Profil_View_Edit_Tab_Format extends Mage_Admin
 {
     /**
      * _prepareForm
-     * 
+     *
      * Prepares the edit form
-     * 
+     *
      * @see Mage_Adminhtml_Block_Widget_Form::_prepareForm()
-     * 
+     *
      * @return Flagbit_MEP_Block_Adminhtml_View_Edit_Tab_General Self.
      */
-	protected function _prepareForm()
-	{
+    protected function _prepareForm()
+    {
         if (Mage::getSingleton('adminhtml/session')->getMepProfileData()) {
-			$data = Mage::getSingleton('adminhtml/session')->getMepProfileData();
-			Mage::getSingleton('adminhtml/session')->setMepProfileData(null);
-		} elseif (Mage::registry('mep_profile_data')) {
-			$data = Mage::registry('mep_profile_data')->getData();
-		}
-		else {
-			$data = array();
-		}
+            $data = Mage::getSingleton('adminhtml/session')->getMepProfileData();
+            Mage::getSingleton('adminhtml/session')->setMepProfileData(null);
+        } elseif (Mage::registry('mep_profile_data')) {
+            $data = Mage::registry('mep_profile_data')->getData();
+        } else {
+            $data = array();
+        }
 
-		$form = new Varien_Data_Form();
-		$this->setForm($form);
+        $form = new Varien_Data_Form();
+        $this->setForm($form);
 
-		$fieldset = $form->addFieldset(
-			'mep_data_format_form',
-		    array(
-				'legend' => Mage::helper('mep')->__('Data Format')
-		    )
-		);
-        $fieldset->addField(
-        	'dataformat',
-        	'select',
+        $fieldset = $form->addFieldset(
+            'mep_data_format_form',
             array(
-				'label'    => Mage::helper('mep')->__('Type'),
-				'name'     => 'dataformat',
-                'options'	=> $this->_getDataFormatOptionsHash(),
+                'legend' => Mage::helper('mep')->__('Data Format')
+            )
+        );
+
+        $fieldset->addField(
+            'dataformat',
+            'select',
+            array(
+                'label' => Mage::helper('mep')->__('Type'),
+                'name' => 'dataformat',
+                'options' => $this->_getDataFormatOptionsHash(),
                 'note' => "only csv"
-		    )
+            )
         );
 
-		$fieldset->addField(
-			'delimiter',
-			'text',
-		    array(
-				'label'    => Mage::helper('mep')->__('Value Delimiter'),
-                'class'    => 'required-entry',
+        $fieldset->addField(
+            'delimiter',
+            'text',
+            array(
+                'label' => Mage::helper('mep')->__('Value Delimiter'),
+                'class' => 'required-entry',
                 'required' => true,
-                'name'     => 'delimiter',
-		    )
+                'name' => 'delimiter',
+            )
         );
-
 
         $fieldset->addField(
             'enclose',
             'text',
             array(
-                'label'    => Mage::helper('mep')->__('Enclose Values In:'),
-                'class'    => 'required-entry',
+                'label' => Mage::helper('mep')->__('Enclose Values In'),
+                'class' => 'required-entry',
                 'required' => true,
-                'name'     => 'enclose',
-                'options'	=> $this->_getStatusOptionsHash()
+                'name' => 'enclose',
+                'options' => $this->_getStatusOptionsHash()
             )
         );
 
@@ -70,32 +69,44 @@ class Flagbit_MEP_Block_Adminhtml_Profil_View_Edit_Tab_Format extends Mage_Admin
             'originalrow',
             'select',
             array(
-                'label'    => Mage::helper('mep')->__('Original Magento attributenames in first row'),
+                'label' => Mage::helper('mep')->__('Original Magento attributenames in first row'),
                 //'class'    => 'required-entry',
                 //'required' => true,
-                'name'     => 'originalrow',
-                'options'	=> $this->_getYesNoOptionsHash()
+                'name' => 'originalrow',
+                'options' => $this->_getYesNoOptionsHash()
             )
         );
-
 
         $fieldset->addField(
             'export',
             'select',
             array(
-                'label'    => Mage::helper('mep')->__('Export'),
+                'label' => Mage::helper('mep')->__('Export'),
                 //'class'    => 'required-entry',
                 //'required' => true,
-                'name'     => 'export',
-                'options'	=> $this->_getFilterOptionsHash()
+                'name' => 'export',
+                'options' => $this->_getFilterOptionsHash()
             )
         );
 
+        $fieldset->addField('filename', 'text', array(
+            'label' => Mage::helper('mep')->__('Name of the file'),
+            'class' => 'required-entry',
+            'required' => true,
+            'name' => 'filename',
+        ));
+
+        $fieldset->addField('filepath', 'text', array(
+            'label' => Mage::helper('mep')->__('Path to export'),
+            'class' => 'required-entry',
+            'required' => true,
+            'name' => 'filepath',
+            'note' => 'Path relative to document root'
+        ));
 
 		$form->setValues($data);
 		return parent::_prepareForm();
 	}
-
 
 
     protected function _getStatusOptionsHash()

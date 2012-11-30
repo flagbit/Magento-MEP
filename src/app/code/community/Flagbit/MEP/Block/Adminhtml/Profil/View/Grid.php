@@ -4,7 +4,7 @@ class Flagbit_MEP_Block_Adminhtml_Profil_View_Grid extends Mage_Adminhtml_Block_
 {
 	/**
      * Class Constructor
-     * 
+     *
      * @return void
      */
 	public function __construct()
@@ -19,9 +19,9 @@ class Flagbit_MEP_Block_Adminhtml_Profil_View_Grid extends Mage_Adminhtml_Block_
 
 	/**
      * _prepareCollection
-     * 
+     *
      * Prepares the collection for the grid
-     * 
+     *
      * @return Flagbit_MEP_Block_Adminhtml_Profil_View_Grid Self.
      */
 	protected function _prepareCollection()
@@ -34,20 +34,21 @@ class Flagbit_MEP_Block_Adminhtml_Profil_View_Grid extends Mage_Adminhtml_Block_
 
 	/**
      * _prepareColumns
-     * 
+     *
      * Prepares the columns for the grid
-     * 
+     *
      * @return  Self.
      */
 	protected function _prepareColumns()
 	{
-		
+
 
 		$this->addColumn('id', array(
 			'header' => Mage::helper('mep')->__('ID'),
 			'align' => 'left',
 			'index' => 'id',
 		));
+
         $this->addColumn('name', array(
 			'header' => Mage::helper('mep')->__('Profile Name'),
 			'align' => 'left',
@@ -85,9 +86,9 @@ class Flagbit_MEP_Block_Adminhtml_Profil_View_Grid extends Mage_Adminhtml_Block_
 
 	/**
      * _prepareMassaction
-     * 
+     *
      * Prepares the mass actions
-     * 
+     *
      * @return  Self.
      */
     protected function _prepareMassaction()
@@ -107,7 +108,7 @@ class Flagbit_MEP_Block_Adminhtml_Profil_View_Grid extends Mage_Adminhtml_Block_
 
 	/**
      * Returns the row url
-     * 
+     *
      * @return string URL
      */
 	public function getRowUrl($row)
