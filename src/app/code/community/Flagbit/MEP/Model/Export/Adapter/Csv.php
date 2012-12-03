@@ -45,7 +45,8 @@ class Flagbit_MEP_Model_Export_Adapter_Csv extends Mage_ImportExport_Model_Expor
         return $this;
     }
 
-    public function _init() {
+    public function _init()
+    {
         parent::_init();
         $this->_csvWriter = new Varien_File_Csv();
     }
@@ -89,6 +90,9 @@ class Flagbit_MEP_Model_Export_Adapter_Csv extends Mage_ImportExport_Model_Expor
         if (null === $this->_headerCols) {
             $this->setHeaderCols(array_keys($rowData));
         }
+
+        $rowData = array_map(array($this, 'cleanLine'), $rowData);
+
         $this->_csvWriter->fputcsv(
             $this->_fileHandler,
             array_merge($this->_headerCols, array_intersect_key($rowData, $this->_headerCols)),
@@ -118,5 +122,10 @@ class Flagbit_MEP_Model_Export_Adapter_Csv extends Mage_ImportExport_Model_Expor
             $this->_csvWriter->fputcsv($this->_fileHandler, array_keys($this->_headerCols), $this->_delimiter, $this->_enclosure);
         }
         return $this;
+    }
+
+    public function cleanLine($element)
+    {
+        return trim(preg_replace('/\s\s+/', ' ', strip_tags(html_entity_decode($element))));
     }
 }
