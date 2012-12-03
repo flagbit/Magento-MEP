@@ -104,7 +104,7 @@
         <jobs>
             <mep_profiles_enabled>
                 <schedule>
-                    <cron_expr>0 5 * * *</cron_expr>
+                    <cron_expr>*/15 * * * *</cron_expr>
                 </schedule>
                 <run>
                     <model>mep/observer::exportEnabledProfiles</model>
