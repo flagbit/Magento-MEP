@@ -707,7 +707,7 @@ class Flagbit_MEP_Model_Export_Entity_Product2 extends Mage_ImportExport_Model_E
                                 $attrCode = $mapitem->getAttributeCode();
                                 $attrValue = $item->getData($attrCode);
 
-                                // TODO dirty?
+                                // TODO dirty? Yes!
                                 if ($attrCode == 'url') {
                                     $attrValue = Mage::app()->getStore($storeId)->getBaseUrl() . $item->getUrlPath();
                                     if ($storeId == 0) $attrValue = str_replace('/index.php/', '/', $attrValue);
@@ -781,6 +781,12 @@ class Flagbit_MEP_Model_Export_Entity_Product2 extends Mage_ImportExport_Model_E
                                         $attrValue = null;
                                     }
                                 }
+
+                                //apply format
+                                if (strlen($mapitem->getFormat()) > 0 && strpos($mapitem->getFormat(), '%') !== false) {
+                                    //dirty but needed, because no exception handling
+                                    $attrValue = @sprintf($mapitem->getFormat(), $attrValue);
+                                }
                                 // do not save value same as default or not existent
                                 if ($storeId != $defaultStoreId
                                     && isset($dataRows[$itemId][$defaultStoreId][$mapitem->getToField()])
@@ -788,6 +794,7 @@ class Flagbit_MEP_Model_Export_Entity_Product2 extends Mage_ImportExport_Model_E
                                 ) {
                                     $attrValue = null;
                                 }
+
                                 if (is_scalar($attrValue)) {
                                     $dataRows[$itemId][$storeId][$mapitem->getToField()] = $attrValue;
                                     $rowIsEmpty = false;
@@ -1067,12 +1074,12 @@ class Flagbit_MEP_Model_Export_Entity_Product2 extends Mage_ImportExport_Model_E
                             $attrCode = $mapitem->getAttributeCode();
                             if ($attrCode == '_category') {
                                 if (isset($dataRow['_category'])) {
-                                    $dataRow[$mapitem->getToField()] =$dataRow['_category'];
+                                    $dataRow[$mapitem->getToField()] = $dataRow['_category'];
                                 }
                             }
                             if ($attrCode == 'image_url') {
                                 if (isset($dataRow['_media_image'])) {
-                                    $dataRow[$mapitem->getToField()] = Mage::getBaseUrl(Mage_Core_Model_Store::URL_TYPE_MEDIA). 'catalog/product' .$dataRow['_media_image'];
+                                    $dataRow[$mapitem->getToField()] = Mage::getBaseUrl(Mage_Core_Model_Store::URL_TYPE_MEDIA) . 'catalog/product' . $dataRow['_media_image'];
                                 }
                             }
                             if ($attrCode == 'qty') {
