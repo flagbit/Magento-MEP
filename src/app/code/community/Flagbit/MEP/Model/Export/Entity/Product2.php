@@ -613,6 +613,15 @@ class Flagbit_MEP_Model_Export_Entity_Product2 extends Mage_ImportExport_Model_E
 
                 // prepare multi-store values and system columns values
                 foreach ($this->_storeIdToCode as $storeId => &$storeCode) { // go through all stores
+
+                    //set locale code to provide best sprintf support
+                    $localeInfo = Mage::getStoreConfig('general/locale/overridelocales', $storeId);
+                    if ($localeInfo != null && strlen($localeInfo) > 0) {
+q                        setlocale(LC_ALL, $localeInfo);
+                    } else {
+                        setlocale(LC_ALL, Mage::app()->getLocale()->getLocaleCode());
+                    }
+
                     $collection = $this->_prepareEntityCollection(Mage::getResourceModel('catalog/product_collection'));
                     $collection
                         ->setStoreId($storeId)
