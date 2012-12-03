@@ -16,15 +16,16 @@ class Flagbit_MEP_Adminhtml_Profil_AttributeController extends Mage_Adminhtml_Co
     /**
      * Add attribute field mappings to profile
      */
-    public function addAction()
+    public function editAction()
     {
         if ($data = $this->getRequest()->getPost()) {
             $model = Mage::getModel('mep/mapping');
             $id = $this->getRequest()->getParam('id');
             if ($id) {
-                $model->setId($id);
+                $model = Mage::getModel('mep/mapping')->load($id);
             }
-            $model->setData($data);
+            unset($data['id']);
+            $model->addData($data);
             $model->save();
         }
     }
