@@ -773,6 +773,8 @@ class Flagbit_MEP_Model_Export_Entity_Product2 extends Mage_ImportExport_Model_E
                                             array_flip($attrValue)
                                         );
                                         $rowMultiselects[$itemId][$mapitem->getToField()] = $attrValue;
+                                    } else if ($this->_attributeTypes[$attrCode] == 'select') {
+                                        $attrValue = $item->getAttributeText($attrCode);
                                     } else if (isset($this->_attributeValues[$mapitem->getToField()][$attrValue])) {
                                         $attrValue = $this->_attributeValues[$mapitem->getToField()][$attrValue];
                                     } else {
