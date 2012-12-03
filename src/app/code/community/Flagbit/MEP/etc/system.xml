@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<config>
+    <sections>
+        <general>
+            <groups>
+                <locale>
+                    <fields>
+                        <overridelocales translate="label">
+                            <label>Override Locale</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>10</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </overridelocales>
+                    </fields>
+                </locale>
+            </groups>
+        </general>
+    </sections>
+</config>
