@@ -615,7 +615,7 @@ class Flagbit_MEP_Model_Export_Entity_Product2 extends Mage_ImportExport_Model_E
                 foreach ($this->_storeIdToCode as $storeId => &$storeCode) { // go through all stores
 
                     //set locale code to provide best sprintf support
-                    $localeInfo = Mage::getStoreConfig('general/locale/overridelocales', $storeId);
+                    $localeInfo = $obj_profil->getProfileLocale();
                     if ($localeInfo != null && strlen($localeInfo) > 0) {
                         setlocale(LC_ALL, $localeInfo);
                     } else {

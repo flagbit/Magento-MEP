@@ -105,6 +105,11 @@ class Flagbit_MEP_Block_Adminhtml_Profil_View_Edit_Tab_Format extends Mage_Admin
             'name' => 'category_delimiter'
         ));
 
+        $fieldset->addField('profile_locale', 'text', array(
+            'label' => Mage::helper('mep')->__('Change default locale'),
+            'name' => 'profile_locale'
+        ));
+
         $form->setValues($data);
         return parent::_prepareForm();
     }
