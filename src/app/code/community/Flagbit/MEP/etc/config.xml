@@ -24,12 +24,6 @@
                 <resourceModel>mep_mysql4</resourceModel>
             </mep>
 
-            <importexport>
-                <rewrite>
-                    <export_adapter_csv>Flagbit_MEP_Model_Export_Adapter_Csv</export_adapter_csv>
-                </rewrite>
-            </importexport>
-
             <mep_mysql4>
                 <class>Flagbit_MEP_Model_Mysql4</class>
                 <entities>
@@ -68,14 +62,20 @@
             </mep_read>
         </resources>
 
-        <importexport module="importexport">
+        <mep module="mep">
             <export_entities>
-                <catalog_product2 translate="label">
-                    <model_token>mep/export_entity_product2</model_token>
+                <catalog_product translate="label">
+                    <model_token>mep/export_entity_product</model_token>
                     <label>Products MEP</label>
-                </catalog_product2>
+                </catalog_product>
             </export_entities>
-        </importexport>
+            <export_file_formats>
+                <twig translate="label">
+                    <model_token>mep/export_adapter_twig</model_token>
+                    <label>CSV-Template</label>
+                </twig>
+            </export_file_formats>
+        </mep>
     </global>
 
 

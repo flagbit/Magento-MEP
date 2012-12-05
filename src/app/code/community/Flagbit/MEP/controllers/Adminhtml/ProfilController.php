@@ -177,10 +177,10 @@ class Flagbit_MEP_Adminhtml_ProfilController extends Mage_Adminhtml_Controller_A
     {
         try {
             /** @var $model Mage_ImportExport_Model_Export */
-            $model = Mage::getModel('importexport/export');
+            $model = Mage::getModel('mep/export');
             $model->setData($this->getRequest()->getParams());
             $model->setEntity("catalog_product2");
-            $model->setFileFormat("csv");
+            $model->setFileFormat("twig");
             $model->setExportFilter(array());
 
             return $this->_prepareDownloadResponse(

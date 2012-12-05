@@ -31,14 +31,18 @@ class Flagbit_MEP_Block_Adminhtml_Profil_View_Edit_Tab_Xslt extends Mage_Adminht
             )
         );
 
+        $loader = new Twig_Loader_String();
+        $twig = new Twig_Environment($loader);
+
 
         $fieldset->addField(
             'xslt',
             'textarea',
             array(
-                'label' => Mage::helper('mep')->__('XSLT'),
+                'label' => Mage::helper('mep')->__('XSLT').$twig->render('Hello {{ name }}!', array('name' => 'Fabien')),
                 //'class'    => 'required-entry',
                 //'required' => true,
+                'style' => 'width: 600px; height: 400px',
                 'name' => 'xslt',
             )
         );

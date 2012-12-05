@@ -9,7 +9,7 @@ class Flagbit_MEP_Model_Observer extends Varien_Object
         /** @var $profile Flagbit_MEP_Model_Profil */
         foreach ($this->getProfileCollection() as $profile) {
             /* @var $export Mage_ImportExport_Model_Export */
-            $export = Mage::getModel('importexport/export');
+            $export = Mage::getModel('mep/export');
             $export->setData('id', $profile->getId());
             $export->setEntity("catalog_product2");
             $export->setFileFormat("csv");
