@@ -28,6 +28,7 @@
 		background-color: #FFF6ED;
 		border: 2px solid #F3BE8E;
 		color: #D85909;
+        height: auto !important;
 	}
 		.adminhtml-profil-edit .dialog div.attribute-mapping-window_content li {
 			overflow: hidden;
@@ -44,14 +45,15 @@
 			float: left;
 			width: 200px;
 		}
-		
-		.adminhtml-profil-edit .dialog div.attribute-mapping-window_content input,
-		.adminhtml-profil-edit .dialog div.attribute-mapping-window_content select {
-			margin-bottom: 5px;
-		}
-		.adminhtml-profil-edit .dialog div.attribute-mapping-window_content input {
-			width: 167px;
-		}
+
+        .adminhtml-profil-edit .dialog div.attribute-mapping-window_content input,
+        .adminhtml-profil-edit .dialog div.attribute-mapping-window_content select {
+            margin-bottom: 5px;
+            width: 200px;
+        }
+        .adminhtml-profil-edit .dialog div.attribute-mapping-window_content input {
+            width: 194px;
+        }
 		.adminhtml-profil-edit .dialog div.attribute-mapping-window_content input.form-button {
 			width: 100px;
 			margin-top: 10px;
