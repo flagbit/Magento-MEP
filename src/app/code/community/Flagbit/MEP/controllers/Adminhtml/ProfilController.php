@@ -179,7 +179,7 @@ class Flagbit_MEP_Adminhtml_ProfilController extends Mage_Adminhtml_Controller_A
             /** @var $model Mage_ImportExport_Model_Export */
             $model = Mage::getModel('mep/export');
             $model->setData($this->getRequest()->getParams());
-            $model->setEntity("catalog_product2");
+            $model->setEntity("catalog_product");
             $model->setFileFormat("twig");
             $model->setExportFilter(array());
 
@@ -193,6 +193,6 @@ class Flagbit_MEP_Adminhtml_ProfilController extends Mage_Adminhtml_Controller_A
         } catch (Exception $e) {
             Mage::logException($e);
             $this->_getSession()->addError($this->__('No valid data sent'));
-        }
+        }     */
     }
 }
