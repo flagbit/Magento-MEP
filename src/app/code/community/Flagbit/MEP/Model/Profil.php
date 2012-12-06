@@ -60,7 +60,7 @@ class Flagbit_MEP_Model_Profil extends Mage_Core_Model_Abstract
             // gen Array with missing Fields
             $newMappings = array();
             foreach($collection as $mapping){
-                if(strpos($template, $mapping->getToField()) === false){
+                if(strpos($template, $mapping->getToFieldNormalized()) === false){
                     $newMappings[] = $mapping;
                 }
             }
@@ -95,7 +95,7 @@ class Flagbit_MEP_Model_Profil extends Mage_Core_Model_Abstract
         switch($type){
 
             case self::TWIG_TEMPLATE_TYPE_HEADER:
-                $_field = $mapping->getToField();
+                $_field = $mapping->getToFieldNormalized();
                 break;
 
             case self::TWIG_TEMPLATE_TYPE_CONTENT:
@@ -104,26 +104,26 @@ class Flagbit_MEP_Model_Profil extends Mage_Core_Model_Abstract
 
                     case 'text':
                     case 'varchar':
-                        $_field = '{{ '.$mapping->getToField().'|e }}';
+                        $_field = '{{ '.$mapping->getToFieldNormalized().'|e }}';
                         break;
 
                     case 'int':
                     case 'decimal':
-                        $_field = '{{ '.$mapping->getToField().'|number_format(2, ",", ".")|e }}';
+                        $_field = '{{ '.$mapping->getToFieldNormalized().'|number_format(2, ",", ".")|e }}';
                         break;
 
                     case 'datetime':
-                        $_field = '{{ '.$mapping->getToField().'|date("d.m.Y")|e }}';
+                        $_field = '{{ '.$mapping->getToFieldNormalized().'|date("d.m.Y")|e }}';
                         break;
 
                     default:
-                        $_field = '{{ '.$mapping->getToField().'|e }}';
+                        $_field = '{{ '.$mapping->getToFieldNormalized().'|e }}';
                         break;
                 }
 
                 // handle mappings with format definition
                 if($mapping->getFormat()){
-                    $_field = '{{ "'.$mapping->getFormat().'"|format('.$mapping->getToField().')|e }}';
+                    $_field = '{{ "'.$mapping->getFormat().'"|format('.$mapping->getToFieldNormalized().')|e }}';
                 }
                 break;
 

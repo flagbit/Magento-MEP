@@ -9,4 +9,9 @@ class Flagbit_MEP_Model_Mapping extends Mage_Core_Model_Abstract
     {
         $this->_init('mep/mapping');
     }
+
+    public function getToFieldNormalized()
+    {
+        return Mage::helper('mep')->normalizeVariableName($this->getToField());
+    }
 }
