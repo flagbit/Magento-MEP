@@ -4,3 +4,4 @@ src/app/design/adminhtml/default/default/template/* app/design/adminhtml/default
 src/app/etc/modules/* app/etc/modules
 src/skin/adminhtml/default/default/mep.css skin/adminhtml/default/default/mep.css
 src/shell/* shell
+src/lib/* lib
