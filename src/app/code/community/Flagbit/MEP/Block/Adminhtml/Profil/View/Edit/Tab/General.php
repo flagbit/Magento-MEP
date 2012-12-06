@@ -14,7 +14,6 @@ class Flagbit_MEP_Block_Adminhtml_Profil_View_Edit_Tab_General extends Mage_Admi
     {
         if (Mage::getSingleton('adminhtml/session')->getMepProfileData()) {
             $data = Mage::getSingleton('adminhtml/session')->getMepProfileData();
-            //Mage::getSingleton('adminhtml/session')->setMepProfileData(null);
         } elseif (Mage::registry('mep_profile_data')) {
             $data = Mage::registry('mep_profile_data')->getData();
         } else {

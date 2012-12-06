@@ -21,7 +21,7 @@
  * @version 0.1.0
  * @since 0.1.0
  */
-class Flagbit_MEP_Model_Export_Adapter_Twig extends Mage_ImportExport_Model_Export_Adapter_Csv
+class Flagbit_MEP_Model_Export_Adapter_Twig extends Mage_ImportExport_Model_Export_Adapter_Abstract
 {
     /**
      * Field headerrow.
@@ -36,6 +36,36 @@ class Flagbit_MEP_Model_Export_Adapter_Twig extends Mage_ImportExport_Model_Expo
     protected $_csvWriter;
 
     /**
+     * @var Twig_Environment
+     */
+    protected $_twig;
+
+    /**
+     * Object destructor.
+     *
+     * @return void
+     */
+    public function __destruct()
+    {
+        if (is_resource($this->_fileHandler)) {
+            fclose($this->_fileHandler);
+        }
+    }
+
+
+    /**
+     * Get contents of export file.
+     *
+     * @return string
+     */
+    public function getContents()
+    {
+        $result = $this->_twig->render($this->_twigFooterTemplate, array_combine(array_keys($this->_headerCols), array_keys($this->_headerCols)));
+        fwrite($this->_fileHandler, trim($result).PHP_EOL);
+        return file_get_contents($this->_destination);
+    }
+
+    /**
      * @param boolean $headerrow
      * @return \Flagbit_MEP_Model_Export_Adapter_Csv
      */
@@ -48,7 +78,9 @@ class Flagbit_MEP_Model_Export_Adapter_Twig extends Mage_ImportExport_Model_Expo
     public function _init()
     {
         parent::_init();
-        $this->_csvWriter = new Varien_File_Csv();
+        $this->_fileHandler = fopen($this->_destination, 'w');
+        $loader = new Twig_Loader_String();
+        $this->_twig = new Twig_Environment($loader);
     }
 
 
@@ -63,7 +95,36 @@ class Flagbit_MEP_Model_Export_Adapter_Twig extends Mage_ImportExport_Model_Expo
         } else {
             $this->_delimiter = $delimiter;
         }
-        $this->_csvWriter->setDelimiter($this->_delimiter);
+        return $this;
+    }
+
+    /**
+     * @param string $template
+     * @return \Flagbit_MEP_Model_Export_Adapter_Csv
+     */
+    public function setTwigHeaderTemplate($template)
+    {
+        $this->_twigHeaderTemplate = $template;
+        return $this;
+    }
+
+    /**
+     * @param string $template
+     * @return \Flagbit_MEP_Model_Export_Adapter_Csv
+     */
+    public function setTwigContentTemplate($template)
+    {
+        $this->_twigContentTemplate = $template;
+        return $this;
+    }
+
+    /**
+     * @param string $template
+     * @return \Flagbit_MEP_Model_Export_Adapter_Csv
+     */
+    public function setTwigFooterTemplate($template)
+    {
+        $this->_twigFooterTemplate = $template;
         return $this;
     }
 
@@ -74,7 +135,6 @@ class Flagbit_MEP_Model_Export_Adapter_Twig extends Mage_ImportExport_Model_Expo
     public function setEnclosure($enclosure)
     {
         $this->_enclosure = $enclosure;
-        $this->_csvWriter->setEnclosure($this->_enclosure);
         return $this;
     }
 
@@ -93,13 +153,10 @@ class Flagbit_MEP_Model_Export_Adapter_Twig extends Mage_ImportExport_Model_Expo
 
         $rowData = array_map(array($this, 'cleanLine'), $rowData);
 
-        $this->_csvWriter->fputcsv(
-            $this->_fileHandler,
-            array_merge($this->_headerCols, array_intersect_key($rowData, $this->_headerCols)),
-            $this->_delimiter,
-            $this->_enclosure
-        );
+        $twigDataRow = array_merge($this->_headerCols, array_intersect_key($rowData, $this->_headerCols));
+        $result = $this->_twig->render($this->_twigContentTemplate, $twigDataRow);
 
+        fwrite($this->_fileHandler, trim($result).PHP_EOL);
         return $this;
     }
 
@@ -112,6 +169,7 @@ class Flagbit_MEP_Model_Export_Adapter_Twig extends Mage_ImportExport_Model_Expo
      */
     public function setHeaderCols(array $headerCols)
     {
+
         if (null !== $this->_headerCols) {
             Mage::throwException(Mage::helper('importexport')->__('Header column names already set'));
         }
@@ -119,7 +177,9 @@ class Flagbit_MEP_Model_Export_Adapter_Twig extends Mage_ImportExport_Model_Expo
             foreach ($headerCols as $colName) {
                 $this->_headerCols[$colName] = false;
             }
-            $this->_csvWriter->fputcsv($this->_fileHandler, array_keys($this->_headerCols), $this->_delimiter, $this->_enclosure);
+
+            $result = $this->_twig->render($this->_twigHeaderTemplate, array_combine(array_keys($this->_headerCols), array_keys($this->_headerCols)));
+            fwrite($this->_fileHandler, trim($result).PHP_EOL);
         }
         return $this;
     }
