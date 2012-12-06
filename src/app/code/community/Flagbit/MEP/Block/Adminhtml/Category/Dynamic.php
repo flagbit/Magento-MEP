@@ -66,7 +66,7 @@ class Flagbit_MEP_Block_Adminhtml_Category_Dynamic
         $model = Mage::getSingleton('mep/rule');
         $data = array();
         if ($this->getCategory() != null) {
-            $data['conditions'] = unserialize($this->getCategory()->getConditionsSerialized());
+            $data['conditions'] = @unserialize($this->getCategory()->getConditionsSerialized());
         }
         $model->loadPost($data);
 

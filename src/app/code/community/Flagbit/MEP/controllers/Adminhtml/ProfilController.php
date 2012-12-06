@@ -58,6 +58,8 @@ class Flagbit_MEP_Adminhtml_ProfilController extends Mage_Adminhtml_Controller_A
             $this->_addContent($this->getLayout()->createBlock('mep/adminhtml_profil_view_edit'));
             $this->_addLeft($this->getLayout()->createBlock('mep/adminhtml_profil_view_edit_tabs'));
             $this->renderLayout();
+
+            Mage::getSingleton('adminhtml/session')->setMepProfileData(null);
         } else {
             Mage::getSingleton('adminhtml/session')->addError(Mage::helper('mep')->__('Profil does not exist'));
             $this->_redirect('*/*/');
@@ -188,6 +190,7 @@ class Flagbit_MEP_Adminhtml_ProfilController extends Mage_Adminhtml_Controller_A
                 $model->export(),
                 $model->getContentType()
             );
+
         } catch (Mage_Core_Exception $e) {
             $this->_getSession()->addError($e->getMessage());
         } catch (Exception $e) {
