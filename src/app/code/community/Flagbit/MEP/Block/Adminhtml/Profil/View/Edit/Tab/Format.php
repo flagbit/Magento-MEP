@@ -42,6 +42,17 @@ class Flagbit_MEP_Block_Adminhtml_Profil_View_Edit_Tab_Format extends Mage_Admin
         );
 
         $fieldset->addField(
+            'use_twig_templates',
+            'select',
+            array(
+                'label' => Mage::helper('mep')->__('use Templates'),
+                'name' => 'use_twig_templates',
+                'options' => $this->_getYesNoOptionsHash(),
+                'note' => "only for experienced user"
+            )
+        );
+
+        $fieldset->addField(
             'delimiter',
             'text',
             array(

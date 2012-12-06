@@ -30,8 +30,9 @@ class Flagbit_MEP_Model_Profil extends Mage_Core_Model_Abstract
             $this->setTwigContentTemplate(
                 $this->_generateTemplate($this->getTwigContentTemplate(), self::TWIG_TEMPLATE_TYPE_CONTENT)
             );
-
-            #Zend_Debug::dump($this->getData()); die();
+            if(!$this->getUseTwigTemplates()){
+                $this->setTwigFooterTemplate('');
+            }
         }
         return parent::_beforeSave();
     }
@@ -52,7 +53,7 @@ class Flagbit_MEP_Model_Profil extends Mage_Core_Model_Abstract
                    ->setOrder('position', 'ASC');
 
 
-        if($template){
+        if($template && $this->getUseTwigTemplates()){
             // replace old missing Fields Hint
             $template = preg_replace('/(\R|)(\R|)\{\#\s--\s(.*)\s--\s(.*)\#\}(\R|)/ms', '', $template);
 
@@ -72,7 +73,7 @@ class Flagbit_MEP_Model_Profil extends Mage_Core_Model_Abstract
             $twigTemplateArray[] = $this->getEnclose().$this->_generateTemplateField($mapping, $type).$this->getEnclose();
         }
         // Template exists but there are new Fields
-        if($template && count($twigTemplateArray)){
+        if($template && count($twigTemplateArray) && $this->getUseTwigTemplates()){
             $template = $template.PHP_EOL.PHP_EOL.'{# -- '.Mage::helper('mep')->__('New fields which can not be automatically mapped').' -- '.PHP_EOL.implode($this->getDelimiter(), $twigTemplateArray).PHP_EOL.'#}';
 
         // Template does not exists but there are new Fields

@@ -25,6 +25,15 @@ class Flagbit_MEP_Block_Adminhtml_Profil_View_Edit_Tabs extends Mage_Adminhtml_B
      */
     protected function _beforeToHtml()
     {
+
+        if (Mage::getSingleton('adminhtml/session')->getMepProfileData()) {
+            $data = Mage::getSingleton('adminhtml/session')->getMepProfileData();
+        } elseif (Mage::registry('mep_profile_data')) {
+            $data = Mage::registry('mep_profile_data')->getData();
+        } else {
+            $data = array();
+        }
+
         $this->addTab('form_section', array(
             'label' => Mage::helper('mep')->__('General Information'),
             'title' => Mage::helper('mep')->__('General Information'),
@@ -43,12 +52,13 @@ class Flagbit_MEP_Block_Adminhtml_Profil_View_Edit_Tabs extends Mage_Adminhtml_B
             'content' => $this->getLayout()->createBlock('mep/adminhtml_profil_view_edit_tab_format')->toHtml(),
         ));
 
-        $this->addTab('form_data_xslt', array(
-            'label' => Mage::helper('mep')->__('Template'),
-            'title' => Mage::helper('mep')->__('Template'),
-            'content' => $this->getLayout()->createBlock('mep/adminhtml_profil_view_edit_tab_template')->toHtml(),
-        ));
-
+        if(!empty($data['use_twig_templates'])){
+            $this->addTab('form_data_xslt', array(
+                'label' => Mage::helper('mep')->__('Template'),
+                'title' => Mage::helper('mep')->__('Template'),
+                'content' => $this->getLayout()->createBlock('mep/adminhtml_profil_view_edit_tab_template')->toHtml(),
+            ));
+        }
 
         $this->addTab('form_export_filters', array(
             'label' => Mage::helper('mep')->__('Export Filters'),
