@@ -755,10 +755,11 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
                                     $obj_versand = Mage::helper('screenmaxx_shipping/config');
                                     $versand_klasse = $item->getAttributeText('a000001018');
                                     $versand_base = $obj_versand->getShippingClassCosts($versand_klasse, 'DE');
-                                    $versand_base = $versand_base + $item->getPrice();
+                                    $versand_base2 = $versand_base + $item->getPrice();
                                     $versand_extra = $obj_versand->getExtraChargeByPaymentMethod($mapitem->getFormat(), 'DE');
-                                    $versand_prozent = $versand_base * (1 + ($versand_extra / 100));
-                                    $attrValue = $versand_prozent;
+
+                                    $versand_prozent = ($versand_base2 / 100) * $versand_extra ;
+                                    $attrValue = $versand_base + $versand_prozent;
                                 }
 
                                 if ($attrCode == 'versandkosten_sofort') {
@@ -774,12 +775,11 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
                                     $versand_klasse = $item->getAttributeText('a000001018');
                                     $versand_base = $obj_versand->getShippingClassCosts($versand_klasse, 'DE');
                                     $versand_extra = $obj_versand->getExtraChargeByPaymentMethod($mapitem->getFormat(), 'DE');
-                                    $versand_base = $versand_base + $item->getPrice();
+                                    $versand_base2 = $versand_base + $item->getPrice();
 
-                                    $versand_prozent = $versand_base * (1 + ($versand_extra / 100));
-                                    $attrValue = $versand_prozent;
+                                    $versand_prozent = ($versand_base2 / 100) * $versand_extra ;
+                                    $attrValue = $versand_base + $versand_prozent;
                                 }
-
 
                                 if (!empty($this->_attributeValues[$attrCode])) {
                                     if ($this->_attributeTypes[$attrCode] == 'multiselect') {
@@ -819,6 +819,8 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
                                 }
                             }
                         }
+
+
 
 
                         if ($rowIsEmpty) { // remove empty rows
