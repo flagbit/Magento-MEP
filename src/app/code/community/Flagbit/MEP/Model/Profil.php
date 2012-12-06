@@ -95,7 +95,7 @@ class Flagbit_MEP_Model_Profil extends Mage_Core_Model_Abstract
         switch($type){
 
             case self::TWIG_TEMPLATE_TYPE_HEADER:
-                $_field = $mapping->getToFieldNormalized();
+                $_field = $mapping->getToField();
                 break;
 
             case self::TWIG_TEMPLATE_TYPE_CONTENT:
