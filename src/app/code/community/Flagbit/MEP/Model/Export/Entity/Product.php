@@ -549,9 +549,9 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
             $writer->setEnclosure($enclosure);
 
             // add Twig Templates
-            $writer->setTwigHeaderTemplate($obj_profil->getTwigHeaderTemplate());
-            $writer->setTwigContentTemplate($obj_profil->getTwigContentTemplate());
-            $writer->setTwigFooterTemplate($obj_profil->getTwigFooterTemplate());
+            $writer->setTwigTemplate($obj_profil->getTwigHeaderTemplate(), 'header');
+            $writer->setTwigTemplate($obj_profil->getTwigContentTemplate(), 'content');
+            $writer->setTwigTemplate($obj_profil->getTwigFooterTemplate(), 'footer');
 
             if ($obj_profil->getOriginalrow() == 1) {
                 $writer->setHeaderRow(true);
