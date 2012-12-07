@@ -62,7 +62,7 @@ class Flagbit_MEP_Block_Adminhtml_Profil_View_GridMapping extends Mage_Adminhtml
         if (!empty($profil_id)) {
             $collection->addFieldToFilter('profile_id', array('eq' => $profil_id));
         }
-
+        parent::setDefaultLimit('200');
         $this->setCollection($collection);
         return parent::_prepareCollection();
     }
