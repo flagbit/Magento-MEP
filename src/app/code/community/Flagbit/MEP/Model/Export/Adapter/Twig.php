@@ -139,6 +139,8 @@ class Flagbit_MEP_Model_Export_Adapter_Twig extends Mage_ImportExport_Model_Expo
      */
     public function setTwigHeaderTemplate($template)
     {
+        $replace = '"'.chr(9).'"';
+        $template = str_replace('"\t"',$replace,$template);
         $this->_twigHeaderTemplate = $template;
         return $this;
     }
@@ -149,6 +151,8 @@ class Flagbit_MEP_Model_Export_Adapter_Twig extends Mage_ImportExport_Model_Expo
      */
     public function setTwigContentTemplate($template)
     {
+        $replace = '"'.chr(9).'"';
+        $template = str_replace('"\t"',$replace,$template);
         $this->_twigContentTemplate = $template;
         return $this;
     }
@@ -159,6 +163,8 @@ class Flagbit_MEP_Model_Export_Adapter_Twig extends Mage_ImportExport_Model_Expo
      */
     public function setTwigFooterTemplate($template)
     {
+        $replace = '"'.chr(9).'"';
+        $template = str_replace('"\t"',$replace,$template);
         $this->_twigFooterTemplate = $template;
         return $this;
     }
