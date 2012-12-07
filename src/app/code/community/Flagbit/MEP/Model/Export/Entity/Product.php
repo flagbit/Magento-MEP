@@ -737,6 +737,7 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
                                     $versand_base = $obj_versand->getShippingClassCosts($versand_klasse, 'DE');
                                     $versand_extra = $obj_versand->getExtraChargeByPaymentMethod($mapitem->getFormat(), 'DE');
                                     $attrValue = $versand_base + $versand_extra;
+                                    if($attrValue == 0) $attrValue = '';
                                 }
 
                                 if ($attrCode == 'versandkosten_nachnahme') {
@@ -748,6 +749,7 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
                                     
                                     $versand_extra = $obj_versand->getExtraChargeByPaymentMethod($mapitem->getFormat(), 'DE');
                                     $attrValue = $versand_base + $versand_extra;
+                                    if($attrValue == 0) $attrValue = '';
                                 }
 
 
@@ -760,6 +762,7 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
 
                                     $versand_prozent = ($versand_base2 / 100) * $versand_extra ;
                                     $attrValue = $versand_base + $versand_prozent;
+                                    if($attrValue == 0) $attrValue = '';
                                 }
 
                                 if ($attrCode == 'versandkosten_sofort') {
@@ -768,6 +771,7 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
                                     $versand_base = $obj_versand->getShippingClassCosts($versand_klasse, 'DE');
                                     $versand_extra = $obj_versand->getExtraChargeByPaymentMethod($mapitem->getFormat(), 'DE');
                                     $attrValue = $versand_base + $versand_extra;
+                                    if($attrValue == 0) $attrValue = '';
                                 }
 
                                 if ($attrCode == 'versandkosten_creditcard') {
@@ -779,6 +783,7 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
 
                                     $versand_prozent = ($versand_base2 / 100) * $versand_extra ;
                                     $attrValue = $versand_base + $versand_prozent;
+                                    if($attrValue == 0) $attrValue = '';
                                 }
 
                                 if (!empty($this->_attributeValues[$attrCode])) {
