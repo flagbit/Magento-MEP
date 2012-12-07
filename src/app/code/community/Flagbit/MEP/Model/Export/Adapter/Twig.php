@@ -59,6 +59,27 @@ class Flagbit_MEP_Model_Export_Adapter_Twig extends Mage_ImportExport_Model_Expo
 
 
     /**
+     * MIME-type for 'Content-Type' header.
+     *
+     * @return string
+     */
+    public function getContentType()
+    {
+        return 'text/csv';
+    }
+
+    /**
+     * Return file extension for downloading.
+     *
+     * @return string
+     */
+    public function getFileExtension()
+    {
+        return 'csv';
+    }
+
+
+    /**
      * Get contents of export file.
      *
      * @return string
