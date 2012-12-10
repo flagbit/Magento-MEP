@@ -663,103 +663,99 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
                         $rowIsEmpty = true; // row is empty by default
 
 
-                            foreach ($mapping->getItems() as $mapitem) {
-                                $attrCode = $mapitem->getAttributeCode();
-                                $attrValue = $item->getData($attrCode);
+                        foreach ($mapping->getItems() as $mapitem) {
+                            $attrCode = $mapitem->getAttributeCode();
+                            $attrValue = $item->getData($attrCode);
 
-                                // TODO dirty? Yes!
-                                if ($attrCode == 'url') {
-                                    $attrValue = Mage::app()->getStore($storeId)->getBaseUrl() . $item->getUrlPath();
-                                    if ($storeId == 0) $attrValue = str_replace('/index.php/', '/', $attrValue);
-                                }
+                            // TODO dirty? Yes!
+                            if ($attrCode == 'url') {
+                                $attrValue = Mage::app()->getStore($storeId)->getBaseUrl() . $item->getUrlPath();
+                                if ($storeId == 0) $attrValue = str_replace('/index.php/', '/', $attrValue);
+                            }
 
-                                if ($attrCode == 'fixed_value_format') {
-                                    $attrValue = $mapitem->getFormat();
-                                }
+                            if ($attrCode == 'fixed_value_format') {
+                                $attrValue = $mapitem->getFormat();
+                            }
 
-                                if ($attrCode == 'versandkosten_vorkasse') {
-                                    $obj_versand = Mage::helper('screenmaxx_shipping/config');
-                                    $versand_klasse = $item->getAttributeText('a000001018');
-                                    $versand_base = $obj_versand->getShippingClassCosts($versand_klasse, 'DE');
-                                    $versand_extra = $obj_versand->getExtraChargeByPaymentMethod($mapitem->getFormat(), 'DE');
-                                    $attrValue = $versand_base + $versand_extra;
-                                }
+                            if ($attrCode == 'versandkosten_vorkasse') {
+                                $obj_versand = Mage::helper('screenmaxx_shipping/config');
+                                $versand_klasse = $item->getAttributeText('a000001018');
+                                $versand_base = $obj_versand->getShippingClassCosts($versand_klasse, 'DE');
+                                $versand_extra = $obj_versand->getExtraChargeByPaymentMethod($mapitem->getFormat(), 'DE');
+                                $attrValue = $versand_base + $versand_extra;
+                            }
 
-                                if ($attrCode == 'versandkosten_nachnahme') {
-                                    $obj_versand = Mage::helper('screenmaxx_shipping/config');
-                                    $versand_klasse = $item->getAttributeText('a000001018');
-                                    $versand_base = $obj_versand->getShippingClassCosts($versand_klasse, 'DE');
-                                    $versand_base2 = $obj_versand->getCashOnDeliveryExtraCharge($versand_klasse, 'DE');
-                                    $versand_base = $versand_base + $versand_base2;
-                                    
-                                    $versand_extra = $obj_versand->getExtraChargeByPaymentMethod($mapitem->getFormat(), 'DE');
-                                    $attrValue = $versand_base + $versand_extra;
-                                }
+                            if ($attrCode == 'versandkosten_nachnahme') {
+                                $obj_versand = Mage::helper('screenmaxx_shipping/config');
+                                $versand_klasse = $item->getAttributeText('a000001018');
+                                $versand_base = $obj_versand->getShippingClassCosts($versand_klasse, 'DE');
+                                $versand_base2 = $obj_versand->getCashOnDeliveryExtraCharge($versand_klasse, 'DE');
+                                $versand_base = $versand_base + $versand_base2;
 
-
-                                if ($attrCode == 'versandkosten_paypal') {
-                                    $obj_versand = Mage::helper('screenmaxx_shipping/config');
-                                    $versand_klasse = $item->getAttributeText('a000001018');
-                                    $versand_base = $obj_versand->getShippingClassCosts($versand_klasse, 'DE');
-                                    $versand_base2 = $versand_base + $item->getPrice();
-                                    $versand_extra = $obj_versand->getExtraChargeByPaymentMethod($mapitem->getFormat(), 'DE');
-
-                                    $versand_prozent = ($versand_base2 / 100) * $versand_extra ;
-                                    $attrValue = $versand_base + $versand_prozent;
-                                }
-
-                                if ($attrCode == 'versandkosten_sofort') {
-                                    $obj_versand = Mage::helper('screenmaxx_shipping/config');
-                                    $versand_klasse = $item->getAttributeText('a000001018');
-                                    $versand_base = $obj_versand->getShippingClassCosts($versand_klasse, 'DE');
-                                    $versand_extra = $obj_versand->getExtraChargeByPaymentMethod($mapitem->getFormat(), 'DE');
-                                    $attrValue = $versand_base + $versand_extra;
-                                }
-
-                                if ($attrCode == 'versandkosten_creditcard') {
-                                    $obj_versand = Mage::helper('screenmaxx_shipping/config');
-                                    $versand_klasse = $item->getAttributeText('a000001018');
-                                    $versand_base = $obj_versand->getShippingClassCosts($versand_klasse, 'DE');
-                                    $versand_extra = $obj_versand->getExtraChargeByPaymentMethod($mapitem->getFormat(), 'DE');
-                                    $versand_base2 = $versand_base + $item->getPrice();
-
-                                    $versand_prozent = ($versand_base2 / 100) * $versand_extra ;
-                                    $attrValue = $versand_base + $versand_prozent;
-                                }
-
-                                if (!empty($this->_attributeValues[$attrCode])) {
-                                    if ($this->_attributeTypes[$attrCode] == 'multiselect') {
-                                        $attrValue = explode(',', $attrValue);
-                                        $attrValue = array_intersect_key(
-                                            $this->_attributeValues[$mapitem->getToField()],
-                                            array_flip($attrValue)
-                                        );
-                                        $rowMultiselects[$itemId][$mapitem->getToField()] = $attrValue;
-                                    } else if ($this->_attributeTypes[$attrCode] == 'select') {
-                                        $attrValue = $item->getAttributeText($attrCode);
-                                    } else if (isset($this->_attributeValues[$mapitem->getToField()][$attrValue])) {
-                                        $attrValue = $this->_attributeValues[$mapitem->getToField()][$attrValue];
-                                    } else {
-                                        $attrValue = null;
-                                    }
-
-                                    // do not save value same as default or not existent
-                                    if ($storeId != $defaultStoreId
-                                        && isset($dataRows[$itemId][$defaultStoreId][$mapitem->getToField()])
-                                        && $dataRows[$itemId][$defaultStoreId][$mapitem->getToField()] == $attrValue
-                                    ) {
-                                        $attrValue = null;
-                                    }
-
-                                    if (is_scalar($attrValue)) {
-                                        $dataRows[$itemId][$storeId][$mapitem->getToField()] = $attrValue;
-                                        $rowIsEmpty = false;
-                                    }
-                                }
+                                $versand_extra = $obj_versand->getExtraChargeByPaymentMethod($mapitem->getFormat(), 'DE');
+                                $attrValue = $versand_base + $versand_extra;
                             }
 
 
+                            if ($attrCode == 'versandkosten_paypal') {
+                                $obj_versand = Mage::helper('screenmaxx_shipping/config');
+                                $versand_klasse = $item->getAttributeText('a000001018');
+                                $versand_base = $obj_versand->getShippingClassCosts($versand_klasse, 'DE');
+                                $versand_base2 = $versand_base + $item->getPrice();
+                                $versand_extra = $obj_versand->getExtraChargeByPaymentMethod($mapitem->getFormat(), 'DE');
 
+                                $versand_prozent = ($versand_base2 / 100) * $versand_extra;
+                                $attrValue = $versand_base + $versand_prozent;
+                            }
+
+                            if ($attrCode == 'versandkosten_sofort') {
+                                $obj_versand = Mage::helper('screenmaxx_shipping/config');
+                                $versand_klasse = $item->getAttributeText('a000001018');
+                                $versand_base = $obj_versand->getShippingClassCosts($versand_klasse, 'DE');
+                                $versand_extra = $obj_versand->getExtraChargeByPaymentMethod($mapitem->getFormat(), 'DE');
+                                $attrValue = $versand_base + $versand_extra;
+                            }
+
+                            if ($attrCode == 'versandkosten_creditcard') {
+                                $obj_versand = Mage::helper('screenmaxx_shipping/config');
+                                $versand_klasse = $item->getAttributeText('a000001018');
+                                $versand_base = $obj_versand->getShippingClassCosts($versand_klasse, 'DE');
+                                $versand_extra = $obj_versand->getExtraChargeByPaymentMethod($mapitem->getFormat(), 'DE');
+                                $versand_base2 = $versand_base + $item->getPrice();
+
+                                $versand_prozent = ($versand_base2 / 100) * $versand_extra;
+                                $attrValue = $versand_base + $versand_prozent;
+                            }
+
+                            if (!empty($this->_attributeValues[$attrCode])) {
+                                if ($this->_attributeTypes[$attrCode] == 'multiselect') {
+                                    $attrValue = explode(',', $attrValue);
+                                    $attrValue = array_intersect_key(
+                                        $this->_attributeValues[$mapitem->getToField()],
+                                        array_flip($attrValue)
+                                    );
+                                    $rowMultiselects[$itemId][$mapitem->getToField()] = $attrValue;
+                                } else if ($this->_attributeTypes[$attrCode] == 'select') {
+                                    $attrValue = $item->getAttributeText($attrCode);
+                                } else if (isset($this->_attributeValues[$mapitem->getToField()][$attrValue])) {
+                                    $attrValue = $this->_attributeValues[$mapitem->getToField()][$attrValue];
+                                } else {
+                                    $attrValue = null;
+                                }
+                            }
+                            // do not save value same as default or not existent
+                            if ($storeId != $defaultStoreId
+                                && isset($dataRows[$itemId][$defaultStoreId][$mapitem->getToField()])
+                                && $dataRows[$itemId][$defaultStoreId][$mapitem->getToField()] == $attrValue
+                            ) {
+                                $attrValue = null;
+                            }
+
+                            if (is_scalar($attrValue)) {
+                                $dataRows[$itemId][$storeId][$mapitem->getToField()] = $attrValue;
+                                $rowIsEmpty = false;
+                            }
+                        }
 
 
                         if ($rowIsEmpty) { // remove empty rows
