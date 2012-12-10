@@ -669,8 +669,7 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
 
                             // TODO dirty? Yes!
                             if ($attrCode == 'url') {
-                                $attrValue = Mage::app()->getStore($storeId)->getBaseUrl() . $item->getUrlPath();
-                                if ($storeId == 0) $attrValue = str_replace('/index.php/', '/', $attrValue);
+                                $attrValue = Mage::app()->getStore($storeId)->getBaseUrl(Mage_Core_Model_Store::URL_TYPE_WEB) . $item->getUrlPath();
                             }
 
                             if ($attrCode == 'fixed_value_format') {
