@@ -44,6 +44,8 @@ class Flagbit_MEP_Model_Data extends Mage_Catalog_Model_Convert_Parser_Product
         $attributes['image_url']                = 'image_url';
         $attributes['gross_price']              = 'gross_price';
         $attributes['fixed_value_format']       = 'fixed_value_format';
+        $attributes['entity_id']                = 'entity_id';
+
 
         //TODO HACK THE PLANET
         $attributes['versandkosten_paypal']     = 'Versandkosten PayPal Standard';
