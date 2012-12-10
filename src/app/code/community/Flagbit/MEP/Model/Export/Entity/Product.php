@@ -742,26 +742,19 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
                                     } else {
                                         $attrValue = null;
                                     }
-                                }
 
-                                //apply format
-                                /* No longer needed because it is now handled by twig
-                                if (strlen($mapitem->getFormat()) > 0 && strpos($mapitem->getFormat(), '%') !== false) {
-                                    //dirty but needed, because no exception handling
-                                    $attrValue = @sprintf($mapitem->getFormat(), $attrValue);
-                                }
-                                */
-                                // do not save value same as default or not existent
-                                if ($storeId != $defaultStoreId
-                                    && isset($dataRows[$itemId][$defaultStoreId][$mapitem->getToField()])
-                                    && $dataRows[$itemId][$defaultStoreId][$mapitem->getToField()] == $attrValue
-                                ) {
-                                    $attrValue = null;
-                                }
+                                    // do not save value same as default or not existent
+                                    if ($storeId != $defaultStoreId
+                                        && isset($dataRows[$itemId][$defaultStoreId][$mapitem->getToField()])
+                                        && $dataRows[$itemId][$defaultStoreId][$mapitem->getToField()] == $attrValue
+                                    ) {
+                                        $attrValue = null;
+                                    }
 
-                                if (is_scalar($attrValue)) {
-                                    $dataRows[$itemId][$storeId][$mapitem->getToField()] = $attrValue;
-                                    $rowIsEmpty = false;
+                                    if (is_scalar($attrValue)) {
+                                        $dataRows[$itemId][$storeId][$mapitem->getToField()] = $attrValue;
+                                        $rowIsEmpty = false;
+                                    }
                                 }
                             }
 
