@@ -22,7 +22,6 @@ class Flagbit_MEP_Model_Data extends Mage_Catalog_Model_Convert_Parser_Product
      */
     public function getExternalAttributes()
     {
-        $entityTypeId = Mage::getSingleton('eav/config')->getEntityType('catalog_product')->getId();
         $attributes = $this->_externalFields;
 
         $collection = Mage::getResourceModel('eav/entity_attribute_set_collection')
@@ -44,6 +43,8 @@ class Flagbit_MEP_Model_Data extends Mage_Catalog_Model_Convert_Parser_Product
         $attributes['image_url']                = 'image_url';
         $attributes['gross_price']              = 'gross_price';
         $attributes['fixed_value_format']       = 'fixed_value_format';
+        $attributes['entity_id']                = 'entity_id';
+
 
         //TODO HACK THE PLANET
         $attributes['versandkosten_paypal']     = 'Versandkosten PayPal Standard';
@@ -72,11 +73,12 @@ class Flagbit_MEP_Model_Data extends Mage_Catalog_Model_Convert_Parser_Product
 
         /* @var $node Mage_Eav_Model_Entity_Attribute_Group */
         foreach ($groups as $node) {
-
+            /** @var $nodeChildren Mage_Catalog_Model_Resource_Category_Attribute_Collection */
             $nodeChildren = Mage::getResourceModel('catalog/product_attribute_collection')
                 ->setAttributeGroupFilter($node->getId())
                 ->addVisibleFilter()
-                ->checkConfigurableProducts();
+                ->checkConfigurableProducts()
+                ->addStoreLabel(Mage::app()->getStore()->getId());
 
             $nodeChildren->getSelect()->where('main_table.is_user_defined = ?', 1);
 
@@ -86,7 +88,7 @@ class Flagbit_MEP_Model_Data extends Mage_Catalog_Model_Convert_Parser_Product
                     continue;
                 }
 
-                $items[$child->getAttributeCode()] = $child->getAttributeCode();
+                $items[$child->getAttributeCode()] = $child->getAttributeCode()." (".$child->getStoreLabel().")";
             }
         }
 

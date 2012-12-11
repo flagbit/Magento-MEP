@@ -534,7 +534,7 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
         set_time_limit(0);
 
         /** @var $collection Mage_Catalog_Model_Resource_Eav_Mysql4_Product_Collection */
-        $validAttrCodes = $this->_getExportAttrCodes();
+        $validAttrCodes = array();
         $writer = $this->getWriter();
         $defaultStoreId = Mage_Catalog_Model_Abstract::DEFAULT_STORE_ID;
 
@@ -543,7 +543,6 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
             $obj_profil = $this->getProfile();
             $delimiter = $obj_profil->getDelimiter();
             $enclosure = $obj_profil->getEnclose();
-            $originalrow = (boolean)$obj_profil->getExport();
 
             $writer->setDelimiter($delimiter);
             $writer->setEnclosure($enclosure);
@@ -566,9 +565,6 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
             $mapping->addFieldToFilter('profile_id', array('eq' => $this->getProfileId()));
             $mapping->setOrder('position', 'ASC');
 
-            if ($originalrow) {
-                $validAttrCodes = array();
-            }
 
             foreach ($mapping->getItems() as $item) {
                 $validAttrCodes[] = $item->getToField();
@@ -666,161 +662,99 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
                     foreach ($collection as $itemId => $item) { // go through all products
                         $rowIsEmpty = true; // row is empty by default
 
-                        if (!$originalrow) {
-                            foreach ($validAttrCodes as &$attrCode) { // go through all valid attribute codes
-                                $attrValue = $item->getData($attrCode);
-                                // TODO dirty?
-                                if ($attrCode == 'url') $attrValue = $item->getProductUrl();
 
-                                if (!empty($this->_attributeValues[$attrCode])) {
-                                    if ($this->_attributeTypes[$attrCode] == 'multiselect') {
-                                        $attrValue = explode(',', $attrValue);
-                                        $attrValue = array_intersect_key(
-                                            $this->_attributeValues[$attrCode],
-                                            array_flip($attrValue)
-                                        );
-                                        $rowMultiselects[$itemId][$attrCode] = $attrValue;
-                                    } else if (isset($this->_attributeValues[$attrCode][$attrValue])) {
-                                        $attrValue = $this->_attributeValues[$attrCode][$attrValue];
-                                    } else {
-                                        $attrValue = null;
-                                    }
-                                }
-                                // do not save value same as default or not existent
-                                if ($storeId != $defaultStoreId
-                                    && isset($dataRows[$itemId][$defaultStoreId][$attrCode])
-                                    && $dataRows[$itemId][$defaultStoreId][$attrCode] == $attrValue
-                                ) {
-                                    $attrValue = null;
-                                }
-                                if (is_scalar($attrValue)) {
-                                    $dataRows[$itemId][$storeId][$attrCode] = $attrValue;
-                                    $rowIsEmpty = false;
-                                    foreach ($mapping->getItems() as $ole) {
-                                        if ($ole->getAttributeCode() == $attrCode) {
-                                            $ole->setValue($attrValue);
-                                        }
-                                    }
+                        foreach ($mapping->getItems() as $mapitem) {
+                            $attrCode = $mapitem->getAttributeCode();
+                            $attrValue = $item->getData($attrCode);
 
+                            // TODO dirty? Yes!
+                            if ($attrCode == 'url') {
+                                $attrValue = Mage::app()->getStore($storeId)->getBaseUrl(Mage_Core_Model_Store::URL_TYPE_WEB) . $item->getUrlPath();
+                            }
+
+                            if ($attrCode == 'fixed_value_format') {
+                                $attrValue = $mapitem->getFormat();
+                            }
+
+                            if ($attrCode == 'versandkosten_vorkasse') {
+                                $obj_versand = Mage::helper('screenmaxx_shipping/config');
+                                $versand_klasse = $item->getAttributeText('a000001018');
+                                $versand_base = $obj_versand->getShippingClassCosts($versand_klasse, 'DE');
+                                $versand_extra = $obj_versand->getExtraChargeByPaymentMethod($mapitem->getFormat(), 'DE');
+                                $attrValue = $versand_base + $versand_extra;
+                            }
+
+                            if ($attrCode == 'versandkosten_nachnahme') {
+                                $obj_versand = Mage::helper('screenmaxx_shipping/config');
+                                $versand_klasse = $item->getAttributeText('a000001018');
+                                $versand_base = $obj_versand->getShippingClassCosts($versand_klasse, 'DE');
+                                $versand_base2 = $obj_versand->getCashOnDeliveryExtraCharge($versand_klasse, 'DE');
+                                $versand_base = $versand_base + $versand_base2;
+
+                                $versand_extra = $obj_versand->getExtraChargeByPaymentMethod($mapitem->getFormat(), 'DE');
+                                $attrValue = $versand_base + $versand_extra;
+                            }
+
+
+                            if ($attrCode == 'versandkosten_paypal') {
+                                $obj_versand = Mage::helper('screenmaxx_shipping/config');
+                                $versand_klasse = $item->getAttributeText('a000001018');
+                                $versand_base = $obj_versand->getShippingClassCosts($versand_klasse, 'DE');
+                                $versand_base2 = $versand_base + $item->getPrice();
+                                $versand_extra = $obj_versand->getExtraChargeByPaymentMethod($mapitem->getFormat(), 'DE');
+
+                                $versand_prozent = ($versand_base2 / 100) * $versand_extra;
+                                $attrValue = $versand_base + $versand_prozent;
+                            }
+
+                            if ($attrCode == 'versandkosten_sofort') {
+                                $obj_versand = Mage::helper('screenmaxx_shipping/config');
+                                $versand_klasse = $item->getAttributeText('a000001018');
+                                $versand_base = $obj_versand->getShippingClassCosts($versand_klasse, 'DE');
+                                $versand_extra = $obj_versand->getExtraChargeByPaymentMethod($mapitem->getFormat(), 'DE');
+                                $attrValue = $versand_base + $versand_extra;
+                            }
+
+                            if ($attrCode == 'versandkosten_creditcard') {
+                                $obj_versand = Mage::helper('screenmaxx_shipping/config');
+                                $versand_klasse = $item->getAttributeText('a000001018');
+                                $versand_base = $obj_versand->getShippingClassCosts($versand_klasse, 'DE');
+                                $versand_extra = $obj_versand->getExtraChargeByPaymentMethod($mapitem->getFormat(), 'DE');
+                                $versand_base2 = $versand_base + $item->getPrice();
+
+                                $versand_prozent = ($versand_base2 / 100) * $versand_extra;
+                                $attrValue = $versand_base + $versand_prozent;
+                            }
+
+                            if (!empty($this->_attributeValues[$attrCode])) {
+                                if ($this->_attributeTypes[$attrCode] == 'multiselect') {
+                                    $attrValue = explode(',', $attrValue);
+                                    $attrValue = array_intersect_key(
+                                        $this->_attributeValues[$mapitem->getToField()],
+                                        array_flip($attrValue)
+                                    );
+                                    $rowMultiselects[$itemId][$mapitem->getToField()] = $attrValue;
+                                } else if ($this->_attributeTypes[$attrCode] == 'select') {
+                                    $attrValue = $item->getAttributeText($attrCode);
+                                } else if (isset($this->_attributeValues[$mapitem->getToField()][$attrValue])) {
+                                    $attrValue = $this->_attributeValues[$mapitem->getToField()][$attrValue];
                                 } else {
-
-                                    foreach ($mapping->getItems() as $ole2) {
-                                        if ($ole2->getToField() == $attrCode) {
-                                            $map_value = $ole2->getValue();
-                                            $ole2->setValue(null); //reset
-                                            if (!empty($map_value)) {
-                                                $dataRows[$itemId][$storeId][$attrCode] = $map_value;
-                                                $rowIsEmpty = false; // mark row as not empty
-                                            }
-                                        }
-                                    }
+                                    $attrValue = null;
                                 }
                             }
-                        } else {
-                            foreach ($mapping->getItems() as $mapitem) {
-                                $attrCode = $mapitem->getAttributeCode();
-                                $attrValue = $item->getData($attrCode);
+                            // do not save value same as default or not existent
+                            if ($storeId != $defaultStoreId
+                                && isset($dataRows[$itemId][$defaultStoreId][$mapitem->getToField()])
+                                && $dataRows[$itemId][$defaultStoreId][$mapitem->getToField()] == $attrValue
+                            ) {
+                                $attrValue = null;
+                            }
 
-                                // TODO dirty? Yes!
-                                if ($attrCode == 'url') {
-                                    $attrValue = Mage::app()->getStore($storeId)->getBaseUrl() . $item->getUrlPath();
-                                    if ($storeId == 0) $attrValue = str_replace('/index.php/', '/', $attrValue);
-                                }
-
-                                if ($attrCode == 'fixed_value_format') {
-                                    $attrValue = $mapitem->getFormat();
-                                }
-
-                                if ($attrCode == 'versandkosten_vorkasse') {
-                                    $obj_versand = Mage::helper('screenmaxx_shipping/config');
-                                    $versand_klasse = $item->getAttributeText('a000001018');
-                                    $versand_base = $obj_versand->getShippingClassCosts($versand_klasse, 'DE');
-                                    $versand_extra = $obj_versand->getExtraChargeByPaymentMethod($mapitem->getFormat(), 'DE');
-                                    $attrValue = $versand_base + $versand_extra;
-                                }
-
-                                if ($attrCode == 'versandkosten_nachnahme') {
-                                    $obj_versand = Mage::helper('screenmaxx_shipping/config');
-                                    $versand_klasse = $item->getAttributeText('a000001018');
-                                    $versand_base = $obj_versand->getShippingClassCosts($versand_klasse, 'DE');
-                                    $versand_base2 = $obj_versand->getCashOnDeliveryExtraCharge($versand_klasse, 'DE');
-                                    $versand_base = $versand_base + $versand_base2;
-                                    
-                                    $versand_extra = $obj_versand->getExtraChargeByPaymentMethod($mapitem->getFormat(), 'DE');
-                                    $attrValue = $versand_base + $versand_extra;
-                                }
-
-
-                                if ($attrCode == 'versandkosten_paypal') {
-                                    $obj_versand = Mage::helper('screenmaxx_shipping/config');
-                                    $versand_klasse = $item->getAttributeText('a000001018');
-                                    $versand_base = $obj_versand->getShippingClassCosts($versand_klasse, 'DE');
-                                    $versand_base2 = $versand_base + $item->getPrice();
-                                    $versand_extra = $obj_versand->getExtraChargeByPaymentMethod($mapitem->getFormat(), 'DE');
-
-                                    $versand_prozent = ($versand_base2 / 100) * $versand_extra ;
-                                    $attrValue = $versand_base + $versand_prozent;
-                                }
-
-                                if ($attrCode == 'versandkosten_sofort') {
-                                    $obj_versand = Mage::helper('screenmaxx_shipping/config');
-                                    $versand_klasse = $item->getAttributeText('a000001018');
-                                    $versand_base = $obj_versand->getShippingClassCosts($versand_klasse, 'DE');
-                                    $versand_extra = $obj_versand->getExtraChargeByPaymentMethod($mapitem->getFormat(), 'DE');
-                                    $attrValue = $versand_base + $versand_extra;
-                                }
-
-                                if ($attrCode == 'versandkosten_creditcard') {
-                                    $obj_versand = Mage::helper('screenmaxx_shipping/config');
-                                    $versand_klasse = $item->getAttributeText('a000001018');
-                                    $versand_base = $obj_versand->getShippingClassCosts($versand_klasse, 'DE');
-                                    $versand_extra = $obj_versand->getExtraChargeByPaymentMethod($mapitem->getFormat(), 'DE');
-                                    $versand_base2 = $versand_base + $item->getPrice();
-
-                                    $versand_prozent = ($versand_base2 / 100) * $versand_extra ;
-                                    $attrValue = $versand_base + $versand_prozent;
-                                }
-
-                                if (!empty($this->_attributeValues[$attrCode])) {
-                                    if ($this->_attributeTypes[$attrCode] == 'multiselect') {
-                                        $attrValue = explode(',', $attrValue);
-                                        $attrValue = array_intersect_key(
-                                            $this->_attributeValues[$mapitem->getToField()],
-                                            array_flip($attrValue)
-                                        );
-                                        $rowMultiselects[$itemId][$mapitem->getToField()] = $attrValue;
-                                    } else if ($this->_attributeTypes[$attrCode] == 'select') {
-                                        $attrValue = $item->getAttributeText($attrCode);
-                                    } else if (isset($this->_attributeValues[$mapitem->getToField()][$attrValue])) {
-                                        $attrValue = $this->_attributeValues[$mapitem->getToField()][$attrValue];
-                                    } else {
-                                        $attrValue = null;
-                                    }
-                                }
-
-                                //apply format
-                                /* No longer needed because it is now handled by twig
-                                if (strlen($mapitem->getFormat()) > 0 && strpos($mapitem->getFormat(), '%') !== false) {
-                                    //dirty but needed, because no exception handling
-                                    $attrValue = @sprintf($mapitem->getFormat(), $attrValue);
-                                }
-                                */
-                                // do not save value same as default or not existent
-                                if ($storeId != $defaultStoreId
-                                    && isset($dataRows[$itemId][$defaultStoreId][$mapitem->getToField()])
-                                    && $dataRows[$itemId][$defaultStoreId][$mapitem->getToField()] == $attrValue
-                                ) {
-                                    $attrValue = null;
-                                }
-
-                                if (is_scalar($attrValue)) {
-                                    $dataRows[$itemId][$storeId][$mapitem->getToField()] = $attrValue;
-                                    $rowIsEmpty = false;
-                                }
+                            if (is_scalar($attrValue)) {
+                                $dataRows[$itemId][$storeId][$mapitem->getToField()] = $attrValue;
+                                $rowIsEmpty = false;
                             }
                         }
-
-
 
 
                         if ($rowIsEmpty) { // remove empty rows
@@ -990,51 +924,8 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
 
                 if ($offsetProducts == 1) {
                     // create export file
-                    if (!$originalrow) {
-                        $headerCols = array_merge(
-                            array(
-                                self::COL_SKU, self::COL_STORE, self::COL_ATTR_SET,
-                                self::COL_TYPE, self::COL_CATEGORY, self::COL_ROOT_CATEGORY, '_product_websites'
-                            ),
-                            $validAttrCodes,
-                            reset($stockItemRows) ? array_keys(end($stockItemRows)) : array(),
-                            array(),
-                            array(
-                                '_links_related_sku', '_links_related_position', '_links_crosssell_sku',
-                                '_links_crosssell_position', '_links_upsell_sku', '_links_upsell_position',
-                                '_associated_sku', '_associated_default_qty', '_associated_position'
-                            ),
-                            array('_tier_price_website', '_tier_price_customer_group', '_tier_price_qty', '_tier_price_price'),
-                            array('_group_price_website', '_group_price_customer_group', '_group_price_price'),
-                            array(
-                                '_media_attribute_id',
-                                '_media_image',
-                                '_media_lable',
-                                '_media_position',
-                                '_media_is_disabled'
-                            )
-                        );
+                    $writer->setHeaderCols($validAttrCodes);
 
-                        // have we merge custom options columns
-                        if ($customOptionsData) {
-                            $headerCols = array_merge($headerCols, $customOptCols);
-                        }
-
-                        // have we merge configurable products data
-                        if ($configurableData) {
-                            $headerCols = array_merge($headerCols, array(
-                                    '_super_products_sku', '_super_attribute_code',
-                                    '_super_attribute_option', '_super_attribute_price_corr'
-                                ),
-                                reset($stockItemRows) ? array_keys(end($stockItemRows)) : array(),
-                                array()
-                            );
-                        }
-
-                        $writer->setHeaderCols($headerCols);
-                    } else {
-                        $writer->setHeaderCols($validAttrCodes);
-                    }
                 }
 
                 foreach ($dataRows as $productId => &$productData) {
