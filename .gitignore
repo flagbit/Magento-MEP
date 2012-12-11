@@ -19,3 +19,8 @@ build.properties
 *.pdf
 docs/*.log
 docs/*.aux
+docs/*.toc
+docs/*.out
+docs/*.lot
+docs/*.lof
+
