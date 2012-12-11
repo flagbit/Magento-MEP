@@ -35,7 +35,9 @@ Auswirkungen beim regelmäßigen, automatischen Export.
 für bestimmte Preissuchmaschine zu wählen und damit das Profil zu 
 erstellen
 
+
 (//TODO Bild einfügen vom Profil)
+
 
 Ein Klick auf "Save and Continue Edit" führt uns in den 
 Bearbeitungsmodus eines Profils. Auf der linken Seite sind die 
@@ -48,5 +50,66 @@ Der Aktionsknopf "un" kann zum testen des Profils verwendet werden.
 Achtung: Bei großen Datenmengen kann dies längere Zeit in Anspruch 
 nehmen. Daher empfehlen wir den Export zum testen mittels Filter 
 einzuschränken. Dazu später mehr.
+
+\subsubsection{Tab Field Mapping}
+Im Tab "Field Mapping" werden die Spalten des Exports erstellt. Dazu 
+werden die Attribute des Produkte zugeordnet zu den Spalten im Export. 
+So kann zum Beispiel die SKU eines Produkte aus Magento in die Feld 
+"Artikelnummer" im Export kopiert werden. Dabei ist es möglich das ein 
+Attribut mehrfach verwendet werden kann. Zum Beispiel kann die 
+description in das Feld "Beschreibung" und gleichzeitig in das Feld 
+"Kurzbeschreibung" kopiert werden. Hierbei werden dann zwei Mappings 
+nagelegt. Zusehen ist das im folgenden Bild:
+
+
+(//TODO Bild mit doppelten Mapping einfügen)
+
+
+Um ein Mapping hinzuzufügen klickt man auf den Aktionsknopf "Add 
+Attribute". Daraufhin öffnet sich eine Maske in der folgende Werte 
+abgefragt werden:
+
+1. "In Database": Hier werden alle Attribute nach Gruppen aufgelistet. 
+Das ist die Quelle für den Wert einer Zeile. 
+
+
+2. "To Field": Der Name der Spalte in Export
+
+
+3. "Format": Wird bei festen Werten verwendet; siehe Spezialfälle
+
+
+4. "Position": Bestimmt die Reihenfolge der Spalten im Export
+
+
+(//TODO Bild von Add Attrbite mit ausgefüllten Werten)
+
+
+Ein erneuter Klick auf die Zeile öffnet den Dialog nochmals und es 
+können die Werte editiert werden. Mappings können über den "Delete" 
+Link am Ende einer jeden Splate in der Tabelle gelöscht werden. Wenn 
+mehrere Mappings gleichzeit gelöscht werden sollen, dann können diese 
+Markiert und über die Werkzeugleiste über der Tabelle gelöscht werden.
+
+
+(//TODO Bild von den Massactions)
+
+
+\paragraph{Spezialfälle}
+In der Liste der Attribute gibt es einige Sonderfälle und 
+Pseudoattribute.
+
+1. "fixed\_value\_format": In Kombination mit Format können damit feste 
+Werte in den Export geschrieben werden. Anwendungsfälle sind hier 
+Versandkosten und ähnliches
+
+
+2. "url": Ist ein Deeplink auf das Produkt, enthält also keine 
+zusätzlichen Parameter oder Kategorien
+
+
+3. "category": Hiermit wird ein Kategoriepfad ähnlich den Breadcrumbs 
+dem Export hinzugefügt. Wichtig ist dabei das Kategorietrennzeichen im 
+Tab "Dataformat"
 
 \end{document}
