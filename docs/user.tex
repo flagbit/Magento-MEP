@@ -33,40 +33,52 @@
 \chapter{Einführung und Installation}
 
 \section{Was ist MEP?}
+\label{sec:mep}
+
 MEP steht für "Magento Export Plattform" und soll das exportieren von
-Produktezu verschieden Preisvergleichsplattformen erleichtern. Dabei
-handelt es sich um ein Neuentwicklung der Firma Flagbit GmbH \& Co. KG
-und basiert auf dem Import-Export Module der Magento Community Edition.
+Produkte zu verschieden Preisvergleichsplattformen erleichtern. Dabei
+handelt es sich um eine Neuentwicklung der Firma Flagbit GmbH \& Co. KG
+und basiert technisch auf dem Import-Export Modul der Magento Community Edition.
 
 \section{Installation}
-Es werden einmal die Installation über die Quellen bei GitHub mittels
-modman, sowie über den Magento Connect Manager (siehe Bild: \ref{figure:install}) in
-Magento-Backend unterstützt.  Nach erfolgreichen An- und Abmelden gibt
-es einen neuen Menüpunkt names "MEP".
+\label{sec:install}
+
+Es wird die Installation über die Quellen bei GitHub mittels
+modman, sowie über den Magento Connect Manager (siehe Bild: 
+\ref{figure:install}) im Magento-Backend unterstützt.  Nach 
+erfolgreichen An- und Abmelden gibt es einen neuen Menüpunkt mit der 
+Bezeichung "MEP" (siege Bild: \ref{figure:admin_menu}).
+
+\begin{figure}
+ \includegraphics[width=1\textwidth]{img/bild01_1.png}
+  \caption{Menüpunkt im Admin}
+  \label{figure:admin_menu}
+\end{figure}
 
 \begin{figure}
  \includegraphics[width=1\textwidth]{img/bild01.png}
-  \caption{Nach der Installation}
+  \caption{Magento Connect Manager}
   \label{figure:install}
 \end{figure}
 
 \chapter{Erkärungen zum Nutzerinterface}
 In MEP wird jeder neue Export als Profil angesehen. Jedes Profil ist
 eine abgeschlossene Einheit. Das heißt die Profile teilen sich keine
-Daten und keine Konfiguration.
+Daten und keine Konfigurationen.
 
 \section{Profil erstellen}
-Um ein neues Propfil zu erstellen klickt man im Menüpunkt MEP auf
-Export. Es wird nun eine Liste der verfügbaren
-Profile angezeigt. Über "Add new" (siehe Bild: \ref{figure:new_profile}) 
+\label{sec:create}
+
+Neue Profile werden über den Menüpunkt Export unterhalb von MEP 
+erstellt. Nach dem Klick auf Export wird eine Liste der verfügbaren
+Profile angezeigt. Die Tabelle zeigt alle angelegten Profile mit ihren 
+ID's und Namen. Über die Spalte Action lassen sich Profile löschen 
+und editieren. Die Eingabefelder oberhalb der Tabelle werden zum 
+filtern und suchen verwendet.
+
+Über "Add new" (siehe Bild: \ref{figure:new_profile}) 
 können neue Profile angelegt werden. Dazu müssen folgende Daten 
 bereit gestellt werden.
-
-\begin{figure}
- \includegraphics[width=1\textwidth]{img/bild02.png}
-  \caption{Liste der Profile}
-  \label{figure:profile_list}
-\end{figure}
 
 \begin{description}
 \item[Profile Name] Der Name des Profil
@@ -78,32 +90,47 @@ erstellen
 \end{description}
 
 \begin{figure}
+ \includegraphics[width=1\textwidth]{img/bild02.png}
+  \caption{Liste der Profile}
+  \label{figure:profile_list}
+\end{figure}
+
+\begin{figure}
  \includegraphics[width=1\textwidth]{img/bild03.png}
   \caption{Neues Profil anlegen}
   \label{figure:new_profile}
 \end{figure}
 
-Ein Klick auf "Save and Continue Edit" führt uns in den
+Ein Klick auf "Save and Continue Edit" führt in den
 Bearbeitungsmodus eines Profils. Auf der linken Seite sind die
-veschiedene Tabs zu sehen. Diese gruppieren die Eigenschaften des
+veschiedenen Tabs zu sehen (siehe Bild: \ref{figure:new_profile_tabs}). 
+Diese gruppieren die Eigenschaften des
 Profils. In der rechten oberen Bereich sind die Aktionen zum
 speichern (Save), speichern und weiterbearbeiten (Save and Continue
 Edit), Änderungen verwerfen (Reset) und löschen (Delete) zu sehen.
-Der Aktionsknopf "un" kann zum testen des Profils verwendet werden.
+Der Aktionsknopf "Run" kann zum testen des Profils verwendet werden.
 
 \textbf{Achtung}: Bei großen Datenmengen kann dies längere Zeit in Anspruch
-nehmen. Daher empfehlen wir den Export zum testen mittels Filter
-einzuschränken. Dazu später mehr.
+nehmen. Daher empfiehlt es sich den Export zum testen mittels Filter
+einzuschränken. Dazu im Abschnitt \ref{sec:filter} mehr.
+
+\begin{figure}
+ \includegraphics[width=1\textwidth]{img/bild04.png}
+  \caption{Profil bearbeiten - Tabs}
+  \label{figure:new_profile_tabs}
+\end{figure}
 
 \subsection{Tab Field Mapping}
+\label{sec:field_mapping}
+
 Im Tab "Field Mapping" werden die Spalten des Exports erstellt. Dazu
 werden die Attribute des Produkte zugeordnet zu den Spalten im Export.
-So kann zum Beispiel die SKU eines Produkte aus Magento in die Feld
+So kann zum Beispiel die SKU eines Produkte aus Magento in das Feld
 "Artikelnummer" im Export kopiert werden. Dabei ist es möglich das ein
 Attribut mehrfach verwendet werden kann. Zum Beispiel kann die
-image\_url in das Feld "bild" und gleichzeitig in das Feld
+image\_url in das Feld "bild" und gleichzeitig auch in das Feld
 "image" kopiert werden. Hierbei werden dann zwei Mappings
-nagelegt. Zusehen ist das im Bild:
+angelegt. Zusehen ist das im Bild:
 
 \begin{figure}
  \includegraphics[width=1\textwidth]{img/bild07.png}
@@ -111,9 +138,9 @@ nagelegt. Zusehen ist das im Bild:
   \label{figure:double_mapping}
 \end{figure}
 
-Um ein Mapping hinzuzufügen klickt man auf den Aktionsknopf "Add
-Attribute". Daraufhin öffnet sich eine Maske in der folgende Werte
-abgefragt werden:
+Ein Klick auf den Aktionsknopf "Add Attribute" fügt dem Profil neue 
+Mappings hinzu. Es öffnet sich ein Eingabemaske in der folgende Daten 
+hinterlegt werden müssen:
 
 \begin{description}
 
@@ -147,6 +174,7 @@ Markiert und über die Werkzeugleiste über der Tabelle gelöscht werden.
 \end{figure}
 
 \subsubsection{Spezialfälle}
+\label{sec:special}
 In der Liste der Attribute gibt es einige Sonderfälle und
 Pseudoattribute.
 
@@ -191,6 +219,8 @@ Serverinstallation ab. Bitte fragen sie dies beim Hoster nach.
 
 
 \subsubsection{Spezialfall: Use Templates}
+\label{sec:templates}
+
 Das CSV-System von MEP basiert auf der Templatesprache Twig. Aus den
 Fieldmappings und den Data Format Optionen wird ein Template für den
 Header und für ein Zeile des Exports generiert. Wenn die Option "Use
@@ -202,6 +232,7 @@ gespeichert werden. Erst dann steht ein zusätzlicher Tab zur Verfügung.
 übertragen werden!
 
 \subsection{Export Filters}
+\label{sec:filter}
 Jeder Profil in MEP hat die Möglichkeit die Menge der zu exportierden
 Produkte einzusschränken. Dies kann nützlich sein um zum Beispiel nur
 Produkte ab einem bestimmten Preis zu übermitteln oder
@@ -210,6 +241,7 @@ auszuschließen. Technisch basieren die Filter auf den
 Katalogpreisregeln und lassen sich analog verwenden.
 
 \subsubsection{Filter anlegen}
+\label{sec:filter_create}
 Dazu klicken sie auf das grüne Plus-Zeichen und wählen sie das
 Attribut auf welches gefiltert werden soll aus. Alle fett
 unterstrichenen Textelemente sind interaktiv. Sie können den Vergleich
@@ -228,6 +260,7 @@ dargestellt.
 \end{figure}
 
 \subsubsection{Filter löschen}
+\label{sec:filter_delete}
 
 \textbf{Empfehlung}: Bei der Erstellung eines Profils sollten sie die Menge auf
 wenige Produkte beschränken. Wenn der Export korrekt angelegt wurde,
