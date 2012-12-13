@@ -3,6 +3,9 @@
 class Flagbit_MEP_Block_Adminhtml_Profil_Popup
     extends Mage_Core_Block_Template
 {
+
+    protected $_selectAttributeCodes = array();
+
     public function __construct()
     {
         parent::__construct();
@@ -18,4 +21,14 @@ class Flagbit_MEP_Block_Adminhtml_Profil_Popup
         return Mage::getModel('mep/mapping')->load($this->getRequest()->getParam('id'));
     }
 
+    public function getIsSelectedAttribute($attributeCode)
+    {
+        $result = false;
+        if( !in_array($attributeCode, $this->_selectAttributeCodes)
+            && in_array($attributeCode, $this->getMapping()->getAttributeCodeAsArray())){
+            $this->_selectAttributeCodes[] = $attributeCode;
+            $result = true;
+        }
+        return $result;
+    }
 }

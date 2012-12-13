@@ -37,12 +37,12 @@
                     <?php foreach ($aha as $_value => $_label): ?>
                         <?php if (is_array($_label)): ?>
                         <optgroup label="<?php echo $_value ?>">
-                        <?php foreach ($_label as $_attribute): ?>
-                            <option value="<?php echo $_attribute ?>" <?php echo in_array($_attribute, $this->getMapping()->getAttributeCodeAsArray()) ? 'selected' : '';?> ><?php echo $_attribute ?></option>
+                        <?php foreach ($_label as $_attributeCode => $_attributeLabel): ?>
+                            <option value="<?php echo $_attributeCode ?>" <?php echo $this->getIsSelectedAttribute($_attributeCode) ? 'selected' : '';?> ><?php echo $_attributeLabel ?></option>
                         <?php endforeach?>
                         </optgroup>
                         <?php  else: ?>
-                            <option value="<?php echo $_value ?>" <?php echo in_array($_value, $this->getMapping()->getAttributeCodeAsArray()) ? 'selected' : '';?> ><?php echo $_label ?></option>
+                            <option value="<?php echo $_value ?>" <?php echo $this->getIsSelectedAttribute($_value) ? 'selected' : '';?> ><?php echo $_label ?></option>
                         <?php endif; ?>
                     <?php endforeach; ?>
                     </select>
