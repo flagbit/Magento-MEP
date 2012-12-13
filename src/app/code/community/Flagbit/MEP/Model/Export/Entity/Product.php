@@ -526,7 +526,6 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
     {
         $this->_initTypeModels()
             ->_initAttributes()
-            ->_initStores()
             ->_initAttributeSets()
             ->_initWebsites()
             ->_initCategories();
@@ -543,6 +542,10 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
             $obj_profil = $this->getProfile();
             $delimiter = $obj_profil->getDelimiter();
             $enclosure = $obj_profil->getEnclose();
+
+            $this->_storeIdToCode[0] = 'admin';
+            $this->_storeIdToCode[$obj_profil->getStoreId()] = Mage::app()->getStore($obj_profil->getStoreId())->getCode();
+
 
             $writer->setDelimiter($delimiter);
             $writer->setEnclosure($enclosure);

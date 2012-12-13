@@ -47,6 +47,7 @@ class Flagbit_MEP_Block_Adminhtml_Profil_View_Grid extends Mage_Adminhtml_Block_
             'header' => Mage::helper('mep')->__('ID'),
             'align' => 'left',
             'index' => 'id',
+            'width' => '50px'
         ));
         $this->addColumn('name', array(
             'header' => Mage::helper('mep')->__('Profile Name'),
