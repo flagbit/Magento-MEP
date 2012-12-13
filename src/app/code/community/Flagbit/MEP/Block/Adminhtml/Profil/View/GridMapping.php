@@ -25,7 +25,7 @@ class Flagbit_MEP_Block_Adminhtml_Profil_View_GridMapping extends Mage_Adminhtml
             $this->getLayout()->createBlock('adminhtml/widget_button')
                 ->setData(array(
                 'label' => Mage::helper('adminhtml')->__('Add Attribute'),
-                'onclick' => 'doFieldMapping()',
+                'onclick' => "mepTools.openDialog('".$this->getUrl('*/profil/popup', array('profile_id' => $this->getRequest()->getParam('profile_id', null)))."')",
                 'class' => 'task'
             ))
         );
@@ -36,6 +36,12 @@ class Flagbit_MEP_Block_Adminhtml_Profil_View_GridMapping extends Mage_Adminhtml
     public function getAddfilterButtonHtml()
     {
         return $this->getChildHtml('addfilter_button');
+    }
+
+
+    public function getRowUrl($row)
+    {
+        return "javascript:mepTools.openDialog('".$this->getUrl('*/profil/popup', array('id' => $row->getId(), 'profile_id' => $this->getRequest()->getParam('profile_id', null)))."')";
     }
 
 
@@ -70,7 +76,6 @@ class Flagbit_MEP_Block_Adminhtml_Profil_View_GridMapping extends Mage_Adminhtml
     protected function _afterToHtml($html)
     {
         $html = parent::_afterToHtml($html);
-        $html .= $this->fetchView('adminhtml/default/default/template/mep/form/profil/view/aftergridmapping.phtml');
         return $html;
     }
 
