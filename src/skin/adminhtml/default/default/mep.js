@@ -26,7 +26,7 @@ var mepTools = {
             closable:true,
             className:'magento',
             windowClassName:"popup-window",
-            title:Translator.translate('Insert Widget...'),
+            title:Translator.translate('Attribute Settings'),
             top:50,
             width:400,
             //height:450,

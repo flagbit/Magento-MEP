@@ -32,7 +32,6 @@ class Flagbit_MEP_Block_Adminhtml_Profil_View_GridMapping extends Mage_Adminhtml
         return $this;
     }
 
-
     public function getAddfilterButtonHtml()
     {
         return $this->getChildHtml('addfilter_button');
