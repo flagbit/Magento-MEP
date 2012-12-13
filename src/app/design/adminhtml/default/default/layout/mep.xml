@@ -1,10 +1,18 @@
 <?xml version="1.0"?>
 <layout>
-    <default>
+    <adminhtml_profil_edit>
         <reference name="head">
-                <action method="addItem"><type>js</type><name>mage/adminhtml/rules.js</name><params/></action>
+            <action method="addItem"><type>skin_js</type><script>chosen/chosen.proto.js</script></action>
+            <action method="addItem"><type>skin_js</type><script>mep.js</script></action>
+            <action method="addItem"><type>js</type><script>mage/adminhtml/rules.js</script><params/></action>
+            <action method="addCss"><name>chosen/chosen.css</name></action>
+            <action method="addCss"><name>mep.css</name></action>
+            <action method="addJs"><script>mage/adminhtml/wysiwyg/widget.js</script></action>
+            <action method="addItem"><type>js</type><script>prototype/window.js</script></action>
+            <action method="addItem"><type>js_css</type><script>prototype/windows/themes/default.css</script></action>
+            <action method="addCss"><name>lib/prototype/windows/themes/magento.css</name></action>ion>
         </reference>
-    </default>
+    </adminhtml_profil_edit>
 
 	<adminhtml_mep_index>
         <reference name="content">
@@ -39,6 +47,7 @@
     </adminhtml_profil_new>
 
     <adminhtml_profil_attribute_index>
+
         <block type="core/text_list" name="root" output="toHtml">
             <block type="mep/adminhtml_profil_view_gridMapping" name="fields.grid"/>
             <block type="adminhtml/widget_grid_serializer" name="grid_serializer">
@@ -57,26 +66,5 @@
         </block>
     </adminhtml_profil_attribute_index>
 
-
-
-    <adminhtml_profil_popup translate="label">
-        <label>Field Mapping</label>
-        <reference name="root">
-            <action method="setTemplate"><template>mep/popup.phtml</template></action>
-        </reference>
-        <reference name="head">
-            <action method="addJs"><script>scriptaculous/scriptaculous.js</script></action>
-            <action method="addJs"><script>varien/product.js</script></action>
-        </reference>
-        <reference name="content">
-            <block type="mep/adminhtml_profil_popup" name="mep.popup" template="mep/popup2.phtml"/>
-        </reference>
-    </adminhtml_profil_popup>
-
-	<default>
-		<reference name="head">
-			<action method="addCss"><name>mep.css</name></action>
-		</reference>
-	</default>
 
 </layout>

@@ -24,22 +24,97 @@
  * @license     http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
 ?>
-<?php
-/**
- * Template for Mage_Page_Block_Html
- */
-?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="<?php echo $this->getLang() ?>" lang="<?php echo $this->getLang() ?>">
-<head>
-<?php echo $this->getChildHtml('head') ?>
-</head>
-<body class="page-popup<?php echo $this->getBodyClass()?$this->getBodyClass() : ''?>">
-<div>
-    <?php echo $this->getChildHtml('after_body_start') ?>
-    <?php echo $this->getChildHtml('content') ?>
-    <?php echo $this->getChildHtml('before_body_end') ?>
+
+<div id="container">
+    <div id="field_content" class="mapping-dialog">
+        <form action="<?php echo Mage::helper("adminhtml")->getUrl("adminhtml/profil_attribute/edit") ?>" id="mappingform">
+        <ul>
+            <li>
+                <label for="attribute_code">In Database</label>
+                <div class="input-box">
+                    <select name="attribute_code[]" id="attribute_code" class="chzn-select" multiple="multiple">
+                    <?php $aha = Mage::getModel('mep/data')->getExternalAttributes(); ?>
+                    <?php foreach ($aha as $_value => $_label): ?>
+                        <?php if (is_array($_label)): ?>
+                        <optgroup label="<?php echo $_value ?>">
+                        <?php foreach ($_label as $_attributeCode => $_attributeLabel): ?>
+                            <option value="<?php echo $_attributeCode ?>" <?php echo $this->getIsSelectedAttribute($_attributeCode) ? 'selected' : '';?> ><?php echo $_attributeLabel ?></option>
+                        <?php endforeach?>
+                        </optgroup>
+                        <?php  else: ?>
+                            <option value="<?php echo $_value ?>" <?php echo $this->getIsSelectedAttribute($_value) ? 'selected' : '';?> ><?php echo $_label ?></option>
+                        <?php endif; ?>
+                    <?php endforeach; ?>
+                    </select>
+                </div>
+            </li>
+            <li>
+                <label for="to_field">To Field</label>
+                <div class="input-box">
+                    <input type="text" name="to_field" value="<?php echo $this->getMapping()->getToField();?>" id="to_field" class="input-text">
+                </div>
+            </li>
+            <li>
+                <label for="format">Format</label>
+                <div class="input-box">
+                    <input type="text" name="format" value="<?php echo $this->getMapping()->getFormat();?>" id="format" class="input-text">
+                </div>
+            </li>
+            <li>
+                <label for="position">Position</label>
+                <div class="input-box">
+                    <input type="text" name="position" value="<?php echo $this->getMapping()->getPosition();?>" id="position" class="input-text">
+                </div>
+            </li>
+            <li>
+                <input type="submit" value="Submit" class="form-button">
+            </li>
+        </ul>
+        <input type="hidden" name="profile_id" value="<?php echo $this->getProfileId() ?>" />
+        <input type="hidden" name="id" id="id" value="<?php echo $this->getMapping()->getId();?>" />
+        </form>
+    </div>
 </div>
-<?php echo $this->getAbsoluteFooter() ?>
-</body>
-</html>
+
+<script type="text/javascript">
+    // <![CDATA[
+
+    AbstractChosen.prototype.set_default_text = function() {
+      this.form_field = $('attribute_code');
+        this.is_multiple = true;
+      if (this.is_multiple) {
+        this.default_text = "<?php echo $this->__('Select Some Attributes');?>";
+      } else {
+        this.default_text =  "<?php echo $this->__('Select a Attribute');?>";
+      }
+      return this.results_none_found =  "<?php echo $this->__('No results match');?>";
+    };
+
+    new Chosen($$(".chzn-select"));
+
+    Event.observe("mappingform", "submit", function(event) {
+        $("mappingform").request({
+            onFailure : function() {
+            },
+            onSuccess : function(t) {
+                var parameters = {isAjax: true, profile_id:<?php echo $this->getProfileId() ?>};
+                // make another ajax call to reload the fields table
+                new Ajax.Request("<?php echo Mage::helper("adminhtml")->getUrl("adminhtml/profil_attribute/index") ?>", {
+                    method: "post",
+                    parameters: parameters,
+                    onSuccess: function(transport)  {
+                        if(transport.status == 200) {
+                            var response = transport.responseText;
+                            $("rule_tabs_form_fields_content").update(response);
+                        }
+                    }
+                });
+            }
+        });
+        Event.stop(event);
+        mepTools.closeDialog();
+        // stop the form from submitting
+    });
+    // ]]>
+</script>
+

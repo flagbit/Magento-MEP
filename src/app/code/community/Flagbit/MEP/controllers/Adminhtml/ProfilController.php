@@ -25,6 +25,19 @@ class Flagbit_MEP_Adminhtml_ProfilController extends Mage_Adminhtml_Controller_A
         $this->renderLayout();
     }
 
+    /**
+     * indexAction
+     *
+     * @return void
+     */
+    public function popupAction()
+    {
+
+        $this->loadLayout('empty')->renderLayout();
+        $html = $this->getLayout()->createBlock('mep/adminhtml_profil_popup')->setTemplate('mep/popup.phtml')->toHtml();
+        $this->getResponse()->setBody($html);
+    }
+
     public function newAction()
     {
         $this->_initAction();

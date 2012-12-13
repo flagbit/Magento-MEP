@@ -16,3 +16,11 @@ build.properties
 /cache.properties
 .idea/*
 .vagrant/*
+*.pdf
+docs/*.log
+docs/*.aux
+docs/*.toc
+docs/*.out
+docs/*.lot
+docs/*.lof
+docs/*.bak

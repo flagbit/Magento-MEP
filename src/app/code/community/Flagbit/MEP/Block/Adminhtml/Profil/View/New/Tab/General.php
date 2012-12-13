@@ -55,7 +55,7 @@ class Flagbit_MEP_Block_Adminhtml_Profil_View_New_Tab_General extends Mage_Admin
         );
 
 
-        $fieldset->addField(
+        /*$fieldset->addField(
             'template',
             'select',
             array(
@@ -65,7 +65,7 @@ class Flagbit_MEP_Block_Adminhtml_Profil_View_New_Tab_General extends Mage_Admin
                 'name' => 'template',
                 'options' => $this->_getTemplateOptionsHash()
             )
-        );
+        );*/
 
         $form->setValues($data);
         return parent::_prepareForm();

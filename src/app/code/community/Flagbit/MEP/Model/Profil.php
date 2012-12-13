@@ -60,7 +60,7 @@ class Flagbit_MEP_Model_Profil extends Mage_Core_Model_Abstract
             // gen Array with missing Fields
             $newMappings = array();
             foreach($collection as $mapping){
-                if(strpos($template, $mapping->getToFieldNormalized()) === false){
+                if(strpos($template, $mapping->getAttributeCode()) === false){
                     $newMappings[] = $mapping;
                 }
             }
@@ -104,27 +104,28 @@ class Flagbit_MEP_Model_Profil extends Mage_Core_Model_Abstract
 
                     case 'text':
                     case 'varchar':
-                        $_field = '{{ '.$mapping->getToFieldNormalized().'|e }}';
+                        $_field = '{{ '.$mapping->getAttributeCode().'|e }}';
                         break;
 
                     case 'int':
                     case 'decimal':
-                        $_field = '{{ '.$mapping->getToFieldNormalized().'|number_format(2, ",", ".")|e }}';
+                        $_field = '{{ '.$mapping->getAttributeCode().'|number_format(2, ",", ".")|e }}';
                         break;
 
                     case 'datetime':
-                        $_field = '{{ '.$mapping->getToFieldNormalized().'|date("d.m.Y")|e }}';
+                        $_field = '{{ '.$mapping->getAttributeCode().'|date("d.m.Y")|e }}';
                         break;
 
                     default:
-                        $_field = '{{ '.$mapping->getToFieldNormalized().'|e }}';
+                        $_field = '{{ '.$mapping->getAttributeCode().'|e }}';
                         break;
                 }
 
                 // handle mappings with format definition
-                if($mapping->getFormat()){
-                    $_field = '{{ "'.$mapping->getFormat().'"|format('.$mapping->getToFieldNormalized().')|e }}';
+                if($mapping->getFormat() || count($mapping->getAttributeCodeAsArray()) > 1){
+                    $_field = '{{ "'.$mapping->getFormat().'"|format('.implode(',', $mapping->getAttributeCodeAsArray()).')|e }}';
                 }
+
                 break;
 
         }

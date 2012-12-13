@@ -45,7 +45,7 @@ class Flagbit_MEP_Block_Adminhtml_Profil_View_Edit_Tab_Format extends Mage_Admin
             'use_twig_templates',
             'select',
             array(
-                'label' => Mage::helper('mep')->__('use Templates'),
+                'label' => Mage::helper('mep')->__('Use Templates'),
                 'name' => 'use_twig_templates',
                 'options' => $this->_getYesNoOptionsHash(),
                 'note' => "only for experienced user"
@@ -77,19 +77,9 @@ class Flagbit_MEP_Block_Adminhtml_Profil_View_Edit_Tab_Format extends Mage_Admin
             'originalrow',
             'select',
             array(
-                'label' => Mage::helper('mep')->__('Original Magento attributenames in first row'),
+                'label' => Mage::helper('mep')->__('Skip Header'),
                 'name' => 'originalrow',
                 'options' => $this->_getYesNoOptionsHash()
-            )
-        );
-
-        $fieldset->addField(
-            'export',
-            'select',
-            array(
-                'label' => Mage::helper('mep')->__('Export'),
-                'name' => 'export',
-                'options' => $this->_getFilterOptionsHash()
             )
         );
 
@@ -140,15 +130,6 @@ class Flagbit_MEP_Block_Adminhtml_Profil_View_Edit_Tab_Format extends Mage_Admin
         $options = array(
             0 => Mage::helper('mep')->__('No'),
             1 => Mage::helper('mep')->__('Yes'),
-        );
-        return $options;
-    }
-
-    protected function _getFilterOptionsHash()
-    {
-        $options = array(
-            0 => Mage::helper('mep')->__('All fields'),
-            1 => Mage::helper('mep')->__('Only mapped fields'),
         );
         return $options;
     }

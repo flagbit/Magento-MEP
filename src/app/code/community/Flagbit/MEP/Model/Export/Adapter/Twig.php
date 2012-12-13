@@ -36,11 +36,6 @@ class Flagbit_MEP_Model_Export_Adapter_Twig extends Mage_ImportExport_Model_Expo
     protected $_csvWriter;
 
     /**
-     * @var null
-     */
-    protected $_normalizedArrayKeys = NULL;
-
-    /**
      * @var Twig_Environment
      */
     protected $_twig;
@@ -86,7 +81,7 @@ class Flagbit_MEP_Model_Export_Adapter_Twig extends Mage_ImportExport_Model_Expo
      */
     public function getContents()
     {
-        $result = $this->_twig->render($this->_twigFooterTemplate, array_combine(array_keys($this->_headerCols), array_keys($this->_headerCols)));
+        $result = $this->_twig->render('footer', array_combine(array_keys($this->_headerCols), array_keys($this->_headerCols)));
         fwrite($this->_fileHandler, trim($result).PHP_EOL);
         return file_get_contents($this->_destination);
     }
@@ -108,14 +103,23 @@ class Flagbit_MEP_Model_Export_Adapter_Twig extends Mage_ImportExport_Model_Expo
     {
         parent::_init();
         $this->_fileHandler = fopen($this->_destination, 'w');
-        $loader = new Twig_Loader_String();
-        $this->_twig = new Twig_Environment($loader);
+        $this->_twig = new Twig_Environment($this->_getTwigLoader(), array(
+            'cache' => Mage::getBaseDir('cache')
+        ));
 
         // Event to offer the possibility to add Twig Modules
         Mage::dispatchEvent('mep_export_adapter_twig_init', array(
             'twig' => $this->_twig
         ));
 
+    }
+
+    /**
+     * @return Flagbit_MEP_Model_Twig_Loader
+     */
+    protected function _getTwigLoader()
+    {
+        return Mage::getSingleton('mep/twig_loader');
     }
 
 
@@ -135,37 +139,14 @@ class Flagbit_MEP_Model_Export_Adapter_Twig extends Mage_ImportExport_Model_Expo
 
     /**
      * @param string $template
+     * @param string $type
      * @return \Flagbit_MEP_Model_Export_Adapter_Csv
      */
-    public function setTwigHeaderTemplate($template)
+    public function setTwigTemplate($template, $type)
     {
         $replace = '"'.chr(9).'"';
         $template = str_replace('"\t"',$replace,$template);
-        $this->_twigHeaderTemplate = $template;
-        return $this;
-    }
-
-    /**
-     * @param string $template
-     * @return \Flagbit_MEP_Model_Export_Adapter_Csv
-     */
-    public function setTwigContentTemplate($template)
-    {
-        $replace = '"'.chr(9).'"';
-        $template = str_replace('"\t"',$replace,$template);
-        $this->_twigContentTemplate = $template;
-        return $this;
-    }
-
-    /**
-     * @param string $template
-     * @return \Flagbit_MEP_Model_Export_Adapter_Csv
-     */
-    public function setTwigFooterTemplate($template)
-    {
-        $replace = '"'.chr(9).'"';
-        $template = str_replace('"\t"',$replace,$template);
-        $this->_twigFooterTemplate = $template;
+        $this->_getTwigLoader()->setTemplate($type, $template);
         return $this;
     }
 
@@ -191,14 +172,9 @@ class Flagbit_MEP_Model_Export_Adapter_Twig extends Mage_ImportExport_Model_Expo
         if (null === $this->_headerCols) {
             $this->setHeaderCols(array_keys($rowData));
         }
-        if($this->_normalizedArrayKeys === NULL){
-            $this->_normalizedArrayKeys = Mage::helper('mep')->normalizeVariableName(array_keys(array_merge($this->_headerCols, array_intersect_key($rowData, $this->_headerCols))));
-        }
 
-        $rowData = array_map(array($this, 'cleanLine'), $rowData);
-
-        $twigDataRow = array_combine($this->_normalizedArrayKeys, array_merge($this->_headerCols, array_intersect_key($rowData, $this->_headerCols)));
-        $result = $this->_twig->render($this->_twigContentTemplate, $twigDataRow);
+        $twigDataRow = array_map(array($this, 'cleanLine'), $rowData);
+        $result = $this->_twig->render('content', $twigDataRow);
 
         fwrite($this->_fileHandler, trim($result).PHP_EOL);
         return $this;
@@ -222,7 +198,7 @@ class Flagbit_MEP_Model_Export_Adapter_Twig extends Mage_ImportExport_Model_Expo
                 $this->_headerCols[$colName] = false;
             }
 
-            $result = $this->_twig->render($this->_twigHeaderTemplate, array_combine(array_keys($this->_headerCols), array_keys($this->_headerCols)));
+            $result = $this->_twig->render('header', array_combine(array_keys($this->_headerCols), array_keys($this->_headerCols)));
             fwrite($this->_fileHandler, trim($result).PHP_EOL);
         }
         return $this;
