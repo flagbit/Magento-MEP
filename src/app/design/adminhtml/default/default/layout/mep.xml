@@ -3,11 +3,10 @@
     <default>
         <reference name="head">
             <action method="addItem"><type>js</type><name>mage/adminhtml/rules.js</name><params/></action>
-            <action method="addItem"><type>skin_js</type><name>chosen/chosen.proto.js</name></action>
-            <action method="addItem"><type>skin_js</type><name>mep.js</name></action>
+            <action method="addItem"><type>js</type><name>mep/chosen/chosen.proto.js</name></action>
+            <action method="addItem"><type>js</type><name>mep/tools.js</name></action>
             <action method="addCss"><name>chosen/chosen.css</name></action>
             <action method="addCss"><name>mep.css</name></action>
-            <action method="setCanLoadExtJs"><flag>1</flag></action>
             <action method="addJs"><script>mage/adminhtml/wysiwyg/widget.js</script></action>
             <action method="addItem"><type>js</type><name>prototype/window.js</name></action>
             <action method="addItem"><type>js_css</type><name>prototype/windows/themes/default.css</name></action>

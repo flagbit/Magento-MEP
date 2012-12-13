@@ -5,3 +5,4 @@ src/app/etc/modules/* app/etc/modules
 src/skin/adminhtml/default/default/mep.css skin/adminhtml/default/default/mep.css
 src/shell/* shell
 src/lib/* lib
+src/js/* js
