@@ -36,11 +36,6 @@ class Flagbit_MEP_Model_Export_Adapter_Twig extends Mage_ImportExport_Model_Expo
     protected $_csvWriter;
 
     /**
-     * @var null
-     */
-    protected $_normalizedArrayKeys = NULL;
-
-    /**
      * @var Twig_Environment
      */
     protected $_twig;
@@ -177,13 +172,8 @@ class Flagbit_MEP_Model_Export_Adapter_Twig extends Mage_ImportExport_Model_Expo
         if (null === $this->_headerCols) {
             $this->setHeaderCols(array_keys($rowData));
         }
-        if($this->_normalizedArrayKeys === NULL){
-            $this->_normalizedArrayKeys = Mage::helper('mep')->normalizeVariableName(array_keys(array_merge($this->_headerCols, array_intersect_key($rowData, $this->_headerCols))));
-        }
 
-        $rowData = array_map(array($this, 'cleanLine'), $rowData);
-
-        $twigDataRow = array_combine($this->_normalizedArrayKeys, array_merge($this->_headerCols, array_intersect_key($rowData, $this->_headerCols)));
+        $twigDataRow = array_map(array($this, 'cleanLine'), $rowData);
         $result = $this->_twig->render('content', $twigDataRow);
 
         fwrite($this->_fileHandler, trim($result).PHP_EOL);

@@ -48,7 +48,11 @@ class Flagbit_MEP_Model_Mapping extends Mage_Core_Model_Abstract
             if($this->getAttributeCode() === NULL){
                 $result = array();
             }else{
-                $result = array($this->getAttributeCode());
+                if(strpos($this->getAttributeCode(), ',') === false){
+                    $result = array($this->getAttributeCode());
+                }else{
+                    $result = explode(',', $this->getAttributeCode());
+                }
             }
         }
         return $result;
