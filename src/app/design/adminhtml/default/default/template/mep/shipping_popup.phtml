@@ -30,40 +30,53 @@
         <form action="<?php echo Mage::helper("adminhtml")->getUrl("adminhtml/shipping_attribute/edit") ?>" id="mappingform">
         <ul>
             <li>
-                <label for="attribute_code">In Database</label>
+                <label for="payment_method">Payment Method</label>
                 <div class="input-box">
-                    <select name="attribute_code[]" id="attribute_code" class="chzn-select" multiple="multiple">
-                    <?php $aha = Mage::getModel('mep/data')->getExternalAttributes(); ?>
+                    <select name="payment_method" id="payment_method"  >
+                    <?php $aha = Mage::getModel('mep/data')->getAllActivPaymentMethods(); ?>
                     <?php foreach ($aha as $_value => $_label): ?>
                         <?php if (is_array($_label)): ?>
                         <optgroup label="<?php echo $_value ?>">
                         <?php foreach ($_label as $_attributeCode => $_attributeLabel): ?>
-                            <option value="<?php echo $_attributeCode ?>" <?php echo $this->getIsSelectedAttribute($_attributeCode) ? 'selected' : '';?> ><?php echo $_attributeLabel ?></option>
+                            <option value="<?php echo $_attributeCode ?>"  ><?php echo $_attributeLabel ?></option>
                         <?php endforeach?>
                         </optgroup>
                         <?php  else: ?>
-                            <option value="<?php echo $_value ?>" <?php echo $this->getIsSelectedAttribute($_value) ? 'selected' : '';?> ><?php echo $_label ?></option>
+                            <option value="<?php echo $_value ?>"  ><?php echo $_label ?></option>
                         <?php endif; ?>
                     <?php endforeach; ?>
                     </select>
                 </div>
             </li>
             <li>
-                <label for="to_field">To Field</label>
+                <label for="shipping_method">Payment Method</label>
                 <div class="input-box">
-                    <input type="text" name="to_field" value="<?php echo $this->getMapping()->getToField();?>" id="to_field" class="input-text">
+                    <select name="shipping_method" id="shipping_method"  >
+                        <?php $aha = Mage::getModel('mep/data')->getAllShippingMethods(); ?>
+                        <?php foreach ($aha as $_value => $_label): ?>
+                        <?php if (is_array($_label)): ?>
+                            <optgroup label="<?php echo $_value ?>">
+                                <?php foreach ($_label as $_attributeCode => $_attributeLabel): ?>
+                                <option value="<?php echo $_attributeCode ?>"  ><?php echo $_attributeLabel ?></option>
+                                <?php endforeach?>
+                            </optgroup>
+                            <?php  else: ?>
+                            <option value="<?php echo $_value ?>"  ><?php echo $_label ?></option>
+                            <?php endif; ?>
+                        <?php endforeach; ?>
+                    </select>
                 </div>
             </li>
             <li>
-                <label for="format">Format</label>
+                <label for="format">Country</label>
                 <div class="input-box">
-                    <input type="text" name="format" value="<?php echo $this->getMapping()->getFormat();?>" id="format" class="input-text">
+                    <input type="text" name="country" value="<?php echo $this->getMapping()->getCountry();?>" id="format" class="input-text">
                 </div>
             </li>
             <li>
-                <label for="position">Position</label>
+                <label for="position">Atrribute Code</label>
                 <div class="input-box">
-                    <input type="text" name="position" value="<?php echo $this->getMapping()->getPosition();?>" id="position" class="input-text">
+                    <input type="text" name="attribute_code" value="<?php echo $this->getMapping()->getAttributeCode();?>" id="position" class="input-text">
                 </div>
             </li>
             <li>
@@ -79,19 +92,6 @@
 <script type="text/javascript">
     // <![CDATA[
 
-    AbstractChosen.prototype.set_default_text = function() {
-      this.form_field = $('attribute_code');
-        this.is_multiple = true;
-      if (this.is_multiple) {
-        this.default_text = "<?php echo $this->__('Select Some Attributes');?>";
-      } else {
-        this.default_text =  "<?php echo $this->__('Select a Attribute');?>";
-      }
-      return this.results_none_found =  "<?php echo $this->__('No results match');?>";
-    };
-
-    new Chosen($$(".chzn-select"));
-
     Event.observe("mappingform", "submit", function(event) {
         $("mappingform").request({
             onFailure : function() {
@@ -99,7 +99,7 @@
             onSuccess : function(t) {
                 var parameters = {isAjax: true, profile_id:<?php echo $this->getProfileId() ?>};
                 // make another ajax call to reload the fields table
-                new Ajax.Request("<?php echo Mage::helper("adminhtml")->getUrl("adminhtml/profil_attribute/index") ?>", {
+                new Ajax.Request("<?php echo Mage::helper("adminhtml")->getUrl("adminhtml/shipping_attribute/index") ?>", {
                     method: "post",
                     parameters: parameters,
                     onSuccess: function(transport)  {
