@@ -42,7 +42,7 @@
         </reference>
         <reference name="left">
             <block type="mep/adminhtml_profil_view_new_tabs" name="profil_tabs"></block>
-        </reference>>
+        </reference>
 
     </adminhtml_profil_new>
 
@@ -65,6 +65,52 @@
             </block>
         </block>
     </adminhtml_profil_attribute_index>
+
+    <adminhtml_shipping_index>
+        <reference name="content">
+            <block type="mep/adminhtml_shipping_view" name="mep.shipping" />
+        </reference>
+    </adminhtml_shipping_index>
+
+    <adminhtml_shipping_edit>
+        <reference name="head">
+            <action method="addItem"><type>skin_js</type><script>chosen/chosen.proto.js</script></action>
+            <action method="addItem"><type>skin_js</type><script>mep.js</script></action>
+            <action method="addItem"><type>js</type><script>mage/adminhtml/rules.js</script><params/></action>
+            <action method="addCss"><name>chosen/chosen.css</name></action>
+            <action method="addCss"><name>mep.css</name></action>
+            <action method="addJs"><script>mage/adminhtml/wysiwyg/widget.js</script></action>
+            <action method="addItem"><type>js</type><script>prototype/window.js</script></action>
+            <action method="addItem"><type>js_css</type><script>prototype/windows/themes/default.css</script></action>
+            <action method="addCss"><name>lib/prototype/windows/themes/magento.css</name></action>ion>
+        </reference>
+        <reference name="content">
+            <block type="mep/adminhtml_shipping_view_edit" name="shipping_new"></block>
+        </reference>
+        <reference name="left">
+            <block type="mep/adminhtml_shipping_view_edit_tabs" name="shipping_tabs"></block>
+        </reference>
+    </adminhtml_shipping_edit>
+
+    <adminhtml_shipping_attribute_index>
+
+        <block type="core/text_list" name="root" output="toHtml">
+            <block type="mep/adminhtml_shipping_view_edit_gridMapping" name="fields.grid"/>
+            <block type="adminhtml/widget_grid_serializer" name="grid_serializer">
+                <reference name="grid_serializer">
+                    <action method="initSerializerBlock">
+                        <grid_block_name>fields.grid</grid_block_name>
+                        <data_callback>getSelectedCustomers</data_callback>
+                        <hidden_input_name>links[customers]</hidden_input_name>
+                        <reload_param_name>profile</reload_param_name>
+                    </action>
+                    <action method="addColumnInputName">
+                        <input_name>position</input_name>
+                    </action>
+                </reference>
+            </block>
+        </block>
+    </adminhtml_shipping_attribute_index>
 
 
 </layout>

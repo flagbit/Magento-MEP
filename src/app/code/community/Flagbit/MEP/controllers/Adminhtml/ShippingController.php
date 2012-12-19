@@ -32,8 +32,20 @@ class Flagbit_MEP_Adminhtml_ShippingController extends Mage_Adminhtml_Controller
 
     public function newAction()
     {
-        $this->_initAction();
-        $this->renderLayout();
+        $this->_forward('edit');
+    }
+
+    /**
+     * indexAction
+     *
+     * @return void
+     */
+    public function popupAction()
+    {
+
+        $this->loadLayout('empty')->renderLayout();
+        $html = $this->getLayout()->createBlock('mep/adminhtml_shipping_popup')->setTemplate('mep/popup.phtml')->toHtml();
+        $this->getResponse()->setBody($html);
     }
 
     /**
@@ -43,12 +55,13 @@ class Flagbit_MEP_Adminhtml_ShippingController extends Mage_Adminhtml_Controller
      */
     public function editAction()
     {
+        $this->_initAction();
         $id = $this->getRequest()->getParam('id');
-        $model = Mage::getModel('mep/profil')->load((int)$id);
+        $model = Mage::getModel('mep/shipping')->load((int)$id);
 
 
         if ($model->getId() || !$id) {
-            Mage::register('mep_profil', $model);
+            Mage::register('mep_shipping', $model);
             $data = Mage::getSingleton('adminhtml/session')->getFormData(true);
             if ($data) {
                 $model->setData($data)->setId($id);
@@ -56,11 +69,8 @@ class Flagbit_MEP_Adminhtml_ShippingController extends Mage_Adminhtml_Controller
                 Mage::getSingleton('adminhtml/session')->setMepProfileData($model->getData());
             }
 
-            Mage::register('mep_profil_data', $model);
+            Mage::register('mep_shipping_data', $model);
 
-            $this->getLayout()->getBlock('head')->setCanLoadExtJs(true);
-            $this->_addContent($this->getLayout()->createBlock('mep/adminhtml_profil_view_edit'));
-            $this->_addLeft($this->getLayout()->createBlock('mep/adminhtml_profil_view_edit_tabs'));
             $this->renderLayout();
 
             Mage::getSingleton('adminhtml/session')->setMepProfileData(null);
