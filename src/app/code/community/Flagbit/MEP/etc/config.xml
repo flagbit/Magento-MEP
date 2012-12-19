@@ -33,9 +33,9 @@
                     <mapping>
                         <table>mep_profile_attribute</table>
                     </mapping>
-                    <rule>
-                        <table>mep_rule</table>
-                    </rule>
+                    <shipping>
+                        <table>mep_shipping</table>
+                    </shipping>
                 </entities>
             </mep_mysql4>
         </models>

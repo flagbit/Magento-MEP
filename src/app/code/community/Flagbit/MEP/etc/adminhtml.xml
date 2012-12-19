@@ -13,7 +13,7 @@
                         </export>
                         <shipping module="mep">
                             <title>Shipping Mapping</title>
-                            <action>adminhtml/profil/index</action>
+                            <action>adminhtml/shipping/index</action>
                         </shipping>
                         <attribute module="mep">
                             <title>Attribute Mapping</title>
