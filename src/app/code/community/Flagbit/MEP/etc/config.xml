@@ -2,7 +2,7 @@
 <config>
     <modules>
         <Flagbit_MEP>
-            <version>0.2.3</version>
+            <version>0.2.7</version>
         </Flagbit_MEP>
     </modules>
 
@@ -33,6 +33,12 @@
                     <mapping>
                         <table>mep_profile_attribute</table>
                     </mapping>
+                    <attribute_mapping>
+                        <table>mep_attribute_mapping</table>
+                    </attribute_mapping>
+                    <attribute_mapping_option>
+                        <table>mep_attribute_mapping_option</table>
+                    </attribute_mapping_option>
                     <rule>
                         <table>mep_rule</table>
                     </rule>
