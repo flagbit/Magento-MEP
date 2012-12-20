@@ -42,6 +42,12 @@
                     <rule>
                         <table>mep_rule</table>
                     </rule>
+                    <shipping>
+                        <table>mep_shipping</table>
+                    </shipping>
+                    <shipping_attribute>
+                        <table>mep_shipping_attribute</table>
+                    </shipping_attribute>
                 </entities>
             </mep_mysql4>
         </models>

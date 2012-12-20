@@ -46,12 +46,6 @@ class Flagbit_MEP_Block_Adminhtml_Profil_View_Edit_Tabs extends Mage_Adminhtml_B
             'class' => 'ajax',
         ));
 
-//        $this->addTab('form_shipping', array(
-//            'label' => Mage::helper('mep')->__('Shippingcost Mapping'),
-//            'url' => $this->getUrl('*/profil_attribute/index', array('profile_id' => $this->getRequest()->getParam('id'))),
-//            'class' => 'ajax',
-//        ));
-
         $this->addTab('form_data_format', array(
             'label' => Mage::helper('mep')->__('Data Format'),
             'title' => Mage::helper('mep')->__('Data Format'),

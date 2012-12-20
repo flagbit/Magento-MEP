@@ -34,15 +34,15 @@ CREATE TABLE IF NOT EXISTS {$this->getTable('mep/attribute_mapping')} (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-DROP TABLE IF EXISTS {$this->getTable('mep/attribute_mapping_options')};
-CREATE TABLE IF NOT EXISTS {$this->getTable('mep/attribute_mapping_options')} (
+DROP TABLE IF EXISTS {$this->getTable('mep/attribute_mapping_option')};
+CREATE TABLE IF NOT EXISTS {$this->getTable('mep/attribute_mapping_option')} (
   `id` int(10) NOT NULL AUTO_INCREMENT,
   `parent_id` int(10) NOT NULL,
   `option_id` int(10) NOT NULL,
   `value` varchar(255) NOT NULL,
   PRIMARY KEY (`id`),
   KEY `parent_id` (`parent_id`),
-  CONSTRAINT `mep_attribute_mapping_options_ibfk_1` FOREIGN KEY (`parent_id`) REFERENCES `{$this->getTable('mep/attribute_mapping')}` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION
+  CONSTRAINT `mep_attribute_mapping_option_ibfk_1` FOREIGN KEY (`parent_id`) REFERENCES `{$this->getTable('mep/attribute_mapping')}` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 ");
