@@ -42,7 +42,7 @@ class Flagbit_MEP_Block_Adminhtml_Profil_View_Edit_Tabs extends Mage_Adminhtml_B
 
         $this->addTab('form_fields', array(
             'label' => Mage::helper('mep')->__('Field Mapping'),
-            'url' => $this->getUrl('*/profil_attribute/index', array('profile_id' => $this->getRequest()->getParam('id'))),
+            'url' => $this->getUrl('*/profil_attribute/index', array('profile_id' => $this->getRequest()->getParam('id'),'shipping_id' => $data["shipping_id"])),
             'class' => 'ajax',
         ));
 

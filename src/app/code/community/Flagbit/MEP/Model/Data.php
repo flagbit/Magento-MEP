@@ -20,7 +20,7 @@ class Flagbit_MEP_Model_Data extends Mage_Catalog_Model_Convert_Parser_Product
      * @return array
      * @see Mage_Catalog_Model_Convert_Parser_Product::getExternalAttributes()
      */
-    public function getExternalAttributes()
+    public function getExternalAttributes($shipping_id = 0)
     {
         $attributes = $this->_externalFields;
 
@@ -36,6 +36,16 @@ class Flagbit_MEP_Model_Data extends Mage_Catalog_Model_Convert_Parser_Product
         foreach ($this->_inventoryFields as $field) {
             $attributes[$field] = $field;
         }
+
+        //add shipping attributes
+        if(!empty($shipping_id)) {
+            $collection = Mage::getModel('mep/shipping_attribute')->getCollection();
+            $collection->addFieldToFilter('profile_id', array('eq' => $shipping_id));
+            foreach($collection as $item) {
+                $attributes[$item->getAttributeCode()] = $item->getShippingMethod().'+'.$item->getPaymentMethod();
+            }
+        }
+
 
         // added for url mapping
         $attributes['url']                      = 'url';

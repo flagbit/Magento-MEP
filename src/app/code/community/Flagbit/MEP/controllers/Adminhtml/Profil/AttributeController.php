@@ -9,7 +9,9 @@ class Flagbit_MEP_Adminhtml_Profil_AttributeController extends Mage_Adminhtml_Co
     {
         $this->loadLayout();
         $this->getLayout()->getBlock('fields.grid')
-            ->setProfile($this->getRequest()->getParam('profile_id', null));
+            ->setProfile($this->getRequest()->getParam('profile_id', null))
+            ->setShipping($this->getRequest()->getParam('shipping_id', null));
+
         $this->renderLayout();
     }
 

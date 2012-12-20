@@ -110,6 +110,17 @@ class Flagbit_MEP_Block_Adminhtml_Profil_View_Edit_Tab_Format extends Mage_Admin
             'name' => 'profile_locale'
         ));
 
+        $fieldset->addField(
+            'shipping_id',
+            'select',
+            array(
+                'label' => Mage::helper('mep')->__('Shipping Profil'),
+                'name' => 'shipping_id',
+                'options' => $this->_getShippingOptionsHash(),
+            )
+        );
+
+
         $form->setValues($data);
         return parent::_prepareForm();
     }
@@ -142,5 +153,22 @@ class Flagbit_MEP_Block_Adminhtml_Profil_View_Edit_Tab_Format extends Mage_Admin
         );
         return $options;
     }
+
+    protected function _getShippingOptionsHash()
+    {
+        $options = array(
+            0 => Mage::helper('mep')->__('None'),
+            //1 => Mage::helper('mep')->__('XML'),
+        );
+
+        $collection = Mage::getModel('mep/shipping')->getCollection();
+        foreach($collection as $item) {
+            $options[$item->getId()] = $item->getName();
+        }
+        return $options;
+    }
+
+
+
 
 }
