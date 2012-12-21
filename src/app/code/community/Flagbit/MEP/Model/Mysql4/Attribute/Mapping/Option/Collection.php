@@ -11,4 +11,10 @@ class Flagbit_MEP_Model_Mysql4_Attribute_Mapping_Option_Collection extends Mage_
     {
         $this->_init('mep/attribute_mapping_option');
     }
+
+    public function setStoreFilter($storeId)
+    {
+        $this->addFieldToFilter('store_id', $storeId);
+        return $this;
+    }
 }

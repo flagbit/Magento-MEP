@@ -24,13 +24,11 @@ class Flagbit_MEP_Block_Adminhtml_Attribute_View_Edit extends Mage_Adminhtml_Blo
             'class' => 'save',
         ), -100);
 
-        $profil_id = $this->getRequest()->getParam('id');
-        $this->_addButton('Run', array(
-            'label' => Mage::helper('adminhtml')->__('RUN'),
-            'onclick' => 'setLocation(\'' . $this->getUrl('*/*/runClick') . 'id/' . $profil_id . '\')',
-            'class' => 'run',
-        ), -1, 5);
-
+        $this->_formScripts[] = "
+            function saveAndContinueEdit(){
+                editForm.submit($('edit_form').action+'back/edit/');
+            }
+        ";
     }
 
     /**
@@ -45,9 +43,9 @@ class Flagbit_MEP_Block_Adminhtml_Attribute_View_Edit extends Mage_Adminhtml_Blo
     public function getHeaderText()
     {
         if (Mage::registry('mep_profile_data') && Mage::registry('mep_profile_data')->getId()) {
-            return Mage::helper('mep')->__('Edit Profile "%s"', $this->htmlEscape(Mage::registry('mep_profile_data')->getName()));
+            return Mage::helper('mep')->__('Edit Attribute Mapping "%s"', $this->htmlEscape(Mage::registry('mep_profile_data')->getName()));
         } else {
-            return Mage::helper('mep')->__('New Profile');
+            return Mage::helper('mep')->__('New Attribute Mapping');
         }
     }
 }

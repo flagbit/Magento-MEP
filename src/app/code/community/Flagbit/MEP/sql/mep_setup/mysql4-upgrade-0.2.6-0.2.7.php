@@ -28,6 +28,7 @@ DROP TABLE IF EXISTS {$this->getTable('mep/attribute_mapping')};
 CREATE TABLE IF NOT EXISTS {$this->getTable('mep/attribute_mapping')} (
   `id` int(10) NOT NULL AUTO_INCREMENT,
   `attribute_code` varchar(255) NOT NULL,
+  `source_attribute_code` varchar(255) NOT NULL,
   `name` varchar(255) NOT NULL,
   `created_at` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
   `updated_at` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
@@ -38,6 +39,7 @@ DROP TABLE IF EXISTS {$this->getTable('mep/attribute_mapping_option')};
 CREATE TABLE IF NOT EXISTS {$this->getTable('mep/attribute_mapping_option')} (
   `id` int(10) NOT NULL AUTO_INCREMENT,
   `parent_id` int(10) NOT NULL,
+  `store_id` int(10) NOT NULL,
   `option_id` int(10) NOT NULL,
   `value` varchar(255) NOT NULL,
   PRIMARY KEY (`id`),
@@ -47,4 +49,3 @@ CREATE TABLE IF NOT EXISTS {$this->getTable('mep/attribute_mapping_option')} (
 
 ");
 $installer->endSetup();
-
