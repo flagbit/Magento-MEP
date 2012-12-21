@@ -1,5 +1,5 @@
 <?php
-class Flagbit_MEP_Block_Adminhtml_Profil_View_Edit_Tab_General extends Mage_Adminhtml_Block_Widget_Form
+class Flagbit_MEP_Block_Adminhtml_Shipping_View_Edit_Tab_General extends Mage_Adminhtml_Block_Widget_Form
 {
     /**
      * _prepareForm
@@ -14,8 +14,8 @@ class Flagbit_MEP_Block_Adminhtml_Profil_View_Edit_Tab_General extends Mage_Admi
     {
         if (Mage::getSingleton('adminhtml/session')->getMepProfileData()) {
             $data = Mage::getSingleton('adminhtml/session')->getMepProfileData();
-        } elseif (Mage::registry('mep_profile_data')) {
-            $data = Mage::registry('mep_profile_data')->getData();
+        } elseif (Mage::registry('mep_shipping_data')) {
+            $data = Mage::registry('mep_shipping_data')->getData();
         } else {
             $data = array();
         }
@@ -61,18 +61,6 @@ class Flagbit_MEP_Block_Adminhtml_Profil_View_Edit_Tab_General extends Mage_Admi
             )
         );
 
-        $fieldset->addField(
-            'store_id',
-            'select',
-            array(
-                'label'     => Mage::helper('mep')->__('Store View'),
-                'class'     => 'required-entry',
-                'required'  => true,
-                'name'      => 'store_id',
-                'values'    => Mage::getSingleton('adminhtml/system_store')->getStoreValuesForForm(false, false),
-            )
-        );
-
         $form->setValues($data);
         return parent::_prepareForm();
     }
@@ -86,4 +74,5 @@ class Flagbit_MEP_Block_Adminhtml_Profil_View_Edit_Tab_General extends Mage_Admi
         );
         return $options;
     }
+
 }

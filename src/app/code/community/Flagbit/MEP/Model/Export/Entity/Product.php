@@ -31,12 +31,16 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
      */
     protected $_attrSetIdToName = array();
 
+    protected $_attributeMapping = null;
+
     /**
      * Categories ID to text-path hash.
      *
      * @var array
      */
     protected $_categories = array();
+
+    protected $_categoryIds = array();
 
     /**
      * Root category names for each category
@@ -139,12 +143,15 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
             $pathSize = count($structure);
             if ($pathSize > 1) {
                 $path = array();
+                $pathIds = array();
                 for ($i = 1; $i < $pathSize; $i++) {
                     $path[] = $collection->getItemById($structure[$i])->getName();
+                    $pathIds[] = $structure[$i];
                 }
                 $this->_rootCategories[$category->getId()] = array_shift($path);
                 if ($pathSize > 2) {
                     $this->_categories[$category->getId()] = implode($this->getProfile()->getCategoryDelimiter(), $path);
+                    $this->_categoryIds[$category->getId()] = $pathIds;
                 }
             }
 
@@ -518,6 +525,32 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
     }
 
     /**
+     * get Attribute Mapping
+     *
+     * @param bool $attributeCode
+     * @return array|bool|null
+     */
+    protected function _getAttributeMapping($attributeCode = false)
+    {
+        if($this->_attributeMapping === null){
+            /* @var $attributeMappingCollection Flagbit_MEP_Model_Mysql4_Attribute_Mapping_Collection */
+            $attributeMappingCollection = Mage::getResourceModel('mep/attribute_mapping_collection')->load();
+            $this->_attributeMapping = array();
+            foreach($attributeMappingCollection as $attributeMapping){
+                $this->_attributeMapping[$attributeMapping->getAttributeCode()] = $attributeMapping;
+            }
+        }
+        if($attributeCode !== false){
+            if(isset($this->_attributeMapping[$attributeCode])){
+                return $this->_attributeMapping[$attributeCode];
+            }else{
+                return false;
+            }
+        }
+        return $this->_attributeMapping;
+    }
+
+    /**
      * Export process.
      *
      * @return string
@@ -531,6 +564,7 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
             ->_initCategories();
         //Execution time may be very long
         set_time_limit(0);
+
 
         /** @var $collection Mage_Catalog_Model_Resource_Eav_Mysql4_Product_Collection */
         $validAttrCodes = array();
@@ -746,6 +780,38 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
                                         $attrValue = null;
                                     }
                                 }
+
+                                // value Mapping Attributes
+                                $attributeMapping = $this->_getAttributeMapping($attrCode);
+                                if($attributeMapping
+                                    && $attributeMapping->getSourceAttributeCode() != 'category'
+                                    && $item->getData($attributeMapping->getSourceAttributeCode())){
+
+                                    $attrValue = $item->getData($attributeMapping->getSourceAttributeCode());
+
+                                    if ($this->_attributeTypes[$attributeMapping->getSourceAttributeCode()] == 'multiselect') {
+                                        $attrValue = $attributeMapping->getOptionValue(explode(',', $attrValue), $obj_profil->getStoreId());
+                                        $rowMultiselects[$itemId][$attrCode] = $attrValue;
+
+                                    }else{
+                                        $attrValue = $attributeMapping->getOptionValue($attrValue, $obj_profil->getStoreId());
+                                    }
+                                // value Mapping category
+                                }elseif($attributeMapping
+                                    && $attributeMapping->getSourceAttributeCode() == 'category'){
+
+                                    $rrowCategories = $item->getCategoryIds();
+                                    $categoryId = array_shift($rrowCategories);
+
+                                    if(isset($this->_categoryIds[$categoryId])){
+
+                                        $attrValue = implode(
+                                            $this->getProfile()->getCategoryDelimiter(),
+                                            $attributeMapping->getOptionValue($this->_categoryIds[$categoryId], $obj_profil->getStoreId())
+                                        );
+                                    }
+                                }
+
                                 // do not save value same as default or not existent
                                 if ($storeId != $defaultStoreId
                                     && isset($dataRows[$itemId][$defaultStoreId][$attrCode])
@@ -753,7 +819,6 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
                                 ) {
                                     $attrValue = null;
                                 }
-
                                 if (is_scalar($attrValue)) {
                                     $dataRows[$itemId][$storeId][$attrCode] = $attrValue;
                                     $rowIsEmpty = false;
@@ -782,7 +847,6 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
                 if ($collection->getCurPage() < $offsetProducts) {
                     break;
                 }
-
                 // remove unused categories
                 $allCategoriesIds = array_merge(array_keys($this->_categories), array_keys($this->_rootCategories));
                 foreach ($rowCategories as &$categories) {
@@ -984,7 +1048,6 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
 
 
                         //INSERT _category mapping
-
                         foreach ($mapping->getItems() as $mapitem) {
                             $attrCode = $mapitem->getAttributeCode();
                             if ($attrCode == '_category') {
@@ -1008,7 +1071,6 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
                                 }
                             }
                         }
-
                         $writer->writeRow($dataRow);
                     }
                     // calculate largest links block

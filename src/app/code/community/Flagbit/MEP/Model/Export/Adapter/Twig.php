@@ -206,6 +206,6 @@ class Flagbit_MEP_Model_Export_Adapter_Twig extends Mage_ImportExport_Model_Expo
 
     public function cleanLine($element)
     {
-        return trim(preg_replace('/\s\s+/', ' ', strip_tags(html_entity_decode($element))));
+        return trim(preg_replace('/\s\s+/', ' ', (html_entity_decode($element))));
     }
 }
