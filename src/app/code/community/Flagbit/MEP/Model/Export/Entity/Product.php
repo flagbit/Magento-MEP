@@ -994,7 +994,7 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
                             }
                             if ($attrCode == 'image_url') {
                                 if (isset($dataRow['_media_image'])) {
-                                    $dataRow[$attrCode] = Mage::getBaseUrl(Mage_Core_Model_Store::URL_TYPE_MEDIA) . 'catalog/product' . $dataRow['_media_image'];
+                                    $dataRow[$attrCode] = Mage::app()->getStore($obj_profil->getStoreId())->getBaseUrl(Mage_Core_Model_Store::URL_TYPE_MEDIA) . 'catalog/product' . $dataRow['_media_image'];
                                 }
                             }
                             if ($attrCode == 'qty') {
