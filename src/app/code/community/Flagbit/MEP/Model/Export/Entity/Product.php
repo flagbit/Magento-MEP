@@ -40,6 +40,8 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
      */
     protected $_categories = array();
 
+    protected $_categoryIds = array();
+
     /**
      * Root category names for each category
      *
@@ -141,12 +143,15 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
             $pathSize = count($structure);
             if ($pathSize > 1) {
                 $path = array();
+                $pathIds = array();
                 for ($i = 1; $i < $pathSize; $i++) {
                     $path[] = $collection->getItemById($structure[$i])->getName();
+                    $pathIds[] = $structure[$i];
                 }
                 $this->_rootCategories[$category->getId()] = array_shift($path);
                 if ($pathSize > 2) {
                     $this->_categories[$category->getId()] = implode($this->getProfile()->getCategoryDelimiter(), $path);
+                    $this->_categoryIds[$category->getId()] = $pathIds;
                 }
             }
 
@@ -560,6 +565,7 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
         //Execution time may be very long
         set_time_limit(0);
 
+
         /** @var $collection Mage_Catalog_Model_Resource_Eav_Mysql4_Product_Collection */
         $validAttrCodes = array();
         $writer = $this->getWriter();
@@ -775,31 +781,34 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
                                     }
                                 }
 
-                                // value Mapping
+                                // value Mapping Attributes
                                 $attributeMapping = $this->_getAttributeMapping($attrCode);
                                 if($attributeMapping
+                                    && $attributeMapping->getSourceAttributeCode() != 'category'
                                     && $item->getData($attributeMapping->getSourceAttributeCode())){
 
                                     $attrValue = $item->getData($attributeMapping->getSourceAttributeCode());
-                                    if($storeId){
-                                        if ($this->_attributeTypes[$attributeMapping->getSourceAttributeCode()] == 'multiselect') {
-                                            $attrValue = $attributeMapping->getOptionValue(explode(',', $attrValue), $storeId);
-                                            $rowMultiselects[$itemId][$attrCode] = $attrValue;
+
+                                    if ($this->_attributeTypes[$attributeMapping->getSourceAttributeCode()] == 'multiselect') {
+                                        $attrValue = $attributeMapping->getOptionValue(explode(',', $attrValue), $obj_profil->getStoreId());
+                                        $rowMultiselects[$itemId][$attrCode] = $attrValue;
 
                                     }else{
-                                            $attrValue = $attributeMapping->getOptionValue($attrValue, $storeId);
-                                        }
-                                    }else{
-                                        if ($this->_attributeTypes[$attributeMapping->getSourceAttributeCode()] == 'multiselect') {
-                                            $attrValue = explode(',', $attrValue);
-                                            $attrValue = array_intersect_key(
-                                                $this->_attributeValues[$attributeMapping->getSourceAttributeCode()],
-                                                array_flip($attrValue)
-                                            );
-                                            $rowMultiselects[$itemId][$attributeMapping->getSourceAttributeCode()] = $attrValue;
-                                        } else if ($this->_attributeTypes[$attributeMapping->getSourceAttributeCode()] == 'select') {
-                                            $attrValue = $item->getAttributeText($attributeMapping->getSourceAttributeCode());
-                                        }
+                                        $attrValue = $attributeMapping->getOptionValue($attrValue, $obj_profil->getStoreId());
+                                    }
+                                // value Mapping category
+                                }elseif($attributeMapping
+                                    && $attributeMapping->getSourceAttributeCode() == 'category'){
+
+                                    $rrowCategories = $item->getCategoryIds();
+                                    $categoryId = array_shift($rrowCategories);
+
+                                    if(isset($this->_categoryIds[$categoryId])){
+
+                                        $attrValue = implode(
+                                            $this->getProfile()->getCategoryDelimiter(),
+                                            $attributeMapping->getOptionValue($this->_categoryIds[$categoryId], $obj_profil->getStoreId())
+                                        );
                                     }
                                 }
 
@@ -1039,7 +1048,6 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
 
 
                         //INSERT _category mapping
-
                         foreach ($mapping->getItems() as $mapitem) {
                             $attrCode = $mapitem->getAttributeCode();
                             if ($attrCode == '_category') {
