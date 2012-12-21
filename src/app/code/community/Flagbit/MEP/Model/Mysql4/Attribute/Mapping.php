@@ -52,8 +52,17 @@ class Flagbit_MEP_Model_Mysql4_Attribute_Mapping extends Mage_Core_Model_Mysql4_
         return parent::_afterSave($object);
     }
 
+    /**
+     * get Option Value
+     *
+     * @param Mage_Core_Model_Abstract $object
+     * @param $optionId
+     * @param $storeId
+     * @return null
+     */
     public function getOptionValue(Mage_Core_Model_Abstract $object, $optionId, $storeId)
     {
+        $result = null;
         if($this->_optionValues === null){
             $conn = $this->getReadConnection();
             $select = $conn->select()->from($this->getTable('mep/attribute_mapping_option'), array('option_id', 'value'))
@@ -61,7 +70,15 @@ class Flagbit_MEP_Model_Mysql4_Attribute_Mapping extends Mage_Core_Model_Mysql4_
                             ->where('store_id=?', $storeId);
             $this->_optionValues = $conn->fetchPairs($select);
         }
-        return empty($this->_optionValues[$optionId]) ? null : $this->_optionValues[$optionId];
+        if(is_array($optionId)){
+            $result = array();
+            foreach($optionId as $id){
+                $result[] = $this->getOptionValue($object, $id, $storeId);
+            }
+        }else{
+            $result = empty($this->_optionValues[$optionId]) ? null : $this->_optionValues[$optionId];
+        }
+        return $result;
     }
 
     /**

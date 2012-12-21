@@ -169,6 +169,7 @@ class Flagbit_MEP_Model_Export_Adapter_Twig extends Mage_ImportExport_Model_Expo
      */
     public function writeRow(array $rowData)
     {
+        #Zend_Debug::dump($rowData);
         if (null === $this->_headerCols) {
             $this->setHeaderCols(array_keys($rowData));
         }

@@ -758,35 +758,6 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
                                     $attrValue = $versand_base + $versand_prozent;
                                 }
 
-                                // value Mapping
-                                $attributeMapping = $this->_getAttributeMapping($attrCode);
-                                if($storeId
-                                    && $attributeMapping
-                                    && $item->getData($attributeMapping->getSourceAttributeCode())){
-
-                                    $attrValue = $item->getData($attributeMapping->getSourceAttributeCode());
-                                    Zend_Debug::dump($attrValue, $attributeMapping->getSourceAttributeCode());
-
-                                    $attrValue = $attributeMapping->getOptionValue($attrValue, $storeId);
-                                    Zend_Debug::dump($attrValue, $attributeMapping->getSourceAttributeCode().' '.$storeId);
-
-                                    if ($this->_attributeTypes[$mapping->getSourceAttributeCode()] == 'multiselect') {
-                                    $item->getAttributeText($mapping->getSourceAttributeCode());
-
-                                        $attrValue = explode(',', $attrValue);
-                                        $attrValue = array_intersect_key(
-                                            $this->_attributeValues[$attrCode],
-                                            array_flip($attrValue)
-                                        );
-
-                                    }else{
-                                        $attrValue = $attributeMapping->getOptionValue($attrValue, $storeId);
-                                    }
-                                }
-
-                                #Zend_Debug::dump($this->_attributeValues);
-
-
                                 if (!empty($this->_attributeValues[$attrCode])) {
                                     if ($this->_attributeTypes[$attrCode] == 'multiselect') {
                                         $attrValue = explode(',', $attrValue);
@@ -803,6 +774,35 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
                                         $attrValue = null;
                                     }
                                 }
+
+                                // value Mapping
+                                $attributeMapping = $this->_getAttributeMapping($attrCode);
+                                if($attributeMapping
+                                    && $item->getData($attributeMapping->getSourceAttributeCode())){
+
+                                    $attrValue = $item->getData($attributeMapping->getSourceAttributeCode());
+                                    if($storeId){
+                                        if ($this->_attributeTypes[$attributeMapping->getSourceAttributeCode()] == 'multiselect') {
+                                            $attrValue = $attributeMapping->getOptionValue(explode(',', $attrValue), $storeId);
+                                            $rowMultiselects[$itemId][$attrCode] = $attrValue;
+
+                                    }else{
+                                            $attrValue = $attributeMapping->getOptionValue($attrValue, $storeId);
+                                        }
+                                    }else{
+                                        if ($this->_attributeTypes[$attributeMapping->getSourceAttributeCode()] == 'multiselect') {
+                                            $attrValue = explode(',', $attrValue);
+                                            $attrValue = array_intersect_key(
+                                                $this->_attributeValues[$attributeMapping->getSourceAttributeCode()],
+                                                array_flip($attrValue)
+                                            );
+                                            $rowMultiselects[$itemId][$attributeMapping->getSourceAttributeCode()] = $attrValue;
+                                        } else if ($this->_attributeTypes[$attributeMapping->getSourceAttributeCode()] == 'select') {
+                                            $attrValue = $item->getAttributeText($attributeMapping->getSourceAttributeCode());
+                                        }
+                                    }
+                                }
+
                                 // do not save value same as default or not existent
                                 if ($storeId != $defaultStoreId
                                     && isset($dataRows[$itemId][$defaultStoreId][$attrCode])
@@ -810,7 +810,6 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
                                 ) {
                                     $attrValue = null;
                                 }
-
                                 if (is_scalar($attrValue)) {
                                     $dataRows[$itemId][$storeId][$attrCode] = $attrValue;
                                     $rowIsEmpty = false;
@@ -839,7 +838,6 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
                 if ($collection->getCurPage() < $offsetProducts) {
                     break;
                 }
-                die();
                 // remove unused categories
                 $allCategoriesIds = array_merge(array_keys($this->_categories), array_keys($this->_rootCategories));
                 foreach ($rowCategories as &$categories) {
@@ -1065,7 +1063,6 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
                                 }
                             }
                         }
-
                         $writer->writeRow($dataRow);
                     }
                     // calculate largest links block
