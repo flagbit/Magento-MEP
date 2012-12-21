@@ -31,6 +31,8 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
      */
     protected $_attrSetIdToName = array();
 
+    protected $_attributeMapping = null;
+
     /**
      * Categories ID to text-path hash.
      *
@@ -518,6 +520,32 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
     }
 
     /**
+     * get Attribute Mapping
+     *
+     * @param bool $attributeCode
+     * @return array|bool|null
+     */
+    protected function _getAttributeMapping($attributeCode = false)
+    {
+        if($this->_attributeMapping === null){
+            /* @var $attributeMappingCollection Flagbit_MEP_Model_Mysql4_Attribute_Mapping_Collection */
+            $attributeMappingCollection = Mage::getResourceModel('mep/attribute_mapping_collection')->load();
+            $this->_attributeMapping = array();
+            foreach($attributeMappingCollection as $attributeMapping){
+                $this->_attributeMapping[$attributeMapping->getAttributeCode()] = $attributeMapping;
+            }
+        }
+        if($attributeCode !== false){
+            if(isset($this->_attributeMapping[$attributeCode])){
+                return $this->_attributeMapping[$attributeCode];
+            }else{
+                return false;
+            }
+        }
+        return $this->_attributeMapping;
+    }
+
+    /**
      * Export process.
      *
      * @return string
@@ -730,6 +758,35 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
                                     $attrValue = $versand_base + $versand_prozent;
                                 }
 
+                                // value Mapping
+                                $attributeMapping = $this->_getAttributeMapping($attrCode);
+                                if($storeId
+                                    && $attributeMapping
+                                    && $item->getData($attributeMapping->getSourceAttributeCode())){
+
+                                    $attrValue = $item->getData($attributeMapping->getSourceAttributeCode());
+                                    Zend_Debug::dump($attrValue, $attributeMapping->getSourceAttributeCode());
+
+                                    $attrValue = $attributeMapping->getOptionValue($attrValue, $storeId);
+                                    Zend_Debug::dump($attrValue, $attributeMapping->getSourceAttributeCode().' '.$storeId);
+
+                                    if ($this->_attributeTypes[$mapping->getSourceAttributeCode()] == 'multiselect') {
+                                    $item->getAttributeText($mapping->getSourceAttributeCode());
+
+                                        $attrValue = explode(',', $attrValue);
+                                        $attrValue = array_intersect_key(
+                                            $this->_attributeValues[$attrCode],
+                                            array_flip($attrValue)
+                                        );
+
+                                    }else{
+                                        $attrValue = $attributeMapping->getOptionValue($attrValue, $storeId);
+                                    }
+                                }
+
+                                #Zend_Debug::dump($this->_attributeValues);
+
+
                                 if (!empty($this->_attributeValues[$attrCode])) {
                                     if ($this->_attributeTypes[$attrCode] == 'multiselect') {
                                         $attrValue = explode(',', $attrValue);
@@ -782,7 +839,7 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
                 if ($collection->getCurPage() < $offsetProducts) {
                     break;
                 }
-
+                die();
                 // remove unused categories
                 $allCategoriesIds = array_merge(array_keys($this->_categories), array_keys($this->_rootCategories));
                 foreach ($rowCategories as &$categories) {

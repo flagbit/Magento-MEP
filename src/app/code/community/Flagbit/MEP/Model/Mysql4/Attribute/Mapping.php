@@ -7,6 +7,8 @@ class Flagbit_MEP_Model_Mysql4_Attribute_Mapping extends Mage_Core_Model_Mysql4_
         array('field' => 'attribute_code', 'title' => 'Attribute Code')
     );
 
+    protected $_optionValues = null;
+
     /**
      * Constructor
      *
@@ -48,6 +50,18 @@ class Flagbit_MEP_Model_Mysql4_Attribute_Mapping extends Mage_Core_Model_Mysql4_
         $this->_saveOption($object);
 
         return parent::_afterSave($object);
+    }
+
+    public function getOptionValue(Mage_Core_Model_Abstract $object, $optionId, $storeId)
+    {
+        if($this->_optionValues === null){
+            $conn = $this->getReadConnection();
+            $select = $conn->select()->from($this->getTable('mep/attribute_mapping_option'), array('option_id', 'value'))
+                            ->where('parent_id=?', $object->getId())
+                            ->where('store_id=?', $storeId);
+            $this->_optionValues = $conn->fetchPairs($select);
+        }
+        return empty($this->_optionValues[$optionId]) ? null : $this->_optionValues[$optionId];
     }
 
     /**

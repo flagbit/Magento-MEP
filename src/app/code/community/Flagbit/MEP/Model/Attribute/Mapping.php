@@ -10,6 +10,11 @@ class Flagbit_MEP_Model_Attribute_Mapping extends Mage_Core_Model_Abstract
         $this->_init('mep/attribute_mapping');
     }
 
+    public function getOptionValue($optionId, $storeId)
+    {
+        return $this->getResource()->getOptionValue($this, $optionId, $storeId);
+    }
+
     /**
      * get Form Values
      *
