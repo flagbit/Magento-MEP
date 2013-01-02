@@ -38,29 +38,29 @@ class Flagbit_MEP_Model_Data extends Mage_Catalog_Model_Convert_Parser_Product
         }
 
         //add shipping attributes
-        if(!empty($shipping_id)) {
+        if (!empty($shipping_id)) {
             $collection = Mage::getModel('mep/shipping_attribute')->getCollection();
             $collection->addFieldToFilter('profile_id', array('eq' => $shipping_id));
-            foreach($collection as $item) {
-                $attributes[$item->getAttributeCode()] = $item->getShippingMethod().'+'.$item->getPaymentMethod();
+            foreach ($collection as $item) {
+                $attributes[$item->getAttributeCode()] = $item->getShippingMethod() . '+' . $item->getPaymentMethod();
             }
         }
 
 
         // added for url mapping
-        $attributes['url']                      = 'url';
-        $attributes['_category']                = 'category';
-        $attributes['image_url']                = 'image_url';
-        $attributes['gross_price']              = 'gross_price';
-        $attributes['fixed_value_format']       = 'fixed_value_format';
-        $attributes['entity_id']                = 'entity_id';
+        $attributes['url'] = 'url';
+        $attributes['_category'] = 'category';
+        $attributes['image_url'] = 'image_url';
+        $attributes['gross_price'] = 'gross_price';
+        $attributes['fixed_value_format'] = 'fixed_value_format';
+        $attributes['entity_id'] = 'entity_id';
 
 
         //TODO HACK THE PLANET
-        $attributes['versandkosten_paypal']     = 'Versandkosten PayPal Standard';
-        $attributes['versandkosten_vorkasse']   = 'Versandkosten Vorkasse';
-        $attributes['versandkosten_nachnahme']  = 'Versandkosten Nachnahme';
-        $attributes['versandkosten_sofort']     = 'Versandkosten Sofortüberweisung';
+        $attributes['versandkosten_paypal'] = 'Versandkosten PayPal Standard';
+        $attributes['versandkosten_vorkasse'] = 'Versandkosten Vorkasse';
+        $attributes['versandkosten_nachnahme'] = 'Versandkosten Nachnahme';
+        $attributes['versandkosten_sofort'] = 'Versandkosten Sofortüberweisung';
         $attributes['versandkosten_creditcard'] = 'Versandkosten Kreditkarte';
 
         return $attributes;
@@ -98,7 +98,7 @@ class Flagbit_MEP_Model_Data extends Mage_Catalog_Model_Convert_Parser_Product
                     continue;
                 }
 
-                $items[$child->getAttributeCode()] = $child->getAttributeCode()." (".$child->getStoreLabel().")";
+                $items[$child->getAttributeCode()] = $child->getAttributeCode() . " (" . $child->getStoreLabel() . ")";
             }
         }
 
@@ -131,10 +131,10 @@ class Flagbit_MEP_Model_Data extends Mage_Catalog_Model_Convert_Parser_Product
                     $_methodOptions[] = array('value' => $_code, 'label' => $_method);
                 }
 
-                if (!$_title = Mage::getStoreConfig('carriers/'.$_ccode.'/title'))
+                if (!$_title = Mage::getStoreConfig('carriers/' . $_ccode . '/title'))
                     $_title = $_ccode;
 
-                $options[$_mcode] = $_title;
+                $options[$_code] = $_title;
             }
         }
 

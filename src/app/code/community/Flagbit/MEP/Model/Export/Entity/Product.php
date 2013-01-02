@@ -537,6 +537,8 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
         $shippingAttrCodes = array();
         $writer = $this->getWriter();
         $defaultStoreId = Mage_Catalog_Model_Abstract::DEFAULT_STORE_ID;
+        /* @var $helper_data Flagbit_MEP_Helper_Data */
+        $helper_data = Mage::helper('mep');
 
         if ($this->hasProfileId()) {
             /* @var $obj_profil Flagbit_MEP_Model_Profil */
@@ -683,10 +685,7 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
 
                                 if (array_key_exists($attrCode, $shippingAttrCodes)) {
                                     $shipping_item = $shippingAttrCodes[$attrCode];
-
-                                    //checkoout emu
-
-                                    $attrValue = null;
+                                    $attrValue = $helper_data->emulateCheckout($item, $storeId, $shipping_item);
                                 } else {
                                     $attrValue = $item->getData($attrCode);
                                 }
