@@ -534,6 +534,7 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
 
         /** @var $collection Mage_Catalog_Model_Resource_Eav_Mysql4_Product_Collection */
         $validAttrCodes = array();
+        $shippingAttrCodes = array();
         $writer = $this->getWriter();
         $defaultStoreId = Mage_Catalog_Model_Abstract::DEFAULT_STORE_ID;
 
@@ -559,6 +560,16 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
                 $writer->setHeaderRow(true);
             } else {
                 $writer->setHeaderRow(false);
+            }
+
+            // Get Shipping Mapping
+            $shipping_id = $obj_profil->getShippingId();
+            if (!empty($shipping_id)) {
+                $collection = Mage::getModel('mep/shipping_attribute')->getCollection();
+                $collection->addFieldToFilter('profile_id', array('eq' => $shipping_id));
+                foreach ($collection as $item) {
+                    $shippingAttrCodes[$item->getAttributeCode()] = $item;
+                }
             }
 
 
@@ -668,8 +679,18 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
 
                         foreach ($mapping->getItems() as $mapitem) {
 
-                            foreach($mapitem->getAttributeCodeAsArray() as $attrCode) {
-                                $attrValue = $item->getData($attrCode);
+                            foreach ($mapitem->getAttributeCodeAsArray() as $attrCode) {
+
+                                if (array_key_exists($attrCode, $shippingAttrCodes)) {
+                                    $shipping_item = $shippingAttrCodes[$attrCode];
+
+                                    //checkoout emu
+
+                                    $attrValue = null;
+                                } else {
+                                    $attrValue = $item->getData($attrCode);
+                                }
+
 
                                 // TODO dirty? Yes!
                                 if ($attrCode == 'url') {
