@@ -710,6 +710,12 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
                                     $attrValue = Mage::app()->getStore($obj_profil->getStoreId())->getBaseUrl(Mage_Core_Model_Store::URL_TYPE_WEB) . $item->getUrlPath();
                                 }
 
+                                if ($attrCode == 'gross_price') {
+                                    $attrValue = Mage::helper('tax')->getPrice($item, $item->getFinalPrice(), null, null, null,
+                                            null, $obj_profil->getStoreId(), null
+                                        );
+                                }
+
                                 if ($attrCode == 'fixed_value_format') {
                                     $attrValue = $mapitem->getFormat();
                                 }
