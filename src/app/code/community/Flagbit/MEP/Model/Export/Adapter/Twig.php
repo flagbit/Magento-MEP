@@ -104,12 +104,19 @@ class Flagbit_MEP_Model_Export_Adapter_Twig extends Mage_ImportExport_Model_Expo
         parent::_init();
         $this->_fileHandler = fopen($this->_destination, 'w');
         $this->_twig = new Twig_Environment($this->_getTwigLoader(), array(
-            'cache' => Mage::getBaseDir('cache')
+            'cache' => Mage::getBaseDir('cache'),
+            'autoescape' => false,
         ));
+
+        // enable sandbox
+        $_policy = Mage::getModel('mep/twig_sandbox_policy');
+        $sandbox = new Twig_Extension_Sandbox($_policy, true);
+        $this->_twig->addExtension($sandbox);
 
         // Event to offer the possibility to add Twig Modules
         Mage::dispatchEvent('mep_export_adapter_twig_init', array(
-            'twig' => $this->_twig
+            'twig' => $this->_twig,
+            'policy' => $_policy
         ));
 
     }
