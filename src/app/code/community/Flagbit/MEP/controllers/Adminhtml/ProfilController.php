@@ -198,6 +198,9 @@ class Flagbit_MEP_Adminhtml_ProfilController extends Mage_Adminhtml_Controller_A
             $model->setFileFormat("twig");
             $model->setExportFilter(array());
 
+            echo '<pre>'.$model->export().'</pre>';
+            return;
+
             return $this->_prepareDownloadResponse(
                 $model->getFileName(),
                 $model->export(),

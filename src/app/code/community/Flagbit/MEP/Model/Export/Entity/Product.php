@@ -98,6 +98,12 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
     protected $_attributeTypes = array();
 
     /**
+     * Attribute Models
+     * @var array
+     */
+    protected $_attributeModels = array();
+
+    /**
      * @var Flagbit_MEP_Model_Profil
      */
     protected $_profile = null;
@@ -787,6 +793,14 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
                                     }
                                 }
 
+                                // handle frontend Models
+                                if(!empty($this->_attributeModels[$attrCode])
+                                    && $this->_attributeModels[$attrCode]->getFrontendModel()
+                                    && $this->_attributeModels[$attrCode]->getBackendType() != 'datetime'){
+
+                                    $attrValue = $this->_frontend = Mage::getModel($this->_attributeModels[$attrCode]->getFrontendModel())->setAttribute($this->_attributeModels[$attrCode])->getValue($item);
+                                }
+
                                 // value Mapping Attributes
                                 $attributeMapping = $this->_getAttributeMapping($attrCode);
                                 if($attributeMapping
@@ -1224,6 +1238,7 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
             $this->_attributeValues[$attribute->getAttributeCode()] = $this->getAttributeOptions($attribute);
             $this->_attributeTypes[$attribute->getAttributeCode()] =
                 Mage_ImportExport_Model_Import::getAttributeType($attribute);
+            $this->_attributeModels[$attribute->getAttributeCode()] = $attribute;
         }
         return $this;
     }
