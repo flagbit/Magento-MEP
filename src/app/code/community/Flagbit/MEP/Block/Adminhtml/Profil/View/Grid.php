@@ -55,6 +55,24 @@ class Flagbit_MEP_Block_Adminhtml_Profil_View_Grid extends Mage_Adminhtml_Block_
             'index' => 'name',
         ));
 
+        $this->addColumn('store_id', array(
+            'header'        => Mage::helper('mep')->__('Store View'),
+            'index'         => 'store_id',
+            'type'          => 'store',
+            'store_all'     => true,
+            'store_view'    => true,
+            'sortable'      => true,
+        ));
+
+        $this->addColumn('Status', array(
+            'header'    => Mage::helper('cms')->__('Status'),
+            'index'     => 'status',
+            'type'      => 'options',
+            'options'   => array(
+                        0 => Mage::helper('mep')->__('Disable'),
+                        1 => Mage::helper('mep')->__('Enable'),
+                    )
+        ));
 
         $this->addColumn('action', array(
             'header' => Mage::helper('adminhtml')->__('Action'),
