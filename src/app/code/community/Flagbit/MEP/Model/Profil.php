@@ -99,31 +99,31 @@ class Flagbit_MEP_Model_Profil extends Mage_Core_Model_Abstract
                 break;
 
             case self::TWIG_TEMPLATE_TYPE_CONTENT:
-
+                $_modifier = array();
                 switch($mapping->getBackendType()){
-
-                    case 'text':
-                    case 'varchar':
-                        $_field = '{{ '.$mapping->getAttributeCode().'|e }}';
-                        break;
 
                     case 'int':
                     case 'decimal':
-                        $_field = '{{ '.$mapping->getAttributeCode().'|number_format(2, ",", ".")|e }}';
+                        $_modifier = array('number_format(2, ",", ".")');
                         break;
 
                     case 'datetime':
-                        $_field = '{{ '.$mapping->getAttributeCode().'|date("d.m.Y")|e }}';
-                        break;
-
-                    default:
-                        $_field = '{{ '.$mapping->getAttributeCode().'|e }}';
+                        $_modifier = array('date("d.m.Y")');
                         break;
                 }
+
+                $_field =  '{{ '.$mapping->getAttributeCode();
+                $_field .= (count($_modifier) ? '|'.implode('|', $_modifier) : '');
+                $_field .= ' }}';
 
                 // handle mappings with format definition
                 if($mapping->getFormat() || count($mapping->getAttributeCodeAsArray()) > 1){
                     $_field = '{{ "'.$mapping->getFormat().'"|format('.implode(',', $mapping->getAttributeCodeAsArray()).')|e }}';
+                }
+
+                // handle fixed value Format
+                if($mapping->getAttributeCode() == 'fixed_value_format'){
+                    $_field = $mapping->getFormat();
                 }
 
                 break;

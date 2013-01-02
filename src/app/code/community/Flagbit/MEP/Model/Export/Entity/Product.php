@@ -799,6 +799,9 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
                                     && $this->_attributeModels[$attrCode]->getBackendType() != 'datetime'){
 
                                     $attrValue = $this->_frontend = Mage::getModel($this->_attributeModels[$attrCode]->getFrontendModel())->setAttribute($this->_attributeModels[$attrCode])->getValue($item);
+                                    if (isset($rowMultiselects[$itemId])) {
+                                        unset($rowMultiselects[$itemId]);
+                                    }
                                 }
 
                                 // value Mapping Attributes
