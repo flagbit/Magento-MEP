@@ -69,8 +69,8 @@ class Flagbit_MEP_Block_Adminhtml_Profil_View_Grid extends Mage_Adminhtml_Block_
             'index'     => 'status',
             'type'      => 'options',
             'options'   => array(
-                        0 => Mage::helper('mep')->__('Disable'),
-                        1 => Mage::helper('mep')->__('Enable'),
+                        0 => Mage::helper('mep')->__('Disabled'),
+                        1 => Mage::helper('mep')->__('Enabled'),
                     )
         ));
 
