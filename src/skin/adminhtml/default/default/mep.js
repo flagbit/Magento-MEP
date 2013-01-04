@@ -27,7 +27,7 @@ var mepTools = {
             className:'magento',
             windowClassName:"popup-window",
             title:Translator.translate('Attribute Settings'),
-            top:50,
+            top:100,
             width:400,
             //height:450,
             zIndex:1000,
