@@ -32,18 +32,24 @@ class Flagbit_MEP_Block_Adminhtml_Profil_View_Edit extends Mage_Adminhtml_Block_
         ), -1, 5);
 
         $this->_formScripts[] = "
-			function toggleEditor() {
-				if (tinyMCE.getInstanceById('form_content') == null) {
-					tinyMCE.execCommand('mceAddControl', false, 'edit_form');
-				} else {
-					tinyMCE.execCommand('mceRemoveControl', false, 'edit_form');
-				}
-			}
+            function toggleEditor() {
+                if (tinyMCE.getInstanceById('form_content') == null) {
+                    tinyMCE.execCommand('mceAddControl', false, 'edit_form');
+                } else {
+                    tinyMCE.execCommand('mceRemoveControl', false, 'edit_form');
+                }
+            }
 
-			function saveAndContinueEdit(){
-				editForm.submit($('edit_form').action+'back/edit/');
-			}
-		";
+            function saveAndContinueEdit(){
+                activeTab = null;
+                profile_tabsJsTabs.tabs.each(function(elem, index){
+                    if(elem.hasClassName('active')){
+                        activeTab = elem.id.substring('profile_tabs'.length + 1);
+                    }
+                });
+                editForm.submit($('edit_form').action+'back/edit/tab/'+activeTab);
+            }
+        ";
     }
 
     /**

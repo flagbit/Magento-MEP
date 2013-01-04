@@ -12,7 +12,7 @@ class Flagbit_MEP_Block_Adminhtml_Profil_View_Mapping_Grid extends Mage_Adminhtm
         parent::_construct();
         $this->setId('mapping_grid');
         $this->setUseAjax(true); // Using ajax grid is important
-        $this->setDefaultSort('id');
+        $this->setDefaultSort('position');
         $this->setDefaultDir('desc');
         $this->setSaveParametersInSession(true);
         $this->setPagerVisibility(false);

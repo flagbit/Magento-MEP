@@ -10,7 +10,7 @@ class Flagbit_MEP_Block_Adminhtml_Profil_View_Edit_Tabs extends Mage_Adminhtml_B
     public function __construct()
     {
         parent::__construct();
-        $this->setId('rule_tabs');
+        $this->setId('profile_tabs');
         $this->setDestElementId('edit_form');
     }
 
