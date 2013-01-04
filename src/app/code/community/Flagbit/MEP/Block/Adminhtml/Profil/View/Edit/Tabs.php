@@ -25,14 +25,7 @@ class Flagbit_MEP_Block_Adminhtml_Profil_View_Edit_Tabs extends Mage_Adminhtml_B
      */
     protected function _beforeToHtml()
     {
-
-        if (Mage::getSingleton('adminhtml/session')->getMepProfileData()) {
-            $data = Mage::getSingleton('adminhtml/session')->getMepProfileData();
-        } elseif (Mage::registry('mep_profile_data')) {
-            $data = Mage::registry('mep_profile_data')->getData();
-        } else {
-            $data = array();
-        }
+        $data = Mage::helper('mep')->getCurrentProfilData();
 
         $this->addTab('form_section', array(
             'label' => Mage::helper('mep')->__('General Information'),
@@ -40,8 +33,10 @@ class Flagbit_MEP_Block_Adminhtml_Profil_View_Edit_Tabs extends Mage_Adminhtml_B
             'content' => $this->getLayout()->createBlock('mep/adminhtml_profil_view_edit_tab_general')->toHtml(),
         ));
 
-        $this->addTab('form_fields', array(
+        $this->addTab('mapping', array(
             'label' => Mage::helper('mep')->__('Field Mapping'),
+            'title' => Mage::helper('mep')->__('Field Mapping'),
+            'content' => $this->getLayout()->createBlock('mep/adminhtml_profil_view_mapping')->toHtml(),
             'url' => $this->getUrl('*/profil_attribute/index', array('profile_id' => $this->getRequest()->getParam('id'),'shipping_id' => $data["shipping_id"])),
             'class' => 'ajax',
         ));
@@ -65,6 +60,8 @@ class Flagbit_MEP_Block_Adminhtml_Profil_View_Edit_Tabs extends Mage_Adminhtml_B
             'title' => Mage::helper('mep')->__('Export Filters'),
             'content' => $this->getLayout()->createBlock('mep/adminhtml_category_dynamic')->toHtml(),
         ));
+
+        $this->setActiveTab($this->getRequest()->get('tab'));
 
         return parent::_beforeToHtml();
     }

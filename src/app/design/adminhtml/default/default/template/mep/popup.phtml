@@ -105,7 +105,7 @@
                     onSuccess: function(transport)  {
                         if(transport.status == 200) {
                             var response = transport.responseText;
-                            $("rule_tabs_form_fields_content").update(response);
+                            $("mapping_grid").update(response);
                         }
                     }
                 });

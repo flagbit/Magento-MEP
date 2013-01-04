@@ -22,7 +22,6 @@
  */
 $installer = $this;
 $installer->startSetup();
-
 $installer->run("
 ALTER TABLE {$this->getTable('mep_shipping_attribute')}
 ADD `profile_id` int(10) unsigned NOT NULL AFTER `id`,

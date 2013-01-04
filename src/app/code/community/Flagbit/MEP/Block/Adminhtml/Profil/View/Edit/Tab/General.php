@@ -12,14 +12,6 @@ class Flagbit_MEP_Block_Adminhtml_Profil_View_Edit_Tab_General extends Mage_Admi
      */
     protected function _prepareForm()
     {
-        if (Mage::getSingleton('adminhtml/session')->getMepProfileData()) {
-            $data = Mage::getSingleton('adminhtml/session')->getMepProfileData();
-        } elseif (Mage::registry('mep_profile_data')) {
-            $data = Mage::registry('mep_profile_data')->getData();
-        } else {
-            $data = array();
-        }
-
         $form = new Varien_Data_Form();
         $this->setForm($form);
 
@@ -69,11 +61,11 @@ class Flagbit_MEP_Block_Adminhtml_Profil_View_Edit_Tab_General extends Mage_Admi
                 'class'     => 'required-entry',
                 'required'  => true,
                 'name'      => 'store_id',
-                'values'	=> $this->_getStoresOptionHash(),
+                'values'    => Mage::getSingleton('adminhtml/system_store')->getStoreValuesForForm(false, false),
             )
         );
 
-        $form->setValues($data);
+        $form->setValues(Mage::helper('mep')->getCurrentProfilData());
         return parent::_prepareForm();
     }
 
@@ -86,30 +78,4 @@ class Flagbit_MEP_Block_Adminhtml_Profil_View_Edit_Tab_General extends Mage_Admi
         );
         return $options;
     }
-
-    protected function _getStoresOptionHash()
-    {
-        $options = array();
-        foreach ($websites = Mage::app()->getWebsites() as $website) {
-            foreach ($website->getGroups() as $group) {
-                foreach ($group->getStores() as $store) {
-                    //$options[$store->getId()] = $store->getName();
-                    if ($store->getIsActive() == 0) continue;
-                    $wsName = $website->getName();
-                    $stName = $group->getName();
-                    $svName = $store->getName();
-                    if (strlen($wsName) > 10) $wsName = substr($wsName, 0, 8) . '...';
-                    if (strlen($stName) > 10) $stName = substr($stName, 0, 8) . '...';
-
-                    $options[] = array(
-                        'value' => $store->getId(),
-                        'label' => $svName
-                    );
-
-                }
-            }
-        }
-        return $options;
-    }
-
 }

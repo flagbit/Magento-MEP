@@ -43,7 +43,6 @@
         <reference name="left">
             <block type="mep/adminhtml_profil_view_new_tabs" name="profil_tabs"></block>
         </reference>
-
     </adminhtml_profil_new>
 
     <adminhtml_profil_attribute_index>
@@ -65,6 +64,19 @@
             </block>
         </block>
     </adminhtml_profil_attribute_index>
+
+
+    <adminhtml_attribute_index>
+        <reference name="content">
+            <block type="mep/adminhtml_attribute_view" name="mep.attribute" />
+        </reference>
+    </adminhtml_attribute_index>
+
+    <adminhtml_attribute_edit>
+        <reference name="content">
+            <block type="mep/adminhtml_attribute_view_edit" name="mep.attribute.edit"></block>
+        </reference>
+    </adminhtml_attribute_edit>
 
     <adminhtml_shipping_index>
         <reference name="content">
@@ -111,6 +123,5 @@
             </block>
         </block>
     </adminhtml_shipping_attribute_index>
-
 
 </layout>

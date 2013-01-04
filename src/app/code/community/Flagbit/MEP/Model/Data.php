@@ -29,7 +29,6 @@ class Flagbit_MEP_Model_Data extends Mage_Catalog_Model_Convert_Parser_Product
             ->load();
 
         foreach ($collection as $attributeSet) {
-
             $attributes[preg_replace('/([^A-Za-z_-]*)/', '', $attributeSet->getAttributeSetName())] = $this->getAttributesBySet($attributeSet->getAttributeSetId());
         }
 
@@ -62,6 +61,13 @@ class Flagbit_MEP_Model_Data extends Mage_Catalog_Model_Convert_Parser_Product
         $attributes['versandkosten_nachnahme'] = 'Versandkosten Nachnahme';
         $attributes['versandkosten_sofort'] = 'Versandkosten Sofortüberweisung';
         $attributes['versandkosten_creditcard'] = 'Versandkosten Kreditkarte';
+
+        $attributeMappingCollection = Mage::getResourceModel('mep/attribute_mapping_collection')->load();
+
+        // add attribute mapping attributes
+        foreach($attributeMappingCollection as $attributeMapping){
+            $attributes[Mage::helper('mep')->__('Mappings')][$attributeMapping->getAttributeCode()] = sprintf('%s (%s)', $attributeMapping->getName(), $attributeMapping->getAttributeCode());
+        }
 
         return $attributes;
     }

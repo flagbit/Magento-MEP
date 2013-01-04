@@ -1,6 +1,6 @@
 <?php
 
-class Flagbit_MEP_Block_Adminhtml_Profil_View_New extends Mage_Adminhtml_Block_Widget_Form_Container
+class Flagbit_MEP_Block_Adminhtml_Attribute_View_Edit extends Mage_Adminhtml_Block_Widget_Form_Container
 {
     /**
      * Class Constructor
@@ -12,8 +12,8 @@ class Flagbit_MEP_Block_Adminhtml_Profil_View_New extends Mage_Adminhtml_Block_W
         parent::__construct();
         $this->_objectId = 'id';
         $this->_blockGroup = 'mep';
-        $this->_controller = 'adminhtml_profil_view';
-        $this->_mode = 'new';
+        $this->_controller = 'adminhtml_attribute_view';
+        $this->_mode = 'edit';
 
         $this->_updateButton('save', 'label', Mage::helper('mep')->__('Save'));
         $this->_updateButton('delete', 'label', Mage::helper('mep')->__('Delete'));
@@ -25,18 +25,10 @@ class Flagbit_MEP_Block_Adminhtml_Profil_View_New extends Mage_Adminhtml_Block_W
         ), -100);
 
         $this->_formScripts[] = "
-			function toggleEditor() {
-				if (tinyMCE.getInstanceById('form_content') == null) {
-					tinyMCE.execCommand('mceAddControl', false, 'edit_form');
-				} else {
-					tinyMCE.execCommand('mceRemoveControl', false, 'edit_form');
-				}
-			}
-
-			function saveAndContinueEdit(){
-				editForm.submit($('edit_form').action+'back/edit/');
-			}
-		";
+            function saveAndContinueEdit(){
+                editForm.submit($('edit_form').action+'back/edit/');
+            }
+        ";
     }
 
     /**
@@ -50,10 +42,10 @@ class Flagbit_MEP_Block_Adminhtml_Profil_View_New extends Mage_Adminhtml_Block_W
      */
     public function getHeaderText()
     {
-        if (Mage::helper('mep')->getCurrentProfilData(true)) {
-            return Mage::helper('mep')->__('Edit Profile "%s"', $this->htmlEscape(Mage::helper('mep')->getCurrentProfilData('name')));
+        if (Mage::registry('mep_profile_data') && Mage::registry('mep_profile_data')->getId()) {
+            return Mage::helper('mep')->__('Edit Attribute Mapping "%s"', $this->htmlEscape(Mage::registry('mep_profile_data')->getName()));
         } else {
-            return Mage::helper('mep')->__('New Profile');
+            return Mage::helper('mep')->__('New Attribute Mapping');
         }
     }
 }

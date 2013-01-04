@@ -188,6 +188,7 @@ class Flagbit_MEP_Adminhtml_ProfilController extends Mage_Adminhtml_Controller_A
         $this->_redirect('*/*/');
     }
 
+
     public function runClickAction()
     {
         try {
@@ -197,6 +198,11 @@ class Flagbit_MEP_Adminhtml_ProfilController extends Mage_Adminhtml_Controller_A
             $model->setEntity("catalog_product");
             $model->setFileFormat("twig");
             $model->setExportFilter(array());
+
+            if($this->getRequest()->getParam('debug')){
+                echo '<pre>'.$model->export().'</pre>';
+                return;
+            }
 
             return $this->_prepareDownloadResponse(
                 $model->getFileName(),
