@@ -139,7 +139,7 @@ class Flagbit_MEP_Block_Adminhtml_Profil_View_Mapping_Grid extends Mage_Adminhtm
             'actions' => array(
                 array(
                     'caption' => Mage::helper('adminhtml')->__('Delete'),
-                    'url' => array('base' => '*/profil_attribute/delete/id/' . $this->getProfileId()),
+                    'url' => array('base' => '*/profil_attribute/delete', 'params' => array('id' => $this->getProfileId())),
                     'field' => 'mapping_id',
                     'confirm' => $this->__('Do you really want to delete this field mapping.'),
                 ),

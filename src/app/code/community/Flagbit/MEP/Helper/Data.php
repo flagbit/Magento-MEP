@@ -83,9 +83,9 @@ class Flagbit_MEP_Helper_Data extends Mage_Core_Helper_Abstract
         } else {
             $data = array();
         }
-        if(is_bool($idOnly) && $idOnly === true){
+        if($idOnly === true){
             $data = isset($data['id']) ? $data['id'] : null;
-        }elseif($idOnly){
+        }elseif(!is_bool($idOnly)){
             $data = isset($data[$idOnly]) ? $data[$idOnly] : '';
         }
         return $data;
