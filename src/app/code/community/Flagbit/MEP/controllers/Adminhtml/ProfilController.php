@@ -188,6 +188,7 @@ class Flagbit_MEP_Adminhtml_ProfilController extends Mage_Adminhtml_Controller_A
         $this->_redirect('*/*/');
     }
 
+
     public function runClickAction()
     {
         try {

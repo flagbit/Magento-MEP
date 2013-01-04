@@ -12,14 +12,6 @@ class Flagbit_MEP_Block_Adminhtml_Profil_View_Edit_Tab_General extends Mage_Admi
      */
     protected function _prepareForm()
     {
-        if (Mage::getSingleton('adminhtml/session')->getMepProfileData()) {
-            $data = Mage::getSingleton('adminhtml/session')->getMepProfileData();
-        } elseif (Mage::registry('mep_profile_data')) {
-            $data = Mage::registry('mep_profile_data')->getData();
-        } else {
-            $data = array();
-        }
-
         $form = new Varien_Data_Form();
         $this->setForm($form);
 
@@ -73,7 +65,7 @@ class Flagbit_MEP_Block_Adminhtml_Profil_View_Edit_Tab_General extends Mage_Admi
             )
         );
 
-        $form->setValues($data);
+        $form->setValues(Mage::helper('mep')->getCurrentProfilData());
         return parent::_prepareForm();
     }
 

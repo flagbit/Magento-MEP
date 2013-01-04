@@ -69,6 +69,29 @@ class Flagbit_MEP_Helper_Data extends Mage_Core_Helper_Abstract
     }
 
     /**
+     * get current Profile Data
+     *
+     * @param bool $idOnly
+     * @return array|null|string
+     */
+    public function getCurrentProfilData($idOnly = false)
+    {
+        if (Mage::getSingleton('adminhtml/session')->getMepProfileData()) {
+            $data = Mage::getSingleton('adminhtml/session')->getMepProfileData();
+        } elseif (Mage::registry('mep_profile_data')) {
+            $data = Mage::registry('mep_profile_data')->getData();
+        } else {
+            $data = array();
+        }
+        if(is_bool($idOnly) && $idOnly === true){
+            $data = isset($data['id']) ? $data['id'] : null;
+        }elseif($idOnly){
+            $data = isset($data[$idOnly]) ? $data[$idOnly] : '';
+        }
+        return $data;
+    }
+
+    /**
      * normalize strings (to use it as a variable name)
      *
      * @param array|string $mixed

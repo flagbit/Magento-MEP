@@ -28,7 +28,7 @@ class Flagbit_MEP_Block_Adminhtml_Profil_View_Edit extends Mage_Adminhtml_Block_
         $this->_addButton('Run', array(
             'label' => Mage::helper('adminhtml')->__('RUN'),
             'onclick' => 'setLocation(\'' . $this->getUrl('*/*/runClick') . 'id/' . $profil_id . '\')',
-            'class' => 'run',
+            'class' => 'go',
         ), -1, 5);
 
         $this->_formScripts[] = "
@@ -57,8 +57,8 @@ class Flagbit_MEP_Block_Adminhtml_Profil_View_Edit extends Mage_Adminhtml_Block_
      */
     public function getHeaderText()
     {
-        if (Mage::registry('mep_profile_data') && Mage::registry('mep_profile_data')->getId()) {
-            return Mage::helper('mep')->__('Edit Profile "%s"', $this->htmlEscape(Mage::registry('mep_profile_data')->getName()));
+        if (Mage::helper('mep')->getCurrentProfilData(true)) {
+            return Mage::helper('mep')->__('Edit Profile "%s"', $this->htmlEscape(Mage::helper('mep')->getCurrentProfilData('name')));
         } else {
             return Mage::helper('mep')->__('New Profile');
         }
