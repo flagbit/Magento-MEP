@@ -2,6 +2,9 @@
 
 class Flagbit_MEP_Block_Adminhtml_Profil_View_Edit extends Mage_Adminhtml_Block_Widget_Form_Container
 {
+
+    protected $_profileTabId = 'profile_tabs';
+
     /**
      * Class Constructor
      *
@@ -42,9 +45,9 @@ class Flagbit_MEP_Block_Adminhtml_Profil_View_Edit extends Mage_Adminhtml_Block_
 
             function saveAndContinueEdit(){
                 activeTab = null;
-                profile_tabsJsTabs.tabs.each(function(elem, index){
+                {$this->_profileTabId}JsTabs.tabs.each(function(elem, index){
                     if(elem.hasClassName('active')){
-                        activeTab = elem.id.substring('profile_tabs'.length + 1);
+                        activeTab = elem.id.substring('{$this->_profileTabId}'.length + 1);
                     }
                 });
                 editForm.submit($('edit_form').action+'back/edit/tab/'+activeTab);
