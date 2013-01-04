@@ -57,8 +57,8 @@ class Flagbit_MEP_Block_Adminhtml_Profil_View_Edit extends Mage_Adminhtml_Block_
      */
     public function getHeaderText()
     {
-        if (Mage::helper('mep')->getCurrentProfilData(true)) {
-            return Mage::helper('mep')->__('Edit Profile "%s"', $this->htmlEscape(Mage::helper('mep')->getCurrentProfilData('name')));
+        if (Mage::helper('mep')->getCurrentProfileData(true)) {
+            return Mage::helper('mep')->__('Edit Profile "%s"', $this->htmlEscape(Mage::helper('mep')->getCurrentProfileData('name')));
         } else {
             return Mage::helper('mep')->__('New Profile');
         }

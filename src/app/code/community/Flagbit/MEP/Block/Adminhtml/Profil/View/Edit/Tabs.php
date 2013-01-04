@@ -25,7 +25,7 @@ class Flagbit_MEP_Block_Adminhtml_Profil_View_Edit_Tabs extends Mage_Adminhtml_B
      */
     protected function _beforeToHtml()
     {
-        $data = Mage::helper('mep')->getCurrentProfilData();
+        $data = Mage::helper('mep')->getCurrentProfileData();
 
         $this->addTab('form_section', array(
             'label' => Mage::helper('mep')->__('General Information'),

@@ -45,8 +45,6 @@ class Flagbit_MEP_Adminhtml_AttributeController extends Mage_Adminhtml_Controlle
             $this->_initAction();
             $this->getLayout()->getBlock('head')->setCanLoadExtJs(true);
             $this->renderLayout();
-
-            Mage::getSingleton('adminhtml/session')->setMepProfileData(null);
         } else {
             Mage::getSingleton('adminhtml/session')->addError(Mage::helper('mep')->__('Attribute Mapping does not exist'));
             $this->_redirect('*/*/');

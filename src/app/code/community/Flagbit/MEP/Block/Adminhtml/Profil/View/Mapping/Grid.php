@@ -15,11 +15,12 @@ class Flagbit_MEP_Block_Adminhtml_Profil_View_Mapping_Grid extends Mage_Adminhtm
         $this->setDefaultSort('id');
         $this->setDefaultDir('desc');
         $this->setSaveParametersInSession(true);
+        $this->setPagerVisibility(false);
     }
 
     public function getProfileId()
     {
-        return Mage::helper('mep')->getCurrentProfilData(true);
+        return Mage::helper('mep')->getCurrentProfileData(true);
     }
 
     protected function _prepareLayout()

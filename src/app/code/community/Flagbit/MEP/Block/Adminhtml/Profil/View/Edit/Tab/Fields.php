@@ -22,7 +22,7 @@ class Flagbit_MEP_Block_Adminhtml_Profil_View_Edit_Tab_Fields extends Mage_Admin
             )
         );
 
-        $form->setValues(Mage::helper('mep')->getCurrentProfilData());
+        $form->setValues(Mage::helper('mep')->getCurrentProfileData());
         return parent::_prepareForm();
     }
 }

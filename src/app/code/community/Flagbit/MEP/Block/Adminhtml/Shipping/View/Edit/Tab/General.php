@@ -12,14 +12,6 @@ class Flagbit_MEP_Block_Adminhtml_Shipping_View_Edit_Tab_General extends Mage_Ad
      */
     protected function _prepareForm()
     {
-        if (Mage::getSingleton('adminhtml/session')->getMepProfileData()) {
-            $data = Mage::getSingleton('adminhtml/session')->getMepProfileData();
-        } elseif (Mage::registry('mep_shipping_data')) {
-            $data = Mage::registry('mep_shipping_data')->getData();
-        } else {
-            $data = array();
-        }
-
         $form = new Varien_Data_Form();
         $this->setForm($form);
 
@@ -61,7 +53,7 @@ class Flagbit_MEP_Block_Adminhtml_Shipping_View_Edit_Tab_General extends Mage_Ad
             )
         );
 
-        $form->setValues($data);
+        $form->setValues(Mage::helper('mep')->getCurrentProfileData());
         return parent::_prepareForm();
     }
 

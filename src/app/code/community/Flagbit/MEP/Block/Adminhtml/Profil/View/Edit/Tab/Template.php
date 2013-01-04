@@ -52,7 +52,7 @@ class Flagbit_MEP_Block_Adminhtml_Profil_View_Edit_Tab_Template extends Mage_Adm
                 'name' => 'twig_footer_template',
             )
         );
-        $form->setValues(Mage::helper('mep')->getCurrentProfilData());
+        $form->setValues(Mage::helper('mep')->getCurrentProfileData());
 
     }
 

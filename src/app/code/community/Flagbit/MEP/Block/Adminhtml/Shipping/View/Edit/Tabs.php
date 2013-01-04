@@ -25,15 +25,6 @@ class Flagbit_MEP_Block_Adminhtml_Shipping_View_Edit_Tabs extends Mage_Adminhtml
      */
     protected function _beforeToHtml()
     {
-
-        if (Mage::getSingleton('adminhtml/session')->getMepProfileData()) {
-            $data = Mage::getSingleton('adminhtml/session')->getMepProfileData();
-        } elseif (Mage::registry('mep_shipping_data')) {
-            $data = Mage::registry('mep_shipping_data')->getData();
-        } else {
-            $data = array();
-        }
-
         $this->addTab('form_section', array(
             'label' => Mage::helper('mep')->__('General Information'),
             'title' => Mage::helper('mep')->__('General Information'),

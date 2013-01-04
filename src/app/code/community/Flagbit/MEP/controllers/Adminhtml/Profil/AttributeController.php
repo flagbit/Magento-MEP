@@ -43,7 +43,7 @@ class Flagbit_MEP_Adminhtml_Profil_AttributeController extends Mage_Adminhtml_Co
      */
     public function massDeleteAction()
     {
-        $profileId = $this->getRequest()->getParam('id', Mage::helper('mep')->getCurrentProfilData(true));
+        $profileId = $this->getRequest()->getParam('id', Mage::helper('mep')->getCurrentProfileData(true));
         $mappingIds = $this->getRequest()->getParam('mapping_id');
 
         if (!is_array($mappingIds)) {
@@ -77,7 +77,7 @@ class Flagbit_MEP_Adminhtml_Profil_AttributeController extends Mage_Adminhtml_Co
             }
         }
 
-        $profile_id = $this->getRequest()->getParam('id', Mage::helper('mep')->getCurrentProfilData(true));
+        $profile_id = $this->getRequest()->getParam('id', Mage::helper('mep')->getCurrentProfileData(true));
         $this->_redirect('*/profil/edit', array('id' => $profile_id, 'tab' => 'mapping'));
 
     }
