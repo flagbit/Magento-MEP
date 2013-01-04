@@ -28,7 +28,7 @@
 <div id="container">
     <div id="field_content" class="mapping-dialog">
         <form action="<?php echo Mage::helper("adminhtml")->getUrl("adminhtml/profil_attribute/edit") ?>" id="mappingform">
-        <ul>
+        <ul class="formfield_list">
             <li>
                 <label for="attribute_code">In Database</label>
                 <div class="input-box">
@@ -67,7 +67,9 @@
                 </div>
             </li>
             <li>
-                <input type="submit" value="Submit" class="form-button">
+                <div class="input-box">
+                    <button type="submit" value="Submit" class="scalable save" title="Submit"><span><span><span>Save</span></span></span></button>
+                </div>
             </li>
         </ul>
         <input type="hidden" name="profile_id" value="<?php echo $this->getProfileId() ?>" />
