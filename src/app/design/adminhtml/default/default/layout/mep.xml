@@ -42,7 +42,6 @@
             <action method="addCss">
                 <name>lib/prototype/windows/themes/magento.css</name>
             </action>
-            ion>
         </reference>
     </adminhtml_profil_edit>
 
@@ -64,6 +63,11 @@
 
 
     <adminhtml_profil_index>
+        <reference name="head">
+            <action method="addCss">
+                <name>mep.css</name>
+            </action>
+        </reference>
         <reference name="content">
             <block type="mep/adminhtml_profil_view" name="mep.profil"/>
         </reference>

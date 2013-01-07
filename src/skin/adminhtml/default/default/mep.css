@@ -33,3 +33,8 @@
         height: auto !important;
         min-height: 320px;
     }
+
+
+.content-header h3.head-adminhtml-profil-view {
+    background-image: url("images/mep-logo-icon.png");
+}
