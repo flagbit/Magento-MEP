@@ -1,26 +1,59 @@
 <?xml version="1.0"?>
 <layout>
+
+    <default>
+        <reference name="content">
+            <block type="adminhtml/template" template="mep/menu.phtml"/>
+        </reference>
+    </default>
+
     <adminhtml_profil_edit>
         <reference name="head">
-            <action method="addItem"><type>skin_js</type><script>chosen/chosen.proto.js</script></action>
-            <action method="addItem"><type>skin_js</type><script>mep.js</script></action>
-            <action method="addItem"><type>js</type><script>mage/adminhtml/rules.js</script><params/></action>
-            <action method="addCss"><name>chosen/chosen.css</name></action>
-            <action method="addCss"><name>mep.css</name></action>
-            <action method="addJs"><script>mage/adminhtml/wysiwyg/widget.js</script></action>
-            <action method="addItem"><type>js</type><script>prototype/window.js</script></action>
-            <action method="addItem"><type>js_css</type><script>prototype/windows/themes/default.css</script></action>
-            <action method="addCss"><name>lib/prototype/windows/themes/magento.css</name></action>ion>
+            <action method="addItem">
+                <type>skin_js</type>
+                <script>chosen/chosen.proto.js</script>
+            </action>
+            <action method="addItem">
+                <type>skin_js</type>
+                <script>mep.js</script>
+            </action>
+            <action method="addItem">
+                <type>js</type>
+                <script>mage/adminhtml/rules.js</script>
+                <params/>
+            </action>
+            <action method="addCss">
+                <name>chosen/chosen.css</name>
+            </action>
+            <action method="addCss">
+                <name>mep.css</name>
+            </action>
+            <action method="addJs">
+                <script>mage/adminhtml/wysiwyg/widget.js</script>
+            </action>
+            <action method="addItem">
+                <type>js</type>
+                <script>prototype/window.js</script>
+            </action>
+            <action method="addItem">
+                <type>js_css</type>
+                <script>prototype/windows/themes/default.css</script>
+            </action>
+            <action method="addCss">
+                <name>lib/prototype/windows/themes/magento.css</name>
+            </action>
+            ion>
         </reference>
     </adminhtml_profil_edit>
 
-	<adminhtml_mep_index>
+    <adminhtml_mep_index>
         <reference name="content">
-            <block type="adminhtml/template" template="mep/form/before.phtml" name="mep.form.before" alias="form_before"/>
+            <block type="adminhtml/template" template="mep/form/before.phtml" name="mep.form.before"
+                   alias="form_before"/>
             <block type="mep/adminhtml_export_edit" name="mep.form.container"/>
             <block type="adminhtml/template" template="mep/form/after.phtml" name="mep.form.after" alias="form_after"/>
         </reference>
-	</adminhtml_mep_index>
+    </adminhtml_mep_index>
 
 
     <adminhtml_mep_getfilter>
@@ -32,7 +65,7 @@
 
     <adminhtml_profil_index>
         <reference name="content">
-            <block type="mep/adminhtml_profil_view" name="mep.profil" />
+            <block type="mep/adminhtml_profil_view" name="mep.profil"/>
         </reference>
     </adminhtml_profil_index>
 
@@ -68,7 +101,7 @@
 
     <adminhtml_attribute_index>
         <reference name="content">
-            <block type="mep/adminhtml_attribute_view" name="mep.attribute" />
+            <block type="mep/adminhtml_attribute_view" name="mep.attribute"/>
         </reference>
     </adminhtml_attribute_index>
 
@@ -80,21 +113,46 @@
 
     <adminhtml_shipping_index>
         <reference name="content">
-            <block type="mep/adminhtml_shipping_view" name="mep.shipping" />
+            <block type="mep/adminhtml_shipping_view" name="mep.shipping"/>
         </reference>
     </adminhtml_shipping_index>
 
     <adminhtml_shipping_edit>
         <reference name="head">
-            <action method="addItem"><type>skin_js</type><script>chosen/chosen.proto.js</script></action>
-            <action method="addItem"><type>skin_js</type><script>mep.js</script></action>
-            <action method="addItem"><type>js</type><script>mage/adminhtml/rules.js</script><params/></action>
-            <action method="addCss"><name>chosen/chosen.css</name></action>
-            <action method="addCss"><name>mep.css</name></action>
-            <action method="addJs"><script>mage/adminhtml/wysiwyg/widget.js</script></action>
-            <action method="addItem"><type>js</type><script>prototype/window.js</script></action>
-            <action method="addItem"><type>js_css</type><script>prototype/windows/themes/default.css</script></action>
-            <action method="addCss"><name>lib/prototype/windows/themes/magento.css</name></action>ion>
+            <action method="addItem">
+                <type>skin_js</type>
+                <script>chosen/chosen.proto.js</script>
+            </action>
+            <action method="addItem">
+                <type>skin_js</type>
+                <script>mep.js</script>
+            </action>
+            <action method="addItem">
+                <type>js</type>
+                <script>mage/adminhtml/rules.js</script>
+                <params/>
+            </action>
+            <action method="addCss">
+                <name>chosen/chosen.css</name>
+            </action>
+            <action method="addCss">
+                <name>mep.css</name>
+            </action>
+            <action method="addJs">
+                <script>mage/adminhtml/wysiwyg/widget.js</script>
+            </action>
+            <action method="addItem">
+                <type>js</type>
+                <script>prototype/window.js</script>
+            </action>
+            <action method="addItem">
+                <type>js_css</type>
+                <script>prototype/windows/themes/default.css</script>
+            </action>
+            <action method="addCss">
+                <name>lib/prototype/windows/themes/magento.css</name>
+            </action>
+            ion>
         </reference>
         <reference name="content">
             <block type="mep/adminhtml_shipping_view_edit" name="shipping_new"></block>
