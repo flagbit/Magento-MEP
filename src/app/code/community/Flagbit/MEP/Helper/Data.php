@@ -15,7 +15,8 @@ class Flagbit_MEP_Helper_Data extends Mage_Core_Helper_Abstract
 {
 
     private $_groupId = '0';
-    private $_storeId = '1';
+    private $_storeId = '0';
+    private $_websiteId = '0';
     private $orderData = array();
 
     /**
@@ -88,9 +89,9 @@ class Flagbit_MEP_Helper_Data extends Mage_Core_Helper_Abstract
         } else {
             $data = array();
         }
-        if(is_bool($idOnly) && $idOnly === true){
+        if (is_bool($idOnly) && $idOnly === true) {
             $data = isset($data['id']) ? $data['id'] : null;
-        }elseif($idOnly){
+        } elseif ($idOnly) {
             $data = isset($data[$idOnly]) ? $data[$idOnly] : '';
         }
         return $data;
@@ -146,7 +147,9 @@ class Flagbit_MEP_Helper_Data extends Mage_Core_Helper_Abstract
     public function emulateCheckout($item, $store_id, $profil)
     {
         $this->_product = $item;
-        //$this->_storeId = $store_id;
+        $this->_storeId = $store_id;
+        $this->_websiteId = Mage::getModel('core/store')->load($store_id)->getWebsiteId();
+
         $this->setOrderInfo($profil->getPaymentMethod(), $profil->getCountry(), $profil->getShippingMethod());
         $orderData = $this->orderData;
         if (!empty($orderData)) {
@@ -281,6 +284,11 @@ class Flagbit_MEP_Helper_Data extends Mage_Core_Helper_Abstract
             $this->_getOrderCreateModel()->importPostData($data['order']);
         }
         $this->_getOrderCreateModel()->getQuote()->setCustomerIsGuest(1);
+
+        $this->_getOrderCreateModel()->getQuote()->setWebsiteId($this->_websiteId);
+        $this->_getOrderCreateModel()->getQuote()->setStoreId($this->_storeId);
+
+
         $this->_getOrderCreateModel()->getBillingAddress();
         $this->_getOrderCreateModel()->setShippingAsBilling(true);
         /* Just like adding products from Magento admin grid */

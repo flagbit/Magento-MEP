@@ -538,18 +538,18 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
      */
     protected function _getAttributeMapping($attributeCode = false)
     {
-        if($this->_attributeMapping === null){
+        if ($this->_attributeMapping === null) {
             /* @var $attributeMappingCollection Flagbit_MEP_Model_Mysql4_Attribute_Mapping_Collection */
             $attributeMappingCollection = Mage::getResourceModel('mep/attribute_mapping_collection')->load();
             $this->_attributeMapping = array();
-            foreach($attributeMappingCollection as $attributeMapping){
+            foreach ($attributeMappingCollection as $attributeMapping) {
                 $this->_attributeMapping[$attributeMapping->getAttributeCode()] = $attributeMapping;
             }
         }
-        if($attributeCode !== false){
-            if(isset($this->_attributeMapping[$attributeCode])){
+        if ($attributeCode !== false) {
+            if (isset($this->_attributeMapping[$attributeCode])) {
                 return $this->_attributeMapping[$attributeCode];
-            }else{
+            } else {
                 return false;
             }
         }
@@ -725,7 +725,7 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
 
                                 if (array_key_exists($attrCode, $shippingAttrCodes)) {
                                     $shipping_item = $shippingAttrCodes[$attrCode];
-                                    $attrValue = $helper_data->emulateCheckout($item, $storeId, $shipping_item);
+                                    $attrValue = $helper_data->emulateCheckout($item, $obj_profil->getStoreId(), $shipping_item);
                                 } else {
                                     $attrValue = $item->getData($attrCode);
                                 }
@@ -738,8 +738,8 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
 
                                 if ($attrCode == 'gross_price') {
                                     $attrValue = Mage::helper('tax')->getPrice($item, $item->getFinalPrice(), null, null, null,
-                                            null, $obj_profil->getStoreId(), null
-                                        );
+                                        null, $obj_profil->getStoreId(), null
+                                    );
                                 }
 
                                 if ($attrCode == 'fixed_value_format') {
@@ -814,9 +814,10 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
                                 }
 
                                 // handle frontend Models
-                                if(!empty($this->_attributeModels[$attrCode])
+                                if (!empty($this->_attributeModels[$attrCode])
                                     && $this->_attributeModels[$attrCode]->getFrontendModel()
-                                    && $this->_attributeModels[$attrCode]->getBackendType() != 'datetime'){
+                                    && $this->_attributeModels[$attrCode]->getBackendType() != 'datetime'
+                                ) {
 
                                     $attrValue = $this->_frontend = Mage::getModel($this->_attributeModels[$attrCode]->getFrontendModel())->setAttribute($this->_attributeModels[$attrCode])->getValue($item);
                                     if (isset($rowMultiselects[$itemId])) {
@@ -826,9 +827,10 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
 
                                 // value Mapping Attributes
                                 $attributeMapping = $this->_getAttributeMapping($attrCode);
-                                if($attributeMapping
+                                if ($attributeMapping
                                     && $attributeMapping->getSourceAttributeCode() != 'category'
-                                    && $item->getData($attributeMapping->getSourceAttributeCode())){
+                                    && $item->getData($attributeMapping->getSourceAttributeCode())
+                                ) {
 
                                     $attrValue = $item->getData($attributeMapping->getSourceAttributeCode());
 
@@ -836,17 +838,18 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
                                         $attrValue = $attributeMapping->getOptionValue(explode(',', $attrValue), $obj_profil->getStoreId());
                                         $rowMultiselects[$itemId][$attrCode] = $attrValue;
 
-                                    }else{
+                                    } else {
                                         $attrValue = $attributeMapping->getOptionValue($attrValue, $obj_profil->getStoreId());
                                     }
-                                // value Mapping category
-                                }elseif($attributeMapping
-                                    && $attributeMapping->getSourceAttributeCode() == 'category'){
+                                    // value Mapping category
+                                } elseif ($attributeMapping
+                                    && $attributeMapping->getSourceAttributeCode() == 'category'
+                                ) {
 
                                     $rrowCategories = $item->getCategoryIds();
                                     $categoryId = array_shift($rrowCategories);
 
-                                    if(isset($this->_categoryIds[$categoryId])){
+                                    if (isset($this->_categoryIds[$categoryId])) {
 
                                         $attrValue = implode(
                                             $this->getProfile()->getCategoryDelimiter(),
