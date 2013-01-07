@@ -578,7 +578,7 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
         $writer = $this->getWriter();
         $defaultStoreId = Mage_Catalog_Model_Abstract::DEFAULT_STORE_ID;
         /* @var $helper_data Flagbit_MEP_Helper_Data */
-        $helper_data = Mage::helper('mep');
+        $helper_data = Mage::helper('mep/shipping');
 
         if ($this->hasProfileId()) {
             /* @var $obj_profil Flagbit_MEP_Model_Profil */
