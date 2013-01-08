@@ -97,7 +97,9 @@
                     </div>
                 </li>
                 <li>
-                    <input type="submit" value="Submit" class="form-button">
+                    <div class="input-box">
+                        <button type="submit" value="Submit" class="scalable save" title="Submit"><span><span><span>Save</span></span></span></button>
+                    </div>
                 </li>
             </ul>
             <input type="hidden" name="profile_id" value="<?php echo $this->getProfileId() ?>"/>
@@ -122,7 +124,7 @@
                     onSuccess:function (transport) {
                         if (transport.status == 200) {
                             var response = transport.responseText;
-                            $("rule_tabs_form_fields_content").update(response);
+                            $("mapping_grid").update(response);
                         }
                     }
                 });

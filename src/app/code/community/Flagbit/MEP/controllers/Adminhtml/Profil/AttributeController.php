@@ -7,12 +7,6 @@ class Flagbit_MEP_Adminhtml_Profil_AttributeController extends Mage_Adminhtml_Co
      */
     public function indexAction()
     {
-        /*$this->loadLayout();
-        $this->getLayout()->getBlock('fields.grid')
-            ->setProfile($this->getRequest()->getParam('profile_id', null))
-            ->setShipping($this->getRequest()->getParam('shipping_id', null));
-
-        $this->renderLayout();*/
         $this->_forward('grid');
     }
 
@@ -29,7 +23,11 @@ class Flagbit_MEP_Adminhtml_Profil_AttributeController extends Mage_Adminhtml_Co
             }
             unset($data['id']);
             $model->addData($data);
-            $model->save();
+            try {
+                $model->save();
+            } catch (Exception $e) {
+                Mage::getSingleton('adminhtml/session')->addError(Mage::helper('mep')->__($e->getMessage()));
+            }
         }
     }
 

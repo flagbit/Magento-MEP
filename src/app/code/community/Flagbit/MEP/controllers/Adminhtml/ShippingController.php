@@ -31,6 +31,7 @@ class Flagbit_MEP_Adminhtml_ShippingController extends Mage_Adminhtml_Controller
 
     public function newAction()
     {
+        Mage::getSingleton('adminhtml/session')->setMepProfileData(null);
         $this->_forward('edit');
     }
 
@@ -71,8 +72,6 @@ class Flagbit_MEP_Adminhtml_ShippingController extends Mage_Adminhtml_Controller
             Mage::register('mep_shipping_data', $model);
 
             $this->renderLayout();
-
-            Mage::getSingleton('adminhtml/session')->setMepProfileData(null);
         } else {
             Mage::getSingleton('adminhtml/session')->addError(Mage::helper('mep')->__('Profil does not exist'));
             $this->_redirect('*/*/');
