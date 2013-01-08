@@ -63,7 +63,6 @@ class Flagbit_MEP_Model_Profile extends Mage_Core_Model_Abstract
         /* @var $collection Flagbit_MEP_Model_Mysql4_Mapping_Collection */
         $collection = Mage::getModel('mep/mapping')->getCollection();
         $collection->addFieldToFilter('profile_id', array('eq' => $this->getId()))
-                   ->addAttributeSettings()
                    ->setOrder('position', 'ASC');
 
         foreach($collection as $mappingItem){
