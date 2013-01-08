@@ -69,10 +69,8 @@ class Flagbit_MEP_Block_Adminhtml_Profil_View_Mapping_Grid extends Mage_Adminhtm
     {
         /* @var $collection Flagbit_MEP_Model_Mysql4_Mapping_Collection */
         $collection = Mage::getModel('mep/mapping')->getCollection();
-        $profil_id = $this->getProfile();
-        if (!empty($profil_id)) {
-            $collection->addFieldToFilter('profile_id', array('eq' => $profil_id));
-        }
+        $collection->addFieldToFilter('profile_id', array('eq' => $this->getProfileId()));
+
         parent::setDefaultLimit('200');
         $this->setCollection($collection);
         return parent::_prepareCollection();

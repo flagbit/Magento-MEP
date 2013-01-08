@@ -118,7 +118,7 @@ class Flagbit_MEP_Model_Profil extends Mage_Core_Model_Abstract
 
                 // handle mappings with format definition
                 if($mapping->getFormat() || count($mapping->getAttributeCodeAsArray()) > 1){
-                    $_field = '{{ "'.$mapping->getFormat().'"|format('.implode(',', $mapping->getAttributeCodeAsArray()).')|e }}';
+                    $_field = '{{ "'.$mapping->getFormat().'"|format('.implode(',', $mapping->getAttributeCodeAsArray()).') }}';
                 }
 
                 // handle fixed value Format
