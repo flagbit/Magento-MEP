@@ -29,7 +29,6 @@ class Flagbit_MEP_Adminhtml_ShippingController extends Mage_Adminhtml_Controller
     }
 
 
-
     public function newAction()
     {
         $this->_forward('edit');
@@ -88,23 +87,12 @@ class Flagbit_MEP_Adminhtml_ShippingController extends Mage_Adminhtml_Controller
     public function saveAction()
     {
         if ($data = $this->getRequest()->getPost()) {
-            $model = Mage::getModel('mep/profil');
+            $model = Mage::getModel('mep/shipping');
 
             $id = $this->getRequest()->getParam('id');
             $data['id'] = $id;
             if ($id) {
                 $model->load($id);
-            }
-
-            if (isset($data['rule'])) {
-
-                $data = $this->_filterDates($data, array('from_date', 'to_date'));
-
-                if (isset($data['rule']['conditions'])) {
-                    //$model->setConditionsSerialized($data['rule']['conditions']);
-                    $data['conditions_serialized'] = $data['rule']['conditions'];
-                    unset($data['rule']);
-                }
             }
 
             Mage::getSingleton('adminhtml/session')->setFormData($data);
@@ -117,12 +105,8 @@ class Flagbit_MEP_Adminhtml_ShippingController extends Mage_Adminhtml_Controller
                     Mage::throwException(Mage::helper('mep')->__('Error saving profil'));
                 }
 
-                // Template Stuff
-                if (isset($data['template'])) {
-                    $result = Mage::helper('mep')->setTemplateProfil($model->getId(), $data['template']);
-                }
 
-                Mage::getSingleton('adminhtml/session')->addSuccess(Mage::helper('mep')->__('Profil was successfully saved'));
+                Mage::getSingleton('adminhtml/session')->addSuccess(Mage::helper('mep')->__('Shipping profil was successfully saved'));
                 Mage::getSingleton('adminhtml/session')->setFormData(false);
 
                 if ($this->getRequest()->getParam('back')) {
@@ -153,7 +137,7 @@ class Flagbit_MEP_Adminhtml_ShippingController extends Mage_Adminhtml_Controller
     {
         if ($id = $this->getRequest()->getParam('id')) {
             try {
-                Mage::getModel('mep/profil')->load($id)->delete();
+                Mage::getModel('mep/shipping')->load($id)->delete();
                 Mage::getSingleton('adminhtml/session')->addSuccess(Mage::helper('mep')->__('successfully deleted'));
             } catch (Exception $e) {
                 Mage::getSingleton('adminhtml/session')->addError($e->getMessage());
@@ -176,7 +160,7 @@ class Flagbit_MEP_Adminhtml_ShippingController extends Mage_Adminhtml_Controller
         } else {
             try {
                 foreach ($productIds as $productId) {
-                    Mage::getModel('mep/profil')->load($productId)->delete();
+                    Mage::getModel('mep/shipping')->load($productId)->delete();
                 }
                 $this->_getSession()->addSuccess(
                     $this->__('Total of %d profil(s) have been deleted.', count($productIds))

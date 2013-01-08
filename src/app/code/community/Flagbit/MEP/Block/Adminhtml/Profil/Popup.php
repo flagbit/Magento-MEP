@@ -16,6 +16,11 @@ class Flagbit_MEP_Block_Adminhtml_Profil_Popup
         return $this->getRequest()->getParam('profile_id', null);
     }
 
+    public function getShippingId()
+    {
+        return $this->getRequest()->getParam('shipping_id', null);
+    }
+
     public function getMapping()
     {
         return Mage::getModel('mep/mapping')->load($this->getRequest()->getParam('id'));
