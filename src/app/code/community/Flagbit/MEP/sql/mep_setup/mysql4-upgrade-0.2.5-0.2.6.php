@@ -18,13 +18,14 @@
  * @copyright 2012 Flagbit GmbH & Co. KG (http://www.flagbit.de). All rights served.
  * @license http://opensource.org/licenses/gpl-3.0 GNU General Public License, version 3 (GPLv3)
  * @version 0.1.0
- * @since 0.2.5
+ * @since 0.2.6
  */
 $installer = $this;
 $installer->startSetup();
+
 $installer->run("
-ALTER TABLE {$this->getTable('mep_shipping_attribute')}
-ADD `profile_id` int(10) unsigned NOT NULL AFTER `id`,
+ALTER TABLE {$this->getTable('mep_profile')}
+ADD `shipping_id` int(10) unsigned NOT NULL AFTER `name`,
 COMMENT='';
 ");
 $installer->endSetup();

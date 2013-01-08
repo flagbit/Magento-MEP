@@ -33,7 +33,7 @@
                 <label for="attribute_code">In Database</label>
                 <div class="input-box">
                     <select name="attribute_code[]" id="attribute_code" class="chzn-select" multiple="multiple">
-                    <?php $aha = Mage::getModel('mep/data')->getExternalAttributes(); ?>
+                    <?php $aha = Mage::getModel('mep/data')->getExternalAttributes($this->getShippingId()); ?>
                     <?php foreach ($aha as $_value => $_label): ?>
                         <?php if (is_array($_label)): ?>
                         <optgroup label="<?php echo $_value ?>">

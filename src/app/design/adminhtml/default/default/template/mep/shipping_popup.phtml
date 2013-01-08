@@ -33,8 +33,8 @@
                 <label for="payment_method">Payment Method</label>
                 <div class="input-box">
                     <select name="payment_method" id="payment_method"  >
-                    <?php $aha = Mage::getModel('mep/data')->getAllActivPaymentMethods(); ?>
-                    <?php foreach ($aha as $_value => $_label): ?>
+                    <?php $payments = Mage::getModel('mep/data')->getAllActivPaymentMethods(); ?>
+                    <?php foreach ($payments as $_value => $_label): ?>
                         <?php if (is_array($_label)): ?>
                         <optgroup label="<?php echo $_value ?>">
                         <?php foreach ($_label as $_attributeCode => $_attributeLabel): ?>
@@ -52,8 +52,8 @@
                 <label for="shipping_method">Payment Method</label>
                 <div class="input-box">
                     <select name="shipping_method" id="shipping_method"  >
-                        <?php $aha = Mage::getModel('mep/data')->getAllShippingMethods(); ?>
-                        <?php foreach ($aha as $_value => $_label): ?>
+                        <?php $shippings = Mage::getModel('mep/data')->getAllShippingMethods(); ?>
+                        <?php foreach ($shippings as $_value => $_label): ?>
                         <?php if (is_array($_label)): ?>
                             <optgroup label="<?php echo $_value ?>">
                                 <?php foreach ($_label as $_attributeCode => $_attributeLabel): ?>
