@@ -30,18 +30,25 @@ class Flagbit_MEP_Adminhtml_Shipping_AttributeController extends Mage_Adminhtml_
             /* @var $attributeModel Mage_Eav_Model_Entity_Attribute */
             $attributeModel = Mage::getModel('eav/entity_attribute')->loadByCode('catalog_product', $model->getAttributeCode());
 
+            /* @var $test Flagbit_MEP_Model_Data */
+            $test = Mage::getModel('mep/data')->getExternalAttributes();
+
+            $collection = Mage::getModel('mep/shipping_attribute')->getCollection();
+            $collection->addFieldToFilter('profile_id', array('eq' => $model->getProfileId()));
+            $match = false;
+            foreach ($collection as $item) {
+                if ($item->getAttributeCode() == $model->getAttributeCode()) {
+                    $match = true;
+                }
+            }
+
             /* check if attribute code exist */
-            if(!$attributeModel->isEmpty()){
+            if (!$attributeModel->isEmpty() || $match) {
                 $this->_redirect('*/*/edit', array('id' => $model->getId()));
                 Mage::getSingleton('adminhtml/session')->addError(Mage::helper('mep')->__('Attribute Code Exist'));
             } else {
                 $model->save();
             }
-
-
-
-
-
         }
     }
 
