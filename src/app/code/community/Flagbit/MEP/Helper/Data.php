@@ -74,7 +74,7 @@ class Flagbit_MEP_Helper_Data extends Mage_Core_Helper_Abstract
      * @param bool $idOnly
      * @return array|null|string
      */
-    public function getCurrentProfilData($idOnly = false)
+    public function getCurrentProfileData($idOnly = false)
     {
         if (Mage::getSingleton('adminhtml/session')->getMepProfileData()) {
             $data = Mage::getSingleton('adminhtml/session')->getMepProfileData();

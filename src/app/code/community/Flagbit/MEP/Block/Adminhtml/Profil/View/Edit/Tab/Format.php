@@ -111,9 +111,9 @@ class Flagbit_MEP_Block_Adminhtml_Profil_View_Edit_Tab_Format extends Mage_Admin
                 'options' => $this->_getShippingOptionsHash(),
             )
         );
-        
-        $form->setValues(Mage::helper('mep')->getCurrentProfilData());
-        
+
+        $form->setValues(Mage::helper('mep')->getCurrentProfileData());
+
 
 
         return parent::_prepareForm();
