@@ -53,11 +53,9 @@
         float: left;
         width: 200px;
     }
-
+    .adminhtml-shipping-edit div.mapping-dialog select,
     .adminhtml-shipping-edit div.mapping-dialog input {
         margin-bottom: 5px;
-    }
-    .adminhtml-shipping-edit div.mapping-dialog input {
         width: 167px;
     }
     .adminhtml-shipping-edit div.mapping-dialog button {
