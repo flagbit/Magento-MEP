@@ -31,7 +31,7 @@ class Flagbit_MEP_Block_Adminhtml_Profil_View_Mapping_Grid extends Mage_Adminhtm
             $this->getLayout()->createBlock('adminhtml/widget_button')
                 ->setData(array(
                 'label' => Mage::helper('adminhtml')->__('Add Attribute'),
-                'onclick' => "mepTools.openDialog('".$this->getUrl('*/profil/popup', array('profile_id' => $this->getProfileId(),'shipping_id' => $this->getRequest()->getParam('shipping_id', null)))."')",
+                'onclick' => "mepTools.openDialog('".$this->getUrl('*/profil/popup', array('profile_id' => $this->getProfileId()))."')",
                 'class' => 'add'
             ))
         );

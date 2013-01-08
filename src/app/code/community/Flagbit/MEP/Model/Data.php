@@ -20,7 +20,7 @@ class Flagbit_MEP_Model_Data extends Mage_Catalog_Model_Convert_Parser_Product
      * @return array
      * @see Mage_Catalog_Model_Convert_Parser_Product::getExternalAttributes()
      */
-    public function getExternalAttributes($shipping_id = 0)
+    public function getExternalAttributes()
     {
         $attributes = $this->_externalFields;
 
@@ -37,6 +37,7 @@ class Flagbit_MEP_Model_Data extends Mage_Catalog_Model_Convert_Parser_Product
         }
 
         //add shipping attributes
+        $shipping_id = Mage::helper('mep')->getCurrentProfileData('shipping_id');
         if (!empty($shipping_id)) {
             $collection = Mage::getModel('mep/shipping_attribute')->getCollection();
             $collection->addFieldToFilter('profile_id', array('eq' => $shipping_id));
