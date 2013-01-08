@@ -22,12 +22,12 @@ class Flagbit_MEP_Model_Observer extends Varien_Object
     /**
      * Get all enabled export profiles.
      *
-     * @return Flagbit_MEP_Model_Mysql4_Profil_Collection
+     * @return Flagbit_MEP_Model_Mysql4_Profile_Collection
      */
     protected function getProfileCollection()
     {
-        /* @var $profiles Flagbit_MEP_Model_Mysql4_Profil_Collection */
-        $profiles = Mage::getModel('mep/profil')->getCollection();
+        /* @var $profiles Flagbit_MEP_Model_Mysql4_Profile_Collection */
+        $profiles = Mage::getModel('mep/profile')->getCollection();
         $profiles->addFieldToFilter('status', 1);
         return $profiles;
     }

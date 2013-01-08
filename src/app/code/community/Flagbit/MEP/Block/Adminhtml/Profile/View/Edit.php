@@ -1,6 +1,6 @@
 <?php
 
-class Flagbit_MEP_Block_Adminhtml_Profil_View_Edit extends Mage_Adminhtml_Block_Widget_Form_Container
+class Flagbit_MEP_Block_Adminhtml_Profile_View_Edit extends Mage_Adminhtml_Block_Widget_Form_Container
 {
 
     protected $_profileTabId = 'profile_tabs';
@@ -15,7 +15,7 @@ class Flagbit_MEP_Block_Adminhtml_Profil_View_Edit extends Mage_Adminhtml_Block_
         parent::__construct();
         $this->_objectId = 'id';
         $this->_blockGroup = 'mep';
-        $this->_controller = 'adminhtml_profil_view';
+        $this->_controller = 'adminhtml_profile_view';
         $this->_mode = 'edit';
 
         $this->_updateButton('save', 'label', Mage::helper('mep')->__('Save'));
@@ -27,22 +27,23 @@ class Flagbit_MEP_Block_Adminhtml_Profil_View_Edit extends Mage_Adminhtml_Block_
             'class' => 'save',
         ), -100);
 
-        $profil_id = $this->getRequest()->getParam('id');
+        $profile_id = Mage::helper('mep')->getCurrentProfileData(true);
         $this->_addButton('Run', array(
             'label' => Mage::helper('adminhtml')->__('RUN'),
-            'onclick' => 'setLocation(\'' . $this->getUrl('*/*/runClick') . 'id/' . $profil_id . '\')',
+            'onclick' => 'setLocation(\'' . $this->getUrl('*/*/runClick') . 'id/' . $profile_id . '\')',
             'class' => 'go',
         ), -1, 5);
 
-        $this->_formScripts[] = "
-            function toggleEditor() {
-                if (tinyMCE.getInstanceById('form_content') == null) {
-                    tinyMCE.execCommand('mceAddControl', false, 'edit_form');
-                } else {
-                    tinyMCE.execCommand('mceRemoveControl', false, 'edit_form');
-                }
-            }
 
+        if (! empty($profile_id)) {
+                $this->_addButton('duplicate', array(
+                    'label' => Mage::helper('adminhtml')->__('Duplicate'),
+                    'onclick' => "$('edit_form').action += 'duplicate/true/'; editForm.submit();",
+                    'class' => 'scalable add',
+                ), 0);
+        }
+
+        $this->_formScripts[] = "
             function saveAndContinueEdit(){
                 activeTab = null;
                 {$this->_profileTabId}JsTabs.tabs.each(function(elem, index){

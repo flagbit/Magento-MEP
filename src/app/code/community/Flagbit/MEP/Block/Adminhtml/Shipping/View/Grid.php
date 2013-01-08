@@ -10,7 +10,7 @@ class Flagbit_MEP_Block_Adminhtml_Shipping_View_Grid extends Mage_Adminhtml_Bloc
     public function __construct()
     {
         parent::__construct();
-        $this->setId('profil_grid');
+        $this->setId('profile_grid');
         $this->setDefaultSort('id');
         $this->setDefaultDir('desc');
         $this->setSaveParametersInSession(true);
@@ -22,7 +22,7 @@ class Flagbit_MEP_Block_Adminhtml_Shipping_View_Grid extends Mage_Adminhtml_Bloc
      *
      * Prepares the collection for the grid
      *
-     * @return Flagbit_MEP_Block_Adminhtml_Profil_View_Grid Self.
+     * @return Flagbit_MEP_Block_Adminhtml_Profile_View_Grid Self.
      */
     protected function _prepareCollection()
     {

@@ -1,6 +1,6 @@
 <?php
 
-class Flagbit_MEP_Model_Profil extends Mage_Core_Model_Abstract
+class Flagbit_MEP_Model_Profile extends Mage_Core_Model_Abstract
 {
     const TWIG_TEMPLATE_TYPE_CONTENT = 'content';
     const TWIG_TEMPLATE_TYPE_HEADER = 'header';
@@ -12,7 +12,7 @@ class Flagbit_MEP_Model_Profil extends Mage_Core_Model_Abstract
      */
     protected function _construct()
     {
-        $this->_init('mep/profil');
+        $this->_init('mep/profile');
     }
 
     /**
@@ -22,7 +22,7 @@ class Flagbit_MEP_Model_Profil extends Mage_Core_Model_Abstract
      */
     protected function _beforeSave()
     {
-        if ($this->getId())
+        if ($this->getId() || $this->getIsDuplicate() && $this->getOriginalId())
         {
             $this->setTwigHeaderTemplate(
                 $this->_generateTemplate($this->getTwigHeaderTemplate(), self::TWIG_TEMPLATE_TYPE_HEADER)
@@ -37,6 +37,45 @@ class Flagbit_MEP_Model_Profil extends Mage_Core_Model_Abstract
         return parent::_beforeSave();
     }
 
+
+    /**
+     * Create duplicate
+     *
+     * @return Flagbit_MEP_Model_Profile
+     */
+    public function duplicate()
+    {
+        /* @var $newProfile Flagbit_MEP_Model_Profile */
+        $newProfile = Mage::getModel('mep/profile')->setData($this->getData())
+            ->setIsDuplicate(true)
+            ->setOriginalId($this->getId())
+            ->setCreatedAt(null)
+            ->setUpdatedAt(null)
+            ->setId(null);
+
+        Mage::dispatchEvent(
+            'mep_model_profile_duplicate',
+            array('current_profile' => $this, 'new_profile' => $newProfile)
+        );
+
+        $newProfile->save();
+
+        /* @var $collection Flagbit_MEP_Model_Mysql4_Mapping_Collection */
+        $collection = Mage::getModel('mep/mapping')->getCollection();
+        $collection->addFieldToFilter('profile_id', array('eq' => $this->getId()))
+                   ->addAttributeSettings()
+                   ->setOrder('position', 'ASC');
+
+        foreach($collection as $mappingItem){
+            $mappingItem->setId(null)
+                        ->setProfileId($newProfile->getId())
+                        ->save();
+        }
+
+        return $newProfile;
+    }
+
+
     /**
      * generate Template
      *
@@ -46,9 +85,11 @@ class Flagbit_MEP_Model_Profil extends Mage_Core_Model_Abstract
      */
     protected function _generateTemplate($template, $type = self::TWIG_TEMPLATE_TYPE_CONTENT)
     {
+        $profileId = $this->getId() ? $this->getId() : $this->getOriginalId();
+
         /* @var $collection Flagbit_MEP_Model_Mysql4_Mapping_Collection */
         $collection = Mage::getModel('mep/mapping')->getCollection();
-        $collection->addFieldToFilter('profile_id', array('eq' => $this->getId()))
+        $collection->addFieldToFilter('profile_id', array('eq' => $profileId))
                    ->addAttributeSettings()
                    ->setOrder('position', 'ASC');
 

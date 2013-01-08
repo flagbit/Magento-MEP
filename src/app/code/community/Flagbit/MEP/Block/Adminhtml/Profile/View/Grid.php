@@ -1,6 +1,6 @@
 <?php
 
-class Flagbit_MEP_Block_Adminhtml_Profil_View_Grid extends Mage_Adminhtml_Block_Widget_Grid
+class Flagbit_MEP_Block_Adminhtml_Profile_View_Grid extends Mage_Adminhtml_Block_Widget_Grid
 {
     /**
      * Class Constructor
@@ -10,7 +10,7 @@ class Flagbit_MEP_Block_Adminhtml_Profil_View_Grid extends Mage_Adminhtml_Block_
     public function __construct()
     {
         parent::__construct();
-        $this->setId('profil_grid');
+        $this->setId('profile_grid');
         $this->setDefaultSort('id');
         $this->setDefaultDir('desc');
         $this->setSaveParametersInSession(true);
@@ -22,12 +22,12 @@ class Flagbit_MEP_Block_Adminhtml_Profil_View_Grid extends Mage_Adminhtml_Block_
      *
      * Prepares the collection for the grid
      *
-     * @return Flagbit_MEP_Block_Adminhtml_Profil_View_Grid Self.
+     * @return Flagbit_MEP_Block_Adminhtml_Profile_View_Grid Self.
      */
     protected function _prepareCollection()
     {
         /* @var $collection Flagbit_MEP_Model_Profil */
-        $collection = Mage::getModel('mep/profil')->getCollection();
+        $collection = Mage::getModel('mep/profile')->getCollection();
         $this->setCollection($collection);
         return parent::_prepareCollection();
     }

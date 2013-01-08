@@ -27,7 +27,7 @@
 
 <div id="container">
     <div id="field_content" class="mapping-dialog">
-        <form action="<?php echo Mage::helper("adminhtml")->getUrl("adminhtml/profil_attribute/edit") ?>" id="mappingform">
+        <form action="<?php echo Mage::helper("adminhtml")->getUrl("adminhtml/profile_attribute/edit") ?>" id="mappingform">
         <ul class="formfield_list">
             <li>
                 <label for="attribute_code">In Database</label>
@@ -101,7 +101,7 @@
             onSuccess : function(t) {
                 var parameters = {isAjax: true, profile_id:<?php echo $this->getProfileId() ?>};
                 // make another ajax call to reload the fields table
-                new Ajax.Request("<?php echo Mage::helper("adminhtml")->getUrl("adminhtml/profil_attribute/index") ?>", {
+                new Ajax.Request("<?php echo Mage::helper("adminhtml")->getUrl("adminhtml/profile_attribute/index") ?>", {
                     method: "post",
                     parameters: parameters,
                     onSuccess: function(transport)  {

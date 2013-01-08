@@ -22,7 +22,7 @@ class Flagbit_MEP_Block_Adminhtml_Attribute_View_Grid extends Mage_Adminhtml_Blo
      *
      * Prepares the collection for the grid
      *
-     * @return Flagbit_MEP_Block_Adminhtml_Profil_View_Grid Self.
+     * @return Flagbit_MEP_Block_Adminhtml_Profile_View_Grid Self.
      */
     protected function _prepareCollection()
     {

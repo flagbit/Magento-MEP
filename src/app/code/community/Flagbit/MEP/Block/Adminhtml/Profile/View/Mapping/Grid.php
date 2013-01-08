@@ -1,6 +1,6 @@
 <?php
 
-class Flagbit_MEP_Block_Adminhtml_Profil_View_Mapping_Grid extends Mage_Adminhtml_Block_Widget_Grid
+class Flagbit_MEP_Block_Adminhtml_Profile_View_Mapping_Grid extends Mage_Adminhtml_Block_Widget_Grid
 {
     /**
      * Class Constructor
@@ -31,7 +31,7 @@ class Flagbit_MEP_Block_Adminhtml_Profil_View_Mapping_Grid extends Mage_Adminhtm
             $this->getLayout()->createBlock('adminhtml/widget_button')
                 ->setData(array(
                 'label' => Mage::helper('adminhtml')->__('Add Attribute'),
-                'onclick' => "mepTools.openDialog('".$this->getUrl('*/profil/popup', array('profile_id' => $this->getProfileId()))."')",
+                'onclick' => "mepTools.openDialog('".$this->getUrl('*/profile/popup', array('profile_id' => $this->getProfileId()))."')",
                 'class' => 'add'
             ))
         );
@@ -46,7 +46,7 @@ class Flagbit_MEP_Block_Adminhtml_Profil_View_Mapping_Grid extends Mage_Adminhtm
 
     public function getRowUrl($row)
     {
-        return "javascript:mepTools.openDialog('".$this->getUrl('*/profil/popup', array('id' => $row->getId(), 'profile_id' => $this->getProfileId()))."')";
+        return "javascript:mepTools.openDialog('".$this->getUrl('*/profile/popup', array('id' => $row->getId(), 'profile_id' => $this->getProfileId()))."')";
     }
 
 
@@ -63,7 +63,7 @@ class Flagbit_MEP_Block_Adminhtml_Profil_View_Mapping_Grid extends Mage_Adminhtm
      *
      * Prepares the collection for the grid
      *
-     * @return Flagbit_MEP_Block_Adminhtml_Profil_View_Grid Self.
+     * @return Flagbit_MEP_Block_Adminhtml_Profile_View_Grid Self.
      */
     protected function _prepareCollection()
     {
@@ -138,7 +138,7 @@ class Flagbit_MEP_Block_Adminhtml_Profil_View_Mapping_Grid extends Mage_Adminhtm
             'actions' => array(
                 array(
                     'caption' => Mage::helper('adminhtml')->__('Delete'),
-                    'url' => array('base' => '*/profil_attribute/delete', 'params' => array('id' => $this->getProfileId())),
+                    'url' => array('base' => '*/profile_attribute/delete', 'params' => array('id' => $this->getProfileId())),
                     'field' => 'mapping_id',
                     'confirm' => $this->__('Do you really want to delete this field mapping.'),
                 ),
@@ -166,7 +166,7 @@ class Flagbit_MEP_Block_Adminhtml_Profil_View_Mapping_Grid extends Mage_Adminhtm
 
         $this->getMassactionBlock()->addItem('delete', array(
             'label' => Mage::helper('mep')->__('Delete'),
-            'url' => $this->getUrl('*/profil_attribute/massDelete', array('_current' => true)),
+            'url' => $this->getUrl('*/profile_attribute/massDelete', array('_current' => true)),
             'confirm' => Mage::helper('mep')->__('Are you sure?')
         ));
 
@@ -179,6 +179,6 @@ class Flagbit_MEP_Block_Adminhtml_Profil_View_Mapping_Grid extends Mage_Adminhtm
      */
     public function getGridUrl()
     {
-        return $this->getUrl('*/profil_attribute/grid', array('_current' => true));
+        return $this->getUrl('*/profile_attribute/grid', array('_current' => true));
     }
 }

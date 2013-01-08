@@ -1,6 +1,6 @@
 <?php
 
-class Flagbit_MEP_Block_Adminhtml_Profil_View_New extends Mage_Adminhtml_Block_Widget_Form_Container
+class Flagbit_MEP_Block_Adminhtml_Profile_View_New extends Mage_Adminhtml_Block_Widget_Form_Container
 {
     /**
      * Class Constructor
@@ -12,7 +12,7 @@ class Flagbit_MEP_Block_Adminhtml_Profil_View_New extends Mage_Adminhtml_Block_W
         parent::__construct();
         $this->_objectId = 'id';
         $this->_blockGroup = 'mep';
-        $this->_controller = 'adminhtml_profil_view';
+        $this->_controller = 'adminhtml_profile_view';
         $this->_mode = 'new';
 
         $this->_updateButton('save', 'label', Mage::helper('mep')->__('Save'));

@@ -63,7 +63,7 @@ class Flagbit_MEP_Block_Adminhtml_Shipping_View_Mapping_Grid extends Mage_Adminh
      *
      * Prepares the collection for the grid
      *
-     * @return Flagbit_MEP_Block_Adminhtml_Profil_View_Grid Self.
+     * @return Flagbit_MEP_Block_Adminhtml_Profile_View_Grid Self.
      */
     protected function _prepareCollection()
     {

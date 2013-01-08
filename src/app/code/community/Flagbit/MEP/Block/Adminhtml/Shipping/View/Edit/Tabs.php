@@ -21,7 +21,7 @@ class Flagbit_MEP_Block_Adminhtml_Shipping_View_Edit_Tabs extends Mage_Adminhtml
      *
      * @see Mage_Adminhtml_Block_Widget_Tabs::_beforeToHtml()
      *
-     * @return Flagbit_MEP_Block_Adminhtml_Profil_View_Edit_Tabs Self.
+     * @return Flagbit_MEP_Block_Adminhtml_Profile_View_Edit_Tabs Self.
      */
     protected function _beforeToHtml()
     {

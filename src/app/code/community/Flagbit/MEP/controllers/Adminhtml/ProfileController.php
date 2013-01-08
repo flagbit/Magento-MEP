@@ -1,16 +1,16 @@
 <?php
 
-class Flagbit_MEP_Adminhtml_ProfilController extends Mage_Adminhtml_Controller_Action
+class Flagbit_MEP_Adminhtml_ProfileController extends Mage_Adminhtml_Controller_Action
 {
     /**
      * _initAction
      *
-     * @return Flagbit_MEP_Adminhtml_ProfilController Self;
+     * @return Flagbit_MEP_Adminhtml_ProfileController Self;
      */
     protected function _initAction()
     {
         $this->loadLayout();
-        $this->_setActiveMenu('mep/profil');
+        $this->_setActiveMenu('mep/profile');
         return $this;
     }
 
@@ -32,9 +32,8 @@ class Flagbit_MEP_Adminhtml_ProfilController extends Mage_Adminhtml_Controller_A
      */
     public function popupAction()
     {
-
         $this->loadLayout('empty')->renderLayout();
-        $html = $this->getLayout()->createBlock('mep/adminhtml_profil_popup')->setTemplate('mep/popup.phtml')->toHtml();
+        $html = $this->getLayout()->createBlock('mep/adminhtml_profile_popup')->setTemplate('mep/popup.phtml')->toHtml();
         $this->getResponse()->setBody($html);
     }
 
@@ -53,7 +52,7 @@ class Flagbit_MEP_Adminhtml_ProfilController extends Mage_Adminhtml_Controller_A
     public function editAction()
     {
         $id = $this->getRequest()->getParam('id');
-        $model = Mage::getModel('mep/profil')->load((int)$id);
+        $model = Mage::getModel('mep/profile')->load((int)$id);
 
 
         if ($model->getId() || !$id) {
@@ -65,12 +64,12 @@ class Flagbit_MEP_Adminhtml_ProfilController extends Mage_Adminhtml_Controller_A
                 Mage::getSingleton('adminhtml/session')->setMepProfileData($model->getData());
             }
 
-            Mage::register('mep_profil_data', $model);
+            Mage::register('mep_profile_data', $model);
 
             $this->_initAction();
             $this->getLayout()->getBlock('head')->setCanLoadExtJs(true);
-            $this->_addContent($this->getLayout()->createBlock('mep/adminhtml_profil_view_edit'));
-            $this->_addLeft($this->getLayout()->createBlock('mep/adminhtml_profil_view_edit_tabs'));
+            $this->_addContent($this->getLayout()->createBlock('mep/adminhtml_profile_view_edit'));
+            $this->_addLeft($this->getLayout()->createBlock('mep/adminhtml_profile_view_edit_tabs'));
             $this->renderLayout();
         } else {
             Mage::getSingleton('adminhtml/session')->addError(Mage::helper('mep')->__('Profil does not exist'));
@@ -86,7 +85,7 @@ class Flagbit_MEP_Adminhtml_ProfilController extends Mage_Adminhtml_Controller_A
     public function saveAction()
     {
         if ($data = $this->getRequest()->getPost()) {
-            $model = Mage::getModel('mep/profil');
+            $model = Mage::getModel('mep/profile');
 
             $id = $this->getRequest()->getParam('id');
             $data['id'] = $id;
@@ -112,7 +111,7 @@ class Flagbit_MEP_Adminhtml_ProfilController extends Mage_Adminhtml_Controller_A
                 $model->save();
 
                 if (!$model->getId()) {
-                    Mage::throwException(Mage::helper('mep')->__('Error saving profil'));
+                    Mage::throwException(Mage::helper('mep')->__('Error saving Profile'));
                 }
 
                 // Template Stuff
@@ -120,12 +119,20 @@ class Flagbit_MEP_Adminhtml_ProfilController extends Mage_Adminhtml_Controller_A
                     $result = Mage::helper('mep')->setTemplateProfil($model->getId(), $data['template']);
                 }
 
-                Mage::getSingleton('adminhtml/session')->addSuccess(Mage::helper('mep')->__('Profil was successfully saved'));
                 Mage::getSingleton('adminhtml/session')->setFormData(false);
 
-                if ($this->getRequest()->getParam('back')) {
+                if($this->getRequest()->getParam('duplicate')) {
+                    $newProfile = $model->duplicate();
+                    Mage::getSingleton('adminhtml/session')->setMepProfileData($newProfile->getData());
+                    Mage::getSingleton('adminhtml/session')->addSuccess(Mage::helper('mep')->__('Profile was successfully cloned'));
+                    $this->_redirect('*/*/edit', array('id' => $newProfile->getId(), 'tab' => 'form_section'));
+
+                }elseif ($this->getRequest()->getParam('back')) {
+                    Mage::getSingleton('adminhtml/session')->addSuccess(Mage::helper('mep')->__('Profile was successfully saved'));
                     $this->_redirect('*/*/edit', array('id' => $model->getId(), 'tab' => $this->getRequest()->getParam('tab')));
+
                 } else {
+                    Mage::getSingleton('adminhtml/session')->addSuccess(Mage::helper('mep')->__('Profile was successfully saved'));
                     $this->_redirect('*/*/');
                 }
             } catch (Exception $e) {
@@ -151,7 +158,7 @@ class Flagbit_MEP_Adminhtml_ProfilController extends Mage_Adminhtml_Controller_A
     {
         if ($id = $this->getRequest()->getParam('id')) {
             try {
-                Mage::getModel('mep/profil')->load($id)->delete();
+                Mage::getModel('mep/profile')->load($id)->delete();
                 Mage::getSingleton('adminhtml/session')->addSuccess(Mage::helper('mep')->__('successfully deleted'));
             } catch (Exception $e) {
                 Mage::getSingleton('adminhtml/session')->addError($e->getMessage());
@@ -174,7 +181,7 @@ class Flagbit_MEP_Adminhtml_ProfilController extends Mage_Adminhtml_Controller_A
         } else {
             try {
                 foreach ($productIds as $productId) {
-                    Mage::getModel('mep/profil')->load($productId)->delete();
+                    Mage::getModel('mep/profile')->load($productId)->delete();
                 }
                 $this->_getSession()->addSuccess(
                     $this->__('Total of %d profil(s) have been deleted.', count($productIds))
@@ -211,7 +218,6 @@ class Flagbit_MEP_Adminhtml_ProfilController extends Mage_Adminhtml_Controller_A
 
         } catch (Mage_Core_Exception $e) {
             $this->_getSession()->addError($e->getMessage());
-
         } catch (Exception $e) {
             Mage::logException($e);
             $this->_getSession()->addError($this->__('No valid data sent'));

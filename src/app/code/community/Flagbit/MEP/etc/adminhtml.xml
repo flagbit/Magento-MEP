@@ -9,7 +9,7 @@
                     <children>
                         <export module="mep">
                             <title>Export Profiles</title>
-                            <action>adminhtml/profil/index</action>
+                            <action>adminhtml/profile/index</action>
                         </export>
                         <shipping module="mep">
                             <title>Shipping Mapping</title>

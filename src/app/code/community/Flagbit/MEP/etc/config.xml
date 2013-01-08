@@ -27,9 +27,9 @@
             <mep_mysql4>
                 <class>Flagbit_MEP_Model_Mysql4</class>
                 <entities>
-                    <profil>
+                    <profile>
                         <table>mep_profile</table>
-                    </profil>
+                    </profile>
                     <mapping>
                         <table>mep_profile_attribute</table>
                     </mapping>

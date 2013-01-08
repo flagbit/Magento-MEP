@@ -1,13 +1,13 @@
 <?php
 
-class Flagbit_MEP_Block_Adminhtml_Profil_View_New_Form extends Mage_Adminhtml_Block_Widget_Form
+class Flagbit_MEP_Block_Adminhtml_Profile_View_Edit_Form extends Mage_Adminhtml_Block_Widget_Form
 {
     /**
      * _prepareForm
      *
      * Prepares the form
      *
-     * @return Flagbit_MEP_Block_Adminhtml_Profil_View_Edit_Form Self.
+     * @return Flagbit_MEP_Block_Adminhtml_Profile_View_Edit_Form Self.
      */
     protected function _prepareForm()
     {

@@ -7,7 +7,7 @@ class Flagbit_MEP_Block_Adminhtml_Attribute_View_Edit_Form extends Mage_Adminhtm
      *
      * Prepares the form
      *
-     * @return Flagbit_MEP_Block_Adminhtml_Profil_View_Edit_Form Self.
+     * @return Flagbit_MEP_Block_Adminhtml_Profile_View_Edit_Form Self.
      */
     protected function _prepareForm()
     {

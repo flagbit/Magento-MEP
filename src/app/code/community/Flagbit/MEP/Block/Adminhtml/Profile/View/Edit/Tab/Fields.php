@@ -1,5 +1,5 @@
 <?php
-class Flagbit_MEP_Block_Adminhtml_Profil_View_Edit_Tab_Fields extends Mage_Adminhtml_Block_Widget_Form
+class Flagbit_MEP_Block_Adminhtml_Profile_View_Edit_Tab_Fields extends Mage_Adminhtml_Block_Widget_Form
 {
     /**
      * _prepareForm

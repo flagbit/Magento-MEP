@@ -1,6 +1,6 @@
 <?php
 
-class Flagbit_MEP_Block_Adminhtml_Profil_View_Mapping extends Mage_Adminhtml_Block_Widget_Container
+class Flagbit_MEP_Block_Adminhtml_Profile_View_Mapping extends Mage_Adminhtml_Block_Widget_Container
 {
     /**
      * Set template
@@ -18,7 +18,7 @@ class Flagbit_MEP_Block_Adminhtml_Profil_View_Mapping extends Mage_Adminhtml_Blo
      */
     protected function _prepareLayout()
     {
-        $this->setChild('grid', $this->getLayout()->createBlock('mep/adminhtml_profil_view_mapping_grid', 'mapping.grid'));
+        $this->setChild('grid', $this->getLayout()->createBlock('mep/adminhtml_profile_view_mapping_grid', 'mapping.grid'));
         return parent::_prepareLayout();
     }
 

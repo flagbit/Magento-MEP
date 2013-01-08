@@ -1,6 +1,6 @@
 <?php
 
-class Flagbit_MEP_Model_Mysql4_Profil extends Mage_Core_Model_Mysql4_Abstract
+class Flagbit_MEP_Model_Mysql4_Profile extends Mage_Core_Model_Mysql4_Abstract
 {
 
     /**
@@ -10,13 +10,15 @@ class Flagbit_MEP_Model_Mysql4_Profil extends Mage_Core_Model_Mysql4_Abstract
     protected function _construct()
     {
 
-        $this->_init('mep/profil', 'id');
+        $this->_init('mep/profile', 'id');
     }
 
     protected function _beforeSave(Mage_Core_Model_Abstract $object)
     {
         $attrCode = 'conditions_serialized';
-        $object->setData($attrCode, serialize($object->getData($attrCode)));
+        if(is_array($object->getData($attrCode))){
+            $object->setData($attrCode, serialize($object->getData($attrCode)));
+        }
 
         $now = Varien_Date::now(false);
         $object->setUpdatedAt($now);

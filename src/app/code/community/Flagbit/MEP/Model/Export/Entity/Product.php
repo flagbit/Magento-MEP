@@ -1275,7 +1275,7 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
     public function getProfile()
     {
         if ($this->_profile == null && $this->hasProfileId()) {
-            $this->_profile = Mage::getModel('mep/profil')->load($this->getProfileId());
+            $this->_profile = Mage::getModel('mep/profile')->load($this->getProfileId());
         }
         return $this->_profile;
     }

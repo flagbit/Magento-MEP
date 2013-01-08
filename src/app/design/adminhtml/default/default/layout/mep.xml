@@ -7,7 +7,7 @@
         </reference>
     </default>
 
-    <adminhtml_profil_edit>
+    <adminhtml_profile_edit>
         <reference name="head">
             <action method="addItem">
                 <type>skin_js</type>
@@ -43,7 +43,7 @@
                 <name>lib/prototype/windows/themes/magento.css</name>
             </action>
         </reference>
-    </adminhtml_profil_edit>
+    </adminhtml_profile_edit>
 
     <adminhtml_mep_index>
         <reference name="content">
@@ -62,35 +62,35 @@
     </adminhtml_mep_getfilter>
 
 
-    <adminhtml_profil_index>
+    <adminhtml_profile_index>
         <reference name="head">
             <action method="addCss">
                 <name>mep.css</name>
             </action>
         </reference>
         <reference name="content">
-            <block type="mep/adminhtml_profil_view" name="mep.profil"/>
+            <block type="mep/adminhtml_profile_view" name="mep.profil"/>
         </reference>
-    </adminhtml_profil_index>
+    </adminhtml_profile_index>
 
-    <adminhtml_profil_new>
+    <adminhtml_profile_new>
         <reference name="head">
             <action method="addCss">
                 <name>mep.css</name>
             </action>
         </reference>
         <reference name="content">
-            <block type="mep/adminhtml_profil_view_new" name="profil_new"></block>
+            <block type="mep/adminhtml_profile_view_new" name="profile_new"></block>
         </reference>
         <reference name="left">
-            <block type="mep/adminhtml_profil_view_new_tabs" name="profil_tabs"></block>
+            <block type="mep/adminhtml_profile_view_new_tabs" name="profile_tabs"></block>
         </reference>
-    </adminhtml_profil_new>
+    </adminhtml_profile_new>
 
-    <adminhtml_profil_attribute_index>
+    <adminhtml_profile_attribute_index>
 
         <block type="core/text_list" name="root" output="toHtml">
-            <block type="mep/adminhtml_profil_view_gridMapping" name="fields.grid"/>
+            <block type="mep/adminhtml_profile_view_gridMapping" name="fields.grid"/>
             <block type="adminhtml/widget_grid_serializer" name="grid_serializer">
                 <reference name="grid_serializer">
                     <action method="initSerializerBlock">
@@ -105,7 +105,7 @@
                 </reference>
             </block>
         </block>
-    </adminhtml_profil_attribute_index>
+    </adminhtml_profile_attribute_index>
 
 
     <adminhtml_attribute_index>

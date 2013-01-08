@@ -1,6 +1,6 @@
 <?php
 
-class Flagbit_MEP_Block_Adminhtml_Profil_Popup
+class Flagbit_MEP_Block_Adminhtml_Profile_Popup
     extends Mage_Core_Block_Template
 {
 

@@ -1,5 +1,5 @@
 <?php
-class Flagbit_MEP_Adminhtml_Profil_AttributeController extends Mage_Adminhtml_Controller_Action
+class Flagbit_MEP_Adminhtml_Profile_AttributeController extends Mage_Adminhtml_Controller_Action
 {
 
     /**
@@ -91,6 +91,6 @@ class Flagbit_MEP_Adminhtml_Profil_AttributeController extends Mage_Adminhtml_Co
      */
     public function gridAction()
     {
-        $this->getResponse()->setBody($this->getLayout()->createBlock('mep/adminhtml_profil_view_mapping_grid')->toHtml());
+        $this->getResponse()->setBody($this->getLayout()->createBlock('mep/adminhtml_profile_view_mapping_grid')->toHtml());
     }
 }
