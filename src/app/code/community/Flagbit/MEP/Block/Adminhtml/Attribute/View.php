@@ -11,7 +11,7 @@ class Flagbit_MEP_Block_Adminhtml_Attribute_View
     public function __construct()
     {
         $this->_blockGroup = 'mep';
-        $this->_controller = 'adminhtml_Attribute_view';
+        $this->_controller = 'adminhtml_attribute_view';
         $this->_headerText = Mage::helper('mep')->__('Manage Attribute Mapping');
         parent::__construct();
     }

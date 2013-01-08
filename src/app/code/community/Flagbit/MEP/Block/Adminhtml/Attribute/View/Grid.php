@@ -54,7 +54,16 @@ class Flagbit_MEP_Block_Adminhtml_Attribute_View_Grid extends Mage_Adminhtml_Blo
             'align' => 'left',
             'index' => 'name',
         ));
-
+        $this->addColumn('attribute_code', array(
+            'header' => Mage::helper('mep')->__('Attribute Code'),
+            'align' => 'left',
+            'index' => 'attribute_code',
+        ));
+        $this->addColumn('source_attribute_code', array(
+            'header' => Mage::helper('mep')->__('Source Attribute Code'),
+            'align' => 'left',
+            'index' => 'source_attribute_code',
+        ));
 
         $this->addColumn('action', array(
             'header' => Mage::helper('adminhtml')->__('Action'),

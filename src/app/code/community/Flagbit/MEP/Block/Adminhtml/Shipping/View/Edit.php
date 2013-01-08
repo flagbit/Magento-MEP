@@ -51,9 +51,9 @@ class Flagbit_MEP_Block_Adminhtml_Shipping_View_Edit extends Mage_Adminhtml_Bloc
     public function getHeaderText()
     {
         if (Mage::registry('mep_shipping_data') && Mage::registry('mep_shipping_data')->getId()) {
-            return Mage::helper('mep')->__('Edit Profile "%s"', $this->htmlEscape(Mage::registry('mep_shipping_data')->getName()));
+            return Mage::helper('mep')->__('Edit Shipping Profile "%s"', $this->htmlEscape(Mage::registry('mep_shipping_data')->getName()));
         } else {
-            return Mage::helper('mep')->__('New Profile');
+            return Mage::helper('mep')->__('New Shipping Profile');
         }
     }
 }

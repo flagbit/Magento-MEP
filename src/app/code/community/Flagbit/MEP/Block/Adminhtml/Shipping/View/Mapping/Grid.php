@@ -1,6 +1,6 @@
 <?php
 
-class Flagbit_MEP_Block_Adminhtml_Shipping_View_Edit_GridMapping extends Mage_Adminhtml_Block_Widget_Grid
+class Flagbit_MEP_Block_Adminhtml_Shipping_View_Mapping_Grid extends Mage_Adminhtml_Block_Widget_Grid
 {
     /**
      * Class Constructor
@@ -12,9 +12,15 @@ class Flagbit_MEP_Block_Adminhtml_Shipping_View_Edit_GridMapping extends Mage_Ad
         parent::_construct();
         $this->setId('mapping_grid');
         $this->setUseAjax(true); // Using ajax grid is important
-        $this->setDefaultSort('id');
+        $this->setDefaultSort('position');
         $this->setDefaultDir('desc');
-        $this->setSaveParametersInSession(false); //Dont save paramters in session or else it creates problems
+        $this->setSaveParametersInSession(true);
+        $this->setPagerVisibility(false);
+    }
+
+    public function getProfileId()
+    {
+        return Mage::helper('mep')->getCurrentProfileData(true);
     }
 
     protected function _prepareLayout()
@@ -25,7 +31,7 @@ class Flagbit_MEP_Block_Adminhtml_Shipping_View_Edit_GridMapping extends Mage_Ad
             $this->getLayout()->createBlock('adminhtml/widget_button')
                 ->setData(array(
                 'label' => Mage::helper('adminhtml')->__('Add Attribute'),
-                'onclick' => "mepTools.openDialog('".$this->getUrl('*/shipping/popup', array('profile_id' => $this->getRequest()->getParam('profile_id', null)))."')",
+                'onclick' => "mepTools.openDialog('".$this->getUrl('*/shipping/popup', array('profile_id' => $this->getProfileId()))."')",
                 'class' => 'task'
             ))
         );
@@ -40,7 +46,7 @@ class Flagbit_MEP_Block_Adminhtml_Shipping_View_Edit_GridMapping extends Mage_Ad
 
     public function getRowUrl($row)
     {
-        return "javascript:mepTools.openDialog('".$this->getUrl('*/shipping/popup', array('id' => $row->getId(), 'profile_id' => $this->getRequest()->getParam('profile_id', null)))."')";
+        return "javascript:mepTools.openDialog('".$this->getUrl('*/shipping/popup', array('id' => $row->getId(), 'profile_id' => $this->getProfileId()))."')";
     }
 
 
@@ -63,10 +69,8 @@ class Flagbit_MEP_Block_Adminhtml_Shipping_View_Edit_GridMapping extends Mage_Ad
     {
         /* @var $collection Flagbit_MEP_Model_Mysql4_Shipping_Attribute */
         $collection = Mage::getModel('mep/shipping_attribute')->getCollection();
-        $profil_id = $this->getProfile();
-        if (!empty($profil_id)) {
-            $collection->addFieldToFilter('profile_id', array('eq' => $profil_id));
-        }
+        $collection->addFieldToFilter('profile_id', array('eq' => $this->getProfileId()));
+
         parent::setDefaultLimit('200');
         $this->setCollection($collection);
         return parent::_prepareCollection();
@@ -136,7 +140,7 @@ class Flagbit_MEP_Block_Adminhtml_Shipping_View_Edit_GridMapping extends Mage_Ad
                 array(
                     'caption' => Mage::helper('adminhtml')->__('Delete'),
                     'url' => array('base' => '*/shipping_attribute/delete/profile_id/' . $this->getRequest()->getParam('profile_id')),
-                    'field' => 'id',
+                    'field' => 'mapping_id',
                     'confirm' => $this->__('Do you really want to delete this field mapping.'),
                 ),
             ),
@@ -158,15 +162,14 @@ class Flagbit_MEP_Block_Adminhtml_Shipping_View_Edit_GridMapping extends Mage_Ad
      */
     protected function _prepareMassaction()
     {
-        $this->setMassactionIdField('entity_id');
-        $this->getMassactionBlock()->setFormFieldName('product');
+        $this->setMassactionIdField('id');
+        $this->getMassactionBlock()->setFormFieldName('mapping_id');
 
         $this->getMassactionBlock()->addItem('delete', array(
             'label' => Mage::helper('mep')->__('Delete'),
-            'url' => $this->getUrl('*/*/massDelete'),
+            'url' => $this->getUrl('*/shipping_attribute/massDelete', array('_current' => true)),
             'confirm' => Mage::helper('mep')->__('Are you sure?')
         ));
-
 
         return $this;
     }

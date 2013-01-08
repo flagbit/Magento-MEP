@@ -27,64 +27,83 @@
 
 <div id="container">
     <div id="field_content" class="mapping-dialog">
-        <form action="<?php echo Mage::helper("adminhtml")->getUrl("adminhtml/shipping_attribute/edit") ?>" id="mappingform">
-        <ul>
-            <li>
-                <label for="payment_method">Payment Method</label>
-                <div class="input-box">
-                    <select name="payment_method" id="payment_method"  >
-                    <?php $payments = Mage::getModel('mep/data')->getAllActivPaymentMethods(); ?>
-                    <?php foreach ($payments as $_value => $_label): ?>
-                        <?php if (is_array($_label)): ?>
-                        <optgroup label="<?php echo $_value ?>">
-                        <?php foreach ($_label as $_attributeCode => $_attributeLabel): ?>
-                            <option value="<?php echo $_attributeCode ?>"  ><?php echo $_attributeLabel ?></option>
-                        <?php endforeach?>
-                        </optgroup>
-                        <?php  else: ?>
-                            <option value="<?php echo $_value ?>"  ><?php echo $_label ?></option>
-                        <?php endif; ?>
-                    <?php endforeach; ?>
-                    </select>
-                </div>
-            </li>
-            <li>
-                <label for="shipping_method">Payment Method</label>
-                <div class="input-box">
-                    <select name="shipping_method" id="shipping_method"  >
-                        <?php $shippings = Mage::getModel('mep/data')->getAllShippingMethods(); ?>
-                        <?php foreach ($shippings as $_value => $_label): ?>
-                        <?php if (is_array($_label)): ?>
-                            <optgroup label="<?php echo $_value ?>">
-                                <?php foreach ($_label as $_attributeCode => $_attributeLabel): ?>
-                                <option value="<?php echo $_attributeCode ?>"  ><?php echo $_attributeLabel ?></option>
-                                <?php endforeach?>
-                            </optgroup>
-                            <?php  else: ?>
-                            <option value="<?php echo $_value ?>"  ><?php echo $_label ?></option>
-                            <?php endif; ?>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
-            </li>
-            <li>
-                <label for="format">Country</label>
-                <div class="input-box">
-                    <input type="text" name="country" value="<?php echo $this->getMapping()->getCountry();?>" id="format" class="input-text">
-                </div>
-            </li>
-            <li>
-                <label for="position">Atrribute Code</label>
-                <div class="input-box">
-                    <input type="text" name="attribute_code" value="<?php echo $this->getMapping()->getAttributeCode();?>" id="position" class="input-text">
-                </div>
-            </li>
-            <li>
-                <input type="submit" value="Submit" class="form-button">
-            </li>
-        </ul>
-        <input type="hidden" name="profile_id" value="<?php echo $this->getProfileId() ?>" />
-        <input type="hidden" name="id" id="id" value="<?php echo $this->getMapping()->getId();?>" />
+        <form action="<?php echo Mage::helper("adminhtml")->getUrl("adminhtml/shipping_attribute/edit") ?>"
+              id="mappingform">
+            <ul>
+                <li>
+                    <label for="payment_method">Payment Method</label>
+
+                    <div class="input-box">
+                        <select name="payment_method" id="payment_method">
+                            <?php $payments = Mage::getModel('mep/data')->getAllActivPaymentMethods(); ?>
+                            <?php foreach ($payments as $_value => $_label): ?>
+                            <?php if (is_array($_label)): ?>
+                                <optgroup label="<?php echo $_value ?>">
+                                    <?php foreach ($_label as $_attributeCode => $_attributeLabel): ?>
+                                    <option value="<?php echo $_attributeCode ?>"><?php echo $_attributeLabel ?></option>
+                                    <?php endforeach?>
+                                </optgroup>
+                                <?php else: ?>
+                                <option value="<?php echo $_value ?>"><?php echo $_label ?></option>
+                                <?php endif; ?>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                </li>
+                <li>
+                    <label for="shipping_method">Shipping Method</label>
+
+                    <div class="input-box">
+                        <select name="shipping_method" id="shipping_method">
+                            <?php $shippings = Mage::getModel('mep/data')->getAllShippingMethods(); ?>
+                            <?php foreach ($shippings as $_value => $_label): ?>
+                            <?php if (is_array($_label)): ?>
+                                <optgroup label="<?php echo $_value ?>">
+                                    <?php foreach ($_label as $_attributeCode => $_attributeLabel): ?>
+                                    <option value="<?php echo $_attributeCode ?>"><?php echo $_attributeLabel ?></option>
+                                    <?php endforeach?>
+                                </optgroup>
+                                <?php else: ?>
+                                <option value="<?php echo $_value ?>"><?php echo $_label ?></option>
+                                <?php endif; ?>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                </li>
+                <li>
+                    <label for="country">Country</label>
+
+                    <div class="input-box">
+                        <select name="country" id="country">
+                            <?php
+                            /* @var $countryCollection Mage_Directory_Model_Country_Api */
+                            $countryCollection = Mage::getModel('directory/country_api')->items();
+                            foreach ($countryCollection as $country) {
+                                ?>
+                                <option value="<?php echo $country['country_id'] ?>"><?php echo $country['name'] ?></option>
+                                <?php
+                            }
+                            ?>
+                        </select>
+                    </div>
+                </li>
+                <li>
+                    <label for="position">Atrribute Code</label>
+
+                    <div class="input-box">
+                        <input type="text" name="attribute_code"
+                               value="<?php echo $this->getMapping()->getAttributeCode();?>" id="position"
+                               class="input-text">
+                    </div>
+                </li>
+                <li>
+                    <div class="input-box">
+                        <button type="submit" value="Submit" class="scalable save" title="Submit"><span><span><span>Save</span></span></span></button>
+                    </div>
+                </li>
+            </ul>
+            <input type="hidden" name="profile_id" value="<?php echo $this->getProfileId() ?>"/>
+            <input type="hidden" name="id" id="id" value="<?php echo $this->getMapping()->getId();?>"/>
         </form>
     </div>
 </div>
@@ -92,20 +111,20 @@
 <script type="text/javascript">
     // <![CDATA[
 
-    Event.observe("mappingform", "submit", function(event) {
+    Event.observe("mappingform", "submit", function (event) {
         $("mappingform").request({
-            onFailure : function() {
+            onFailure:function () {
             },
-            onSuccess : function(t) {
-                var parameters = {isAjax: true, profile_id:<?php echo $this->getProfileId() ?>};
+            onSuccess:function (t) {
+                var parameters = {isAjax:true, profile_id:<?php echo $this->getProfileId() ?>};
                 // make another ajax call to reload the fields table
                 new Ajax.Request("<?php echo Mage::helper("adminhtml")->getUrl("adminhtml/shipping_attribute/index") ?>", {
-                    method: "post",
-                    parameters: parameters,
-                    onSuccess: function(transport)  {
-                        if(transport.status == 200) {
+                    method:"post",
+                    parameters:parameters,
+                    onSuccess:function (transport) {
+                        if (transport.status == 200) {
                             var response = transport.responseText;
-                            $("rule_tabs_form_fields_content").update(response);
+                            $("mapping_grid").update(response);
                         }
                     }
                 });

@@ -35,6 +35,46 @@
     }
 
 
-.content-header h3.head-adminhtml-profil-view {
+.adminhtml-shipping-edit div.mapping-dialog {
+    padding: 20px 10px;
+}
+
+    .adminhtml-shipping-edit div.mapping-dialog ul.formfield_list li {
+        display: block;
+    }
+
+    .adminhtml-shipping-edit div.mapping-dialog label {
+        color: #D85909;
+        font-weight: bold;
+    }
+
+    .adminhtml-shipping-edit div.mapping-dialog label,
+    .adminhtml-shipping-edit div.mapping-dialog .input-box {
+        float: left;
+        width: 200px;
+    }
+
+    .adminhtml-shipping-edit div.mapping-dialog input {
+        margin-bottom: 5px;
+    }
+    .adminhtml-shipping-edit div.mapping-dialog input {
+        width: 167px;
+    }
+    .adminhtml-shipping-edit div.mapping-dialog button {
+        margin-top: 10px;
+    }
+
+    .adminhtml-shipping-edit #widget_window .magento_content {
+        height: auto !important;
+        min-height: 320px;
+    }
+
+
+.content-header h3.head-adminhtml-profil-view,
+.content-header h3.head-adminhtml-shipping-view,
+.content-header h3.head-adminhtml-shipping-index,
+.content-header h3.head-adminhtml-attribute-view,
+.content-header h3.head-adminhtml-attribute-index
+{
     background-image: url("images/mep-logo-icon.png");
 }

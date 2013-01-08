@@ -74,6 +74,11 @@
     </adminhtml_profil_index>
 
     <adminhtml_profil_new>
+        <reference name="head">
+            <action method="addCss">
+                <name>mep.css</name>
+            </action>
+        </reference>
         <reference name="content">
             <block type="mep/adminhtml_profil_view_new" name="profil_new"></block>
         </reference>
@@ -104,18 +109,33 @@
 
 
     <adminhtml_attribute_index>
+        <reference name="head">
+            <action method="addCss">
+                <name>mep.css</name>
+            </action>
+        </reference>
         <reference name="content">
             <block type="mep/adminhtml_attribute_view" name="mep.attribute"/>
         </reference>
     </adminhtml_attribute_index>
 
     <adminhtml_attribute_edit>
+        <reference name="head">
+            <action method="addCss">
+                <name>mep.css</name>
+            </action>
+        </reference>
         <reference name="content">
             <block type="mep/adminhtml_attribute_view_edit" name="mep.attribute.edit"></block>
         </reference>
     </adminhtml_attribute_edit>
 
     <adminhtml_shipping_index>
+        <reference name="head">
+            <action method="addCss">
+                <name>mep.css</name>
+            </action>
+        </reference>
         <reference name="content">
             <block type="mep/adminhtml_shipping_view" name="mep.shipping"/>
         </reference>
@@ -123,6 +143,9 @@
 
     <adminhtml_shipping_edit>
         <reference name="head">
+            <action method="addCss">
+                <name>mep.css</name>
+            </action>
             <action method="addItem">
                 <type>skin_js</type>
                 <script>chosen/chosen.proto.js</script>
