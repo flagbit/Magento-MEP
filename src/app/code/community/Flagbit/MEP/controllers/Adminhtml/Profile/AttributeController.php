@@ -62,10 +62,10 @@ class Flagbit_MEP_Adminhtml_Profile_AttributeController extends Mage_Adminhtml_C
                 );
             } catch (Exception $e) {
                 Mage::getSingleton('adminhtml/session')->addError($e->getMessage());
-                $this->_redirect('*/profil/edit', array('id' => $profileId, 'tab' => 'mapping'));
+                $this->_redirect('*/profile/edit', array('id' => $profileId, 'tab' => 'mapping'));
             }
         }
-        $this->_redirect('*/profil/edit', array('id' => $profileId, 'tab' => 'mapping'));
+        $this->_redirect('*/profile/edit', array('id' => $profileId, 'tab' => 'mapping'));
     }
 
     /**
@@ -82,7 +82,7 @@ class Flagbit_MEP_Adminhtml_Profile_AttributeController extends Mage_Adminhtml_C
         }
 
         $profile_id = $this->getRequest()->getParam('id', Mage::helper('mep')->getCurrentProfileData(true));
-        $this->_redirect('*/profil/edit', array('id' => $profile_id, 'tab' => 'mapping'));
+        $this->_redirect('*/profile/edit', array('id' => $profile_id, 'tab' => 'mapping'));
 
     }
 
