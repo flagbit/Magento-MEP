@@ -77,4 +77,20 @@ class Flagbit_MEP_Model_Rule_Condition_Combine
         );
         return $this;
     }
+
+    public function getNewChildSelectOptions()
+    {
+        $productCondition = Mage::getModel('mep/rule_condition_product');
+        $productAttributes = $productCondition->loadAttributeOptions()->getAttributeOption();
+        $attributes = array();
+        foreach ($productAttributes as $code=>$label) {
+            $attributes[] = array('value'=>'catalogrule/rule_condition_product|'.$code, 'label'=>$label);
+        }
+//        $conditions = parent::getNewChildSelectOptions();
+//        $conditions = array_merge_recursive($conditions, array(
+//            array('value'=>'catalogrule/rule_condition_combine', 'label'=>Mage::helper('catalogrule')->__('Conditions Combination')),
+//            array('label'=>Mage::helper('catalogrule')->__('Product Attribute'), 'value'=>$attributes),
+//        ));
+        return $attributes;
+    }
 }

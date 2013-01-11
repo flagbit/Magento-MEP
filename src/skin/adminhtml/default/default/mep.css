@@ -1,12 +1,42 @@
 /* MEP-Styles */
 
-.adminhtml-profil-edit .overlay_attribute-mapping-window {
+.adminhtml-profile-edit div.mapping-dialog {
+    padding: 20px 10px;
 }
-.adminhtml-profil-edit .dialog {
-	margin: auto;
-	position: fixed;
-	top: 50% !important;
-	margin-top: -190px !important;
+
+    .adminhtml-profile-edit div.mapping-dialog ul.formfield_list li {
+        display: block;
+    }
+
+    .adminhtml-profile-edit div.mapping-dialog label {
+        color: #D85909;
+        font-weight: bold;
+    }
+
+    .adminhtml-profile-edit div.mapping-dialog label,
+    .adminhtml-profile-edit div.mapping-dialog .input-box {
+        float: left;
+        width: 200px;
+    }
+
+    .adminhtml-profile-edit div.mapping-dialog input {
+        margin-bottom: 5px;
+    }
+    .adminhtml-profile-edit div.mapping-dialog input {
+        width: 167px;
+    }
+    .adminhtml-profile-edit div.mapping-dialog button {
+        margin-top: 10px;
+    }
+
+    .adminhtml-profile-edit #widget_window .magento_content {
+        height: auto !important;
+        min-height: 320px;
+    }
+
+
+.adminhtml-shipping-edit div.mapping-dialog {
+    padding: 20px 10px;
 }
 	.adminhtml-profil-edit .dialog .attribute-mapping-window_close {
 		width: 20px;
@@ -22,38 +52,36 @@
 		content: "x";
 		font-size: 20px;
 	}
-		
+
 	.adminhtml-profil-edit .dialog div.attribute-mapping-window_content {
 		padding: 20px;
 		background-color: #FFF6ED;
 		border: 2px solid #F3BE8E;
 		color: #D85909;
-        height: auto !important;
 	}
 		.adminhtml-profil-edit .dialog div.attribute-mapping-window_content li {
 			overflow: hidden;
 			display: block;
 		}
-		
+
 		.adminhtml-profil-edit .dialog div.attribute-mapping-window_content label {
 			color: #D85909;
 			font-weight: bold;
 		}
-		
+
 		.adminhtml-profil-edit .dialog div.attribute-mapping-window_content label,
 		.adminhtml-profil-edit .dialog div.attribute-mapping-window_content .input-box {
 			float: left;
 			width: 200px;
 		}
 
-        .adminhtml-profil-edit .dialog div.attribute-mapping-window_content input,
-        .adminhtml-profil-edit .dialog div.attribute-mapping-window_content select {
-            margin-bottom: 5px;
-            width: 200px;
-        }
-        .adminhtml-profil-edit .dialog div.attribute-mapping-window_content input {
-            width: 194px;
-        }
+		.adminhtml-profil-edit .dialog div.attribute-mapping-window_content input,
+		.adminhtml-profil-edit .dialog div.attribute-mapping-window_content select {
+			margin-bottom: 5px;
+		}
+		.adminhtml-profil-edit .dialog div.attribute-mapping-window_content input {
+			width: 167px;
+		}
 		.adminhtml-profil-edit .dialog div.attribute-mapping-window_content input.form-button {
 			width: 100px;
 			margin-top: 10px;

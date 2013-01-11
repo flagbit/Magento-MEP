@@ -48,7 +48,7 @@ class Flagbit_MEP_Adminhtml_MepController extends Mage_Adminhtml_Controller_Acti
                 /** @var $attrFilterBlock Mage_ImportExport_Block_Adminhtml_Export_Filter */
                 $attrFilterBlock = $this->getLayout()->getBlock('mep.filter');
                 /** @var $export Mage_ImportExport_Model_Export */
-                $export = Mage::getModel('importexport/export');
+                $export = Mage::getModel('mep/export');
 
                 $export->filterAttributeCollection(
                     $attrFilterBlock->prepareCollection(

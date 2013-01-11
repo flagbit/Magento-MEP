@@ -1,32 +1,27 @@
 <?xml version="1.0"?>
 <config>
     <menu>
-        <menu1 translate="title" module="mep">
-            <title>MEP</title>
-            <sort_order>100</sort_order>
+        <system>
             <children>
-                <menuitem1 module="mep">
-                    <title>Export</title>
-                    <action>adminhtml/profil/index</action>
-                </menuitem1>
+                <mep translate="title" module="mep">
+                    <title>MEP</title>
+                    <sort_order>100</sort_order>
+                    <children>
+                        <export module="mep">
+                            <title>Export Profiles</title>
+                            <action>adminhtml/profile/index</action>
+                        </export>
+                        <shipping module="mep">
+                            <title>Shipping Mapping</title>
+                            <action>adminhtml/shipping/index</action>
+                        </shipping>
+                        <attribute module="mep">
+                            <title>Attribute Mapping</title>
+                            <action>adminhtml/attribute/index</action>
+                        </attribute>
+                    </children>
+                </mep>
             </children>
-        </menu1>
+        </system>
     </menu>
-    <acl>
-        <resources>
-            <admin>
-                <children>
-                    <menu1 translate="title" module="mep">
-                        <title>MEP</title>
-                        <sort_order>60</sort_order>
-                        <children>
-                            <menuitem1>
-                                <title>Export</title>
-                            </menuitem1>
-                        </children>
-                    </menu1>
-                </children>
-            </admin>
-        </resources>
-    </acl>
 </config>

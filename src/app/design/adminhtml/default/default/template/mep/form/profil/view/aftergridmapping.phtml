@@ -137,7 +137,6 @@
         // stop the form from submitting
     });
 
-    varienGlobalEvents.clearEventHandlers('gridRowClick');
     varienGlobalEvents.attachEventHandler('gridRowClick', function(event){
         var id = parseInt(Event.findElement(event, 'tr').down().next().innerHTML);
         doFieldMapping(id);

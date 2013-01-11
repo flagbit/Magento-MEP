@@ -1,18 +1,58 @@
 <?xml version="1.0"?>
 <layout>
+
     <default>
-        <reference name="head">
-                <action method="addItem"><type>js</type><name>mage/adminhtml/rules.js</name><params/></action>
+        <reference name="content">
+            <block type="adminhtml/template" template="mep/menu.phtml"/>
         </reference>
     </default>
 
-	<adminhtml_mep_index>
+    <adminhtml_profile_edit>
+        <reference name="head">
+            <action method="addItem">
+                <type>skin_js</type>
+                <script>chosen/chosen.proto.js</script>
+            </action>
+            <action method="addItem">
+                <type>skin_js</type>
+                <script>mep.js</script>
+            </action>
+            <action method="addItem">
+                <type>js</type>
+                <script>mage/adminhtml/rules.js</script>
+                <params/>
+            </action>
+            <action method="addCss">
+                <name>chosen/chosen.css</name>
+            </action>
+            <action method="addCss">
+                <name>mep.css</name>
+            </action>
+            <action method="addJs">
+                <script>mage/adminhtml/wysiwyg/widget.js</script>
+            </action>
+            <action method="addItem">
+                <type>js</type>
+                <script>prototype/window.js</script>
+            </action>
+            <action method="addItem">
+                <type>js_css</type>
+                <script>prototype/windows/themes/default.css</script>
+            </action>
+            <action method="addCss">
+                <name>lib/prototype/windows/themes/magento.css</name>
+            </action>
+        </reference>
+    </adminhtml_profile_edit>
+
+    <adminhtml_mep_index>
         <reference name="content">
-            <block type="adminhtml/template" template="mep/form/before.phtml" name="mep.form.before" alias="form_before"/>
+            <block type="adminhtml/template" template="mep/form/before.phtml" name="mep.form.before"
+                   alias="form_before"/>
             <block type="mep/adminhtml_export_edit" name="mep.form.container"/>
             <block type="adminhtml/template" template="mep/form/after.phtml" name="mep.form.after" alias="form_after"/>
         </reference>
-	</adminhtml_mep_index>
+    </adminhtml_mep_index>
 
 
     <adminhtml_mep_getfilter>
@@ -22,25 +62,34 @@
     </adminhtml_mep_getfilter>
 
 
-    <adminhtml_profil_index>
-        <reference name="content">
-            <block type="mep/adminhtml_profil_view" name="mep.profil" />
+    <adminhtml_profile_index>
+        <reference name="head">
+            <action method="addCss">
+                <name>mep.css</name>
+            </action>
         </reference>
-    </adminhtml_profil_index>
-
-    <adminhtml_profil_new>
         <reference name="content">
-            <block type="mep/adminhtml_profil_view_new" name="profil_new"></block>
+            <block type="mep/adminhtml_profile_view" name="mep.profil"/>
+        </reference>
+    </adminhtml_profile_index>
+
+    <adminhtml_profile_new>
+        <reference name="head">
+            <action method="addCss">
+                <name>mep.css</name>
+            </action>
+        </reference>
+        <reference name="content">
+            <block type="mep/adminhtml_profile_view_new" name="profile_new"></block>
         </reference>
         <reference name="left">
-            <block type="mep/adminhtml_profil_view_new_tabs" name="profil_tabs"></block>
-        </reference>>
+            <block type="mep/adminhtml_profile_view_new_tabs" name="profile_tabs"></block>
+        </reference>
+    </adminhtml_profile_new>
 
-    </adminhtml_profil_new>
-
-    <adminhtml_profil_attribute_index>
+    <adminhtml_profile_attribute_index>
         <block type="core/text_list" name="root" output="toHtml">
-            <block type="mep/adminhtml_profil_view_gridMapping" name="fields.grid"/>
+            <block type="mep/adminhtml_profile_view_gridMapping" name="fields.grid"/>
             <block type="adminhtml/widget_grid_serializer" name="grid_serializer">
                 <reference name="grid_serializer">
                     <action method="initSerializerBlock">
@@ -55,28 +104,107 @@
                 </reference>
             </block>
         </block>
-    </adminhtml_profil_attribute_index>
+    </adminhtml_profile_attribute_index>
 
 
-
-    <adminhtml_profil_popup translate="label">
-        <label>Field Mapping</label>
-        <reference name="root">
-            <action method="setTemplate"><template>mep/popup.phtml</template></action>
-        </reference>
+    <adminhtml_attribute_index>
         <reference name="head">
-            <action method="addJs"><script>scriptaculous/scriptaculous.js</script></action>
-            <action method="addJs"><script>varien/product.js</script></action>
+            <action method="addCss">
+                <name>mep.css</name>
+            </action>
         </reference>
         <reference name="content">
-            <block type="mep/adminhtml_profil_popup" name="mep.popup" template="mep/popup2.phtml"/>
+            <block type="mep/adminhtml_attribute_view" name="mep.attribute"/>
         </reference>
-    </adminhtml_profil_popup>
+    </adminhtml_attribute_index>
 
-	<default>
-		<reference name="head">
-			<action method="addCss"><name>mep.css</name></action>
-		</reference>
-	</default>
+    <adminhtml_attribute_edit>
+        <reference name="head">
+            <action method="addCss">
+                <name>mep.css</name>
+            </action>
+        </reference>
+        <reference name="content">
+            <block type="mep/adminhtml_attribute_view_edit" name="mep.attribute.edit"></block>
+        </reference>
+    </adminhtml_attribute_edit>
+
+    <adminhtml_shipping_index>
+        <reference name="head">
+            <action method="addCss">
+                <name>mep.css</name>
+            </action>
+        </reference>
+        <reference name="content">
+            <block type="mep/adminhtml_shipping_view" name="mep.shipping"/>
+        </reference>
+    </adminhtml_shipping_index>
+
+    <adminhtml_shipping_edit>
+        <reference name="head">
+            <action method="addCss">
+                <name>mep.css</name>
+            </action>
+            <action method="addItem">
+                <type>skin_js</type>
+                <script>chosen/chosen.proto.js</script>
+            </action>
+            <action method="addItem">
+                <type>skin_js</type>
+                <script>mep.js</script>
+            </action>
+            <action method="addItem">
+                <type>js</type>
+                <script>mage/adminhtml/rules.js</script>
+                <params/>
+            </action>
+            <action method="addCss">
+                <name>chosen/chosen.css</name>
+            </action>
+            <action method="addCss">
+                <name>mep.css</name>
+            </action>
+            <action method="addJs">
+                <script>mage/adminhtml/wysiwyg/widget.js</script>
+            </action>
+            <action method="addItem">
+                <type>js</type>
+                <script>prototype/window.js</script>
+            </action>
+            <action method="addItem">
+                <type>js_css</type>
+                <script>prototype/windows/themes/default.css</script>
+            </action>
+            <action method="addCss">
+                <name>lib/prototype/windows/themes/magento.css</name>
+            </action>
+            ion>
+        </reference>
+        <reference name="content">
+            <block type="mep/adminhtml_shipping_view_edit" name="shipping_new"></block>
+        </reference>
+        <reference name="left">
+            <block type="mep/adminhtml_shipping_view_edit_tabs" name="shipping_tabs"></block>
+        </reference>
+    </adminhtml_shipping_edit>
+
+    <adminhtml_shipping_attribute_index>
+        <block type="core/text_list" name="root" output="toHtml">
+            <block type="mep/adminhtml_shipping_view_edit_gridMapping" name="fields.grid"/>
+            <block type="adminhtml/widget_grid_serializer" name="grid_serializer">
+                <reference name="grid_serializer">
+                    <action method="initSerializerBlock">
+                        <grid_block_name>fields.grid</grid_block_name>
+                        <data_callback>getSelectedCustomers</data_callback>
+                        <hidden_input_name>links[customers]</hidden_input_name>
+                        <reload_param_name>profile</reload_param_name>
+                    </action>
+                    <action method="addColumnInputName">
+                        <input_name>position</input_name>
+                    </action>
+                </reference>
+            </block>
+        </block>
+    </adminhtml_shipping_attribute_index>
 
 </layout>

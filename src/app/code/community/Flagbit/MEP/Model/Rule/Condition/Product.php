@@ -76,8 +76,8 @@ class Flagbit_MEP_Model_Rule_Condition_Product
      */
     protected function _addSpecialAttributes(array &$attributes)
     {
-        $attributes['attribute_set_id'] = Mage::helper('dynamiccategory')->__('Attribute Set');
-        $attributes['category_ids'] = Mage::helper('dynamiccategory')->__('Category');
+        $attributes['attribute_set_id'] = Mage::helper('mep')->__('Attribute Set');
+        $attributes['category_ids'] = Mage::helper('mep')->__('Category');
     }
 
     /**
@@ -212,7 +212,6 @@ class Flagbit_MEP_Model_Rule_Condition_Product
      */
     public function collectValidatedAttributes($productCollection)
     {
-        Mage::log(get_class($productCollection));
         $attribute = $this->getAttribute();
         if ('category_ids' != $attribute) {
             if ($this->getAttributeObject()->isScopeGlobal()) {

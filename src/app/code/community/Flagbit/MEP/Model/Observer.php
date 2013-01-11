@@ -9,10 +9,10 @@ class Flagbit_MEP_Model_Observer extends Varien_Object
         /** @var $profile Flagbit_MEP_Model_Profil */
         foreach ($this->getProfileCollection() as $profile) {
             /* @var $export Mage_ImportExport_Model_Export */
-            $export = Mage::getModel('importexport/export');
+            $export = Mage::getModel('mep/export');
             $export->setData('id', $profile->getId());
-            $export->setEntity("catalog_product2");
-            $export->setFileFormat("csv");
+            $export->setEntity("catalog_product");
+            $export->setFileFormat("twig");
             $export->setExportFilter(array());
             $exportFile = $this->getExportPath($profile) . DS . $profile->getFilename();
             file_put_contents($exportFile, $export->export());
@@ -22,12 +22,12 @@ class Flagbit_MEP_Model_Observer extends Varien_Object
     /**
      * Get all enabled export profiles.
      *
-     * @return Flagbit_MEP_Model_Mysql4_Profil_Collection
+     * @return Flagbit_MEP_Model_Mysql4_Profile_Collection
      */
     protected function getProfileCollection()
     {
-        /* @var $profiles Flagbit_MEP_Model_Mysql4_Profil_Collection */
-        $profiles = Mage::getModel('mep/profil')->getCollection();
+        /* @var $profiles Flagbit_MEP_Model_Mysql4_Profile_Collection */
+        $profiles = Mage::getModel('mep/profile')->getCollection();
         $profiles->addFieldToFilter('status', 1);
         return $profiles;
     }

@@ -20,17 +20,16 @@ class Flagbit_MEP_Model_Data extends Mage_Catalog_Model_Convert_Parser_Product
      * @return array
      * @see Mage_Catalog_Model_Convert_Parser_Product::getExternalAttributes()
      */
-    public function getExternalAttributes()
+    public function getExternalAttributes($profileId = null)
     {
-        $entityTypeId = Mage::getSingleton('eav/config')->getEntityType('catalog_product')->getId();
         $attributes = $this->_externalFields;
+        $_helper = Mage::helper('mep');
 
         $collection = Mage::getResourceModel('eav/entity_attribute_set_collection')
             ->setEntityTypeFilter(Mage::getModel('catalog/product')->getResource()->getTypeId())
             ->load();
 
         foreach ($collection as $attributeSet) {
-
             $attributes[preg_replace('/([^A-Za-z_-]*)/', '', $attributeSet->getAttributeSetName())] = $this->getAttributesBySet($attributeSet->getAttributeSetId());
         }
 
@@ -39,18 +38,31 @@ class Flagbit_MEP_Model_Data extends Mage_Catalog_Model_Convert_Parser_Product
         }
 
         // added for url mapping
-        $attributes['url']                      = 'url';
-        $attributes['_category']                = 'category';
-        $attributes['image_url']                = 'image_url';
-        $attributes['gross_price']              = 'gross_price';
-        $attributes['fixed_value_format']       = 'fixed_value_format';
+        $specialAttributes = array();
+        $specialAttributes['url'] = 'url';
+        $specialAttributes['_category'] = 'category';
+        $specialAttributes['image_url'] = 'image_url';
+        $specialAttributes['gross_price'] = 'gross_price';
+        $specialAttributes['fixed_value_format'] = 'fixed_value_format';
+        $specialAttributes['entity_id'] = 'entity_id';
+        $attributes[$_helper->__('Special Attributes')] = $specialAttributes;
 
-        //TODO HACK THE PLANET
-        $attributes['versandkosten_paypal']     = 'Versandkosten PayPal Standard';
-        $attributes['versandkosten_vorkasse']   = 'Versandkosten Vorkasse';
-        $attributes['versandkosten_nachnahme']  = 'Versandkosten Nachnahme';
-        $attributes['versandkosten_sofort']     = 'Versandkosten Sofortüberweisung';
-        $attributes['versandkosten_creditcard'] = 'Versandkosten Kreditkarte';
+
+        // add attribute mapping attributes
+        $attributeMappingCollection = Mage::getResourceModel('mep/attribute_mapping_collection')->load();
+        foreach($attributeMappingCollection as $attributeMapping){
+            $attributes[$_helper->__('Mappings')][$attributeMapping->getAttributeCode()] = sprintf('%s (%s)', $attributeMapping->getName(), $attributeMapping->getAttributeCode());
+        }
+
+        //add shipping attributes
+        $shipping_id = Mage::getModel('mep/profile')->load($profileId)->getShippingId();
+        if (!empty($shipping_id)) {
+            $collection = Mage::getModel('mep/shipping_attribute')->getCollection()
+                ->addFieldToFilter('profile_id', array('eq' => $shipping_id));
+            foreach ($collection as $item) {
+                $attributes[$_helper->__('Shipping')][$item->getAttributeCode()] = sprintf('%s (%s + %s)',$item->getAttributeCode(), $item->getShippingMethod(), $item->getPaymentMethod());
+            }
+        }
 
         return $attributes;
     }
@@ -72,11 +84,12 @@ class Flagbit_MEP_Model_Data extends Mage_Catalog_Model_Convert_Parser_Product
 
         /* @var $node Mage_Eav_Model_Entity_Attribute_Group */
         foreach ($groups as $node) {
-
+            /** @var $nodeChildren Mage_Catalog_Model_Resource_Category_Attribute_Collection */
             $nodeChildren = Mage::getResourceModel('catalog/product_attribute_collection')
                 ->setAttributeGroupFilter($node->getId())
                 ->addVisibleFilter()
-                ->checkConfigurableProducts();
+                ->checkConfigurableProducts()
+                ->addStoreLabel(Mage::app()->getStore()->getId());
 
             $nodeChildren->getSelect()->where('main_table.is_user_defined = ?', 1);
 
@@ -86,10 +99,47 @@ class Flagbit_MEP_Model_Data extends Mage_Catalog_Model_Convert_Parser_Product
                     continue;
                 }
 
-                $items[$child->getAttributeCode()] = $child->getAttributeCode();
+                $items[$child->getAttributeCode()] = $child->getAttributeCode() . " (" . $child->getStoreLabel() . ")";
             }
         }
 
         return $items;
     }
+
+
+    public function getAllActivePaymentMethods()
+    {
+        $payments = Mage::getSingleton('payment/config')->getActiveMethods();
+        $methods = array();
+        foreach ($payments as $paymentCode => $paymentModel) {
+            $paymentTitle = Mage::getStoreConfig('payment/' . $paymentCode . '/title');
+            $methods[$paymentCode] = $paymentTitle;
+        }
+        return $methods;
+    }
+
+    public function getAllShippingMethods()
+    {
+        $methods = Mage::getSingleton('shipping/config')->getActiveCarriers();
+
+        $options = array();
+
+        foreach ($methods as $_ccode => $_carrier) {
+            $_methodOptions = array();
+            if ($_methods = $_carrier->getAllowedMethods()) {
+                foreach ($_methods as $_mcode => $_method) {
+                    $_code = $_ccode . '_' . $_mcode;
+                    $_methodOptions[] = array('value' => $_code, 'label' => $_method);
+                }
+
+                if (!$_title = Mage::getStoreConfig('carriers/' . $_ccode . '/title'))
+                    $_title = $_ccode;
+
+                $options[$_code] = $_title;
+            }
+        }
+
+        return $options;
+    }
+
 }
