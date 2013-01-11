@@ -198,7 +198,8 @@ class Flagbit_MEP_Adminhtml_ProfileController extends Mage_Adminhtml_Controller_
     public function runClickAction()
     {
         try {
-            /** @var $model Mage_ImportExport_Model_Export */
+
+            /* @var $model Flagbit_MEP_Model_Export */
             $model = Mage::getModel('mep/export');
             $model->setData($this->getRequest()->getParams());
             $model->setEntity("catalog_product");
@@ -210,8 +211,10 @@ class Flagbit_MEP_Adminhtml_ProfileController extends Mage_Adminhtml_Controller_
                 return;
             }
 
+            $profile = Mage::getModel('mep/profile')->load($this->getRequest()->getParam('id'));
+
             return $this->_prepareDownloadResponse(
-                $model->getFileName(),
+                $profile->getFilename(),
                 $model->export(),
                 $model->getContentType()
             );
