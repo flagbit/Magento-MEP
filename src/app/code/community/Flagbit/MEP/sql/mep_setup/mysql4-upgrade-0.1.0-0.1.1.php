@@ -35,5 +35,4 @@ CREATE TABLE IF NOT EXISTS {$this->getTable('mep_profile_attribute')} (
 ");
 
 $installer->endSetup();
-?>
 

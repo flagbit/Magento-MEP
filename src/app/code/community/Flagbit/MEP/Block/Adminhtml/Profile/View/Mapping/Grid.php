@@ -56,7 +56,10 @@ class Flagbit_MEP_Block_Adminhtml_Profile_View_Mapping_Grid extends Mage_Adminht
      */
     protected function _toHtml()
     {
-        $html  = '<div id="messages">'.$this->getMessagesBlock()->getGroupedHtml().'</div>';
+        $html = '';
+        if($this->getRequest()->isAjax()){
+            $html  = '<div id="messages">'.$this->getMessagesBlock()->getGroupedHtml().'</div>';
+        }
         $html .= parent::_toHtml();
         return $html;
     }
