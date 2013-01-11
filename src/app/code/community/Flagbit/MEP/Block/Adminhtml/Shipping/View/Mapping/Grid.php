@@ -49,6 +49,17 @@ class Flagbit_MEP_Block_Adminhtml_Shipping_View_Mapping_Grid extends Mage_Adminh
         return "javascript:mepTools.openDialog('".$this->getUrl('*/shipping/popup', array('id' => $row->getId(), 'profile_id' => $this->getProfileId()))."')";
     }
 
+    /**
+     * Render block HTML
+     *
+     * @return string
+     */
+    protected function _toHtml()
+    {
+        $html  = '<div id="messages">'.$this->getMessagesBlock()->getGroupedHtml().'</div>';
+        $html .= parent::_toHtml();
+        return $html;
+    }
 
     public function getMainButtonsHtml()
     {

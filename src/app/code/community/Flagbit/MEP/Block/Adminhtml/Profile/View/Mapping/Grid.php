@@ -13,7 +13,7 @@ class Flagbit_MEP_Block_Adminhtml_Profile_View_Mapping_Grid extends Mage_Adminht
         $this->setId('mapping_grid');
         $this->setUseAjax(true); // Using ajax grid is important
         $this->setDefaultSort('position');
-        $this->setDefaultDir('desc');
+        $this->setDefaultDir('asc');
         $this->setSaveParametersInSession(true);
         $this->setPagerVisibility(false);
     }
@@ -49,6 +49,17 @@ class Flagbit_MEP_Block_Adminhtml_Profile_View_Mapping_Grid extends Mage_Adminht
         return "javascript:mepTools.openDialog('".$this->getUrl('*/profile/popup', array('id' => $row->getId(), 'profile_id' => $this->getProfileId()))."')";
     }
 
+    /**
+     * Render block HTML
+     *
+     * @return string
+     */
+    protected function _toHtml()
+    {
+        $html  = '<div id="messages">'.$this->getMessagesBlock()->getGroupedHtml().'</div>';
+        $html .= parent::_toHtml();
+        return $html;
+    }
 
     public function getMainButtonsHtml()
     {

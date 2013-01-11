@@ -44,7 +44,7 @@ class Flagbit_MEP_Adminhtml_ShippingController extends Mage_Adminhtml_Controller
     {
 
         $this->loadLayout('empty')->renderLayout();
-        $html = $this->getLayout()->createBlock('mep/adminhtml_shipping_popup')->setTemplate('mep/shipping_popup.phtml')->toHtml();
+        $html = $this->getLayout()->createBlock('mep/adminhtml_shipping_popup')->setTemplate('mep/shipping/popup.phtml')->toHtml();
         $this->getResponse()->setBody($html);
     }
 

@@ -110,6 +110,8 @@ class Flagbit_MEP_Adminhtml_ProfileController extends Mage_Adminhtml_Controller_
                 $model->setData($data);
                 $model->save();
 
+                Mage::getSingleton('adminhtml/session')->setMepProfileData($model->getData());
+
                 if (!$model->getId()) {
                     Mage::throwException(Mage::helper('mep')->__('Error saving Profile'));
                 }

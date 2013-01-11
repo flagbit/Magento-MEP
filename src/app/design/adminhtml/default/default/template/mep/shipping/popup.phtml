@@ -35,7 +35,7 @@
 
                     <div class="input-box">
                         <select name="payment_method" id="payment_method">
-                            <?php $payments = Mage::getModel('mep/data')->getAllActivPaymentMethods(); ?>
+                            <?php $payments = Mage::getModel('mep/data')->getAllActivePaymentMethods(); ?>
                             <?php foreach ($payments as $_value => $_label): ?>
                             <?php if (is_array($_label)): ?>
                                 <optgroup label="<?php echo $_value ?>">
