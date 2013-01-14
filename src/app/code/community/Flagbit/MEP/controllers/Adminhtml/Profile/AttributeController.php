@@ -91,6 +91,9 @@ class Flagbit_MEP_Adminhtml_Profile_AttributeController extends Mage_Adminhtml_C
      */
     public function gridAction()
     {
-        $this->getResponse()->setBody($this->getLayout()->createBlock('mep/adminhtml_profile_view_mapping_grid')->toHtml());
+        $this->_initLayoutMessages('adminhtml/session');
+        $this->getResponse()->setBody(
+            $this->getLayout()->createBlock('mep/adminhtml_profile_view_mapping_grid')->toHtml()
+        );
     }
 }

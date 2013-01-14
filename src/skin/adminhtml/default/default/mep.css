@@ -1,35 +1,35 @@
 /* MEP-Styles */
 
-.adminhtml-profil-edit div.mapping-dialog {
+.adminhtml-profile-edit div.mapping-dialog {
     padding: 20px 10px;
 }
 
-    .adminhtml-profil-edit div.mapping-dialog ul.formfield_list li {
+    .adminhtml-profile-edit div.mapping-dialog ul.formfield_list li {
         display: block;
     }
 
-    .adminhtml-profil-edit div.mapping-dialog label {
+    .adminhtml-profile-edit div.mapping-dialog label {
         color: #D85909;
         font-weight: bold;
     }
 
-    .adminhtml-profil-edit div.mapping-dialog label,
-    .adminhtml-profil-edit div.mapping-dialog .input-box {
+    .adminhtml-profile-edit div.mapping-dialog label,
+    .adminhtml-profile-edit div.mapping-dialog .input-box {
         float: left;
         width: 200px;
     }
 
-    .adminhtml-profil-edit div.mapping-dialog input {
+    .adminhtml-profile-edit div.mapping-dialog input {
         margin-bottom: 5px;
     }
-    .adminhtml-profil-edit div.mapping-dialog input {
+    .adminhtml-profile-edit div.mapping-dialog input {
         width: 167px;
     }
-    .adminhtml-profil-edit div.mapping-dialog button {
+    .adminhtml-profile-edit div.mapping-dialog button {
         margin-top: 10px;
     }
 
-    .adminhtml-profil-edit #widget_window .magento_content {
+    .adminhtml-profile-edit #widget_window .magento_content {
         height: auto !important;
         min-height: 320px;
     }
@@ -68,10 +68,13 @@
     }
 
 
-.content-header h3.head-adminhtml-profil-view,
+.content-header h3.head-adminhtml-profile-view,
+.content-header h3.head-adminhtml-profile-edit,
 .content-header h3.head-adminhtml-shipping-view,
+.content-header h3.head-adminhtml-shipping-edit,
 .content-header h3.head-adminhtml-shipping-index,
 .content-header h3.head-adminhtml-attribute-view,
+.content-header h3.head-adminhtml-attribute-edit,
 .content-header h3.head-adminhtml-attribute-index
 {
     background-image: url("images/mep-logo-icon.png");

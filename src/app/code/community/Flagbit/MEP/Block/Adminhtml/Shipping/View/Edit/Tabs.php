@@ -31,10 +31,12 @@ class Flagbit_MEP_Block_Adminhtml_Shipping_View_Edit_Tabs extends Mage_Adminhtml
             'content' => $this->getLayout()->createBlock('mep/adminhtml_shipping_view_edit_tab_general')->toHtml(),
         ));
 
-        $this->addTab('mapping', array(
-            'label' => Mage::helper('mep')->__('Shipping Mapping'),
-            'content' => $this->getLayout()->createBlock('mep/adminhtml_shipping_view_mapping')->toHtml(),
-        ));
+        if($data = Mage::helper('mep')->getCurrentProfileData(true)){
+            $this->addTab('mapping', array(
+                'label' => Mage::helper('mep')->__('Shipping Mapping'),
+                'content' => $this->getLayout()->createBlock('mep/adminhtml_shipping_view_mapping')->toHtml(),
+            ));
+        }
 
         $this->setActiveTab($this->getRequest()->get('tab'));
 

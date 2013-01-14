@@ -93,6 +93,9 @@ class Flagbit_MEP_Adminhtml_Shipping_AttributeController extends Mage_Adminhtml_
      */
     public function gridAction()
     {
-        $this->getResponse()->setBody($this->getLayout()->createBlock('mep/adminhtml_shipping_view_mapping_grid')->toHtml());
+        $this->_initLayoutMessages('adminhtml/session');
+        $this->getResponse()->setBody(
+            $this->getLayout()->createBlock('mep/adminhtml_shipping_view_mapping_grid')->toHtml()
+        );
     }
 }

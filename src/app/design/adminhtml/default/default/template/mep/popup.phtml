@@ -1,39 +1,12 @@
-<?php
-/**
- * Magento
- *
- * NOTICE OF LICENSE
- *
- * This source file is subject to the Academic Free License (AFL 3.0)
- * that is bundled with this package in the file LICENSE_AFL.txt.
- * It is also available through the world-wide-web at this URL:
- * http://opensource.org/licenses/afl-3.0.php
- * If you did not receive a copy of the license and are unable to
- * obtain it through the world-wide-web, please send an email
- * to license@magentocommerce.com so we can send you a copy immediately.
- *
- * DISCLAIMER
- *
- * Do not edit or add to this file if you wish to upgrade Magento to newer
- * versions in the future. If you wish to customize Magento for your
- * needs please refer to http://www.magentocommerce.com for more information.
- *
- * @category    design
- * @package     base_default
- * @copyright   Copyright (c) 2012 Magento Inc. (http://www.magentocommerce.com)
- * @license     http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
- */
-?>
-
 <div id="container">
     <div id="field_content" class="mapping-dialog">
         <form action="<?php echo Mage::helper("adminhtml")->getUrl("adminhtml/profile_attribute/edit") ?>" id="mappingform">
         <ul class="formfield_list">
             <li>
-                <label for="attribute_code">In Database</label>
+                <label for="attribute_code"><?php echo $this->__('In Database');?></label>
                 <div class="input-box">
                     <select name="attribute_code[]" id="attribute_code" class="chzn-select" multiple="multiple">
-                    <?php $aha = Mage::getModel('mep/data')->getExternalAttributes(); ?>
+                    <?php $aha = Mage::getModel('mep/data')->getExternalAttributes($this->getProfileId()); ?>
                     <?php foreach ($aha as $_value => $_label): ?>
                         <?php if (is_array($_label)): ?>
                         <optgroup label="<?php echo $_value ?>">
@@ -49,26 +22,26 @@
                 </div>
             </li>
             <li>
-                <label for="to_field">To Field</label>
+                <label for="to_field"><?php echo $this->__('To Field');?></label>
                 <div class="input-box">
                     <input type="text" name="to_field" value="<?php echo $this->getMapping()->getToField();?>" id="to_field" class="input-text">
                 </div>
             </li>
             <li>
-                <label for="format">Format</label>
+                <label for="format"><?php echo $this->__('Format');?></label>
                 <div class="input-box">
                     <input type="text" name="format" value="<?php echo $this->getMapping()->getFormat();?>" id="format" class="input-text">
                 </div>
             </li>
             <li>
-                <label for="position">Position</label>
+                <label for="position"><?php echo $this->__('Position');?></label>
                 <div class="input-box">
                     <input type="text" name="position" value="<?php echo $this->getMapping()->getPosition();?>" id="position" class="input-text">
                 </div>
             </li>
             <li>
                 <div class="input-box">
-                    <button type="submit" value="Submit" class="scalable save" title="Submit"><span><span><span>Save</span></span></span></button>
+                    <button type="submit" value="Submit" class="scalable save" title="Submit"><span><span><span><?php echo $this->__('Save');?></span></span></span></button>
                 </div>
             </li>
         </ul>

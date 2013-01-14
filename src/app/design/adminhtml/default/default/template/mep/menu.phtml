@@ -9,7 +9,7 @@
 
 <script type="text/javascript">
 $$('ul#nav li a span').each(function(elem, index){
-	if(elem.innerHTML == '<? echo Mage::helper('mep')->__('MEP');?>'){
+	if(elem.innerHTML == '<?php echo Mage::helper('mep')->__('MEP');?>'){
 	   elem.up('a').addClassName('mep');
        elem.innerHTML = '&ensp;&ensp;&ensp;'+elem.innerHTML;
 	}

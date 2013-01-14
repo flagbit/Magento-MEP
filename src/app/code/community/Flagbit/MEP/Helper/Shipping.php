@@ -19,13 +19,13 @@ class Flagbit_MEP_Helper_Shipping extends Mage_Core_Helper_Abstract
     private $_websiteId = '0';
     private $orderData = array();
 
-    public function emulateCheckout($item, $store_id, $profil)
+    public function emulateCheckout($item, $store_id, $profile)
     {
         $this->_product = $item;
         $this->_storeId = $store_id;
         $this->_websiteId = Mage::getModel('core/store')->load($store_id)->getWebsiteId();
 
-        $this->setOrderInfo($profil->getPaymentMethod(), $profil->getCountry(), $profil->getShippingMethod());
+        $this->setOrderInfo($profile->getPaymentMethod(), $profile->getCountry(), $profile->getShippingMethod());
         $orderData = $this->orderData;
         if (!empty($orderData)) {
             $this->_initSession($orderData['session']);
@@ -37,7 +37,7 @@ class Flagbit_MEP_Helper_Shipping extends Mage_Core_Helper_Abstract
                 }
                 $quote = $this->_getOrderCreateModel()->getQuote();
                 $address = $quote->getShippingAddress();
-                $rate = $address->getShippingRateByCode($profil->getShippingMethod());
+                $rate = $address->getShippingRateByCode($profile->getShippingMethod());
                 //$_order = $this->_getOrderCreateModel()
                 //    ->importPostData($orderData['order'])
                 //    ->createOrder();
