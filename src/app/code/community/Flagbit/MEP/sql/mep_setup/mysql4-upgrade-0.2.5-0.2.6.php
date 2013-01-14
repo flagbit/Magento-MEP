@@ -29,5 +29,3 @@ ADD `shipping_id` int(10) unsigned NOT NULL AFTER `name`,
 COMMENT='';
 ");
 $installer->endSetup();
-?>
-

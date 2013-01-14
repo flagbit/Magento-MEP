@@ -20,9 +20,10 @@ class Flagbit_MEP_Model_Data extends Mage_Catalog_Model_Convert_Parser_Product
      * @return array
      * @see Mage_Catalog_Model_Convert_Parser_Product::getExternalAttributes()
      */
-    public function getExternalAttributes()
+    public function getExternalAttributes($profileId = null)
     {
         $attributes = $this->_externalFields;
+        $_helper = Mage::helper('mep');
 
         $collection = Mage::getResourceModel('eav/entity_attribute_set_collection')
             ->setEntityTypeFilter(Mage::getModel('catalog/product')->getResource()->getTypeId())
@@ -36,38 +37,31 @@ class Flagbit_MEP_Model_Data extends Mage_Catalog_Model_Convert_Parser_Product
             $attributes[$field] = $field;
         }
 
-        //add shipping attributes
-        $shipping_id = Mage::helper('mep')->getCurrentProfileData('shipping_id');
-        if (!empty($shipping_id)) {
-            $collection = Mage::getModel('mep/shipping_attribute')->getCollection();
-            $collection->addFieldToFilter('profile_id', array('eq' => $shipping_id));
-            foreach ($collection as $item) {
-                $attributes[$item->getAttributeCode()] = $item->getShippingMethod() . '+' . $item->getPaymentMethod();
-            }
-        }
-
-
         // added for url mapping
-        $attributes['url'] = 'url';
-        $attributes['_category'] = 'category';
-        $attributes['image_url'] = 'image_url';
-        $attributes['gross_price'] = 'gross_price';
-        $attributes['fixed_value_format'] = 'fixed_value_format';
-        $attributes['entity_id'] = 'entity_id';
+        $specialAttributes = array();
+        $specialAttributes['url'] = 'url';
+        $specialAttributes['_category'] = 'category';
+        $specialAttributes['image_url'] = 'image_url';
+        $specialAttributes['gross_price'] = 'gross_price';
+        $specialAttributes['fixed_value_format'] = 'fixed_value_format';
+        $specialAttributes['entity_id'] = 'entity_id';
+        $attributes[$_helper->__('Special Attributes')] = $specialAttributes;
 
-
-        //TODO HACK THE PLANET
-        $attributes['versandkosten_paypal'] = 'Versandkosten PayPal Standard';
-        $attributes['versandkosten_vorkasse'] = 'Versandkosten Vorkasse';
-        $attributes['versandkosten_nachnahme'] = 'Versandkosten Nachnahme';
-        $attributes['versandkosten_sofort'] = 'Versandkosten Sofortüberweisung';
-        $attributes['versandkosten_creditcard'] = 'Versandkosten Kreditkarte';
-
-        $attributeMappingCollection = Mage::getResourceModel('mep/attribute_mapping_collection')->load();
 
         // add attribute mapping attributes
+        $attributeMappingCollection = Mage::getResourceModel('mep/attribute_mapping_collection')->load();
         foreach($attributeMappingCollection as $attributeMapping){
-            $attributes[Mage::helper('mep')->__('Mappings')][$attributeMapping->getAttributeCode()] = sprintf('%s (%s)', $attributeMapping->getName(), $attributeMapping->getAttributeCode());
+            $attributes[$_helper->__('Mappings')][$attributeMapping->getAttributeCode()] = sprintf('%s (%s)', $attributeMapping->getName(), $attributeMapping->getAttributeCode());
+        }
+
+        //add shipping attributes
+        $shipping_id = Mage::getModel('mep/profile')->load($profileId)->getShippingId();
+        if (!empty($shipping_id)) {
+            $collection = Mage::getModel('mep/shipping_attribute')->getCollection()
+                ->addFieldToFilter('profile_id', array('eq' => $shipping_id));
+            foreach ($collection as $item) {
+                $attributes[$_helper->__('Shipping')][$item->getAttributeCode()] = sprintf('%s (%s + %s)',$item->getAttributeCode(), $item->getShippingMethod(), $item->getPaymentMethod());
+            }
         }
 
         return $attributes;
@@ -113,7 +107,7 @@ class Flagbit_MEP_Model_Data extends Mage_Catalog_Model_Convert_Parser_Product
     }
 
 
-    public function getAllActivPaymentMethods()
+    public function getAllActivePaymentMethods()
     {
         $payments = Mage::getSingleton('payment/config')->getActiveMethods();
         $methods = array();

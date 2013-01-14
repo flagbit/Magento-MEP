@@ -154,7 +154,7 @@ class Flagbit_MEP_Block_Adminhtml_Profile_View_Edit_Tab_Format extends Mage_Admi
             0 => Mage::helper('mep')->__('None'),
         );
 
-        $collection = Mage::getModel('mep/shipping')->getCollection();
+        $collection = Mage::getModel('mep/shipping')->getCollection()->addFieldToFilter('status', 1);
         foreach($collection as $item) {
             $options[$item->getId()] = $item->getName();
         }

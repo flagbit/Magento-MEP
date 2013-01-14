@@ -88,7 +88,6 @@
     </adminhtml_profile_new>
 
     <adminhtml_profile_attribute_index>
-
         <block type="core/text_list" name="root" output="toHtml">
             <block type="mep/adminhtml_profile_view_gridMapping" name="fields.grid"/>
             <block type="adminhtml/widget_grid_serializer" name="grid_serializer">
@@ -190,7 +189,6 @@
     </adminhtml_shipping_edit>
 
     <adminhtml_shipping_attribute_index>
-
         <block type="core/text_list" name="root" output="toHtml">
             <block type="mep/adminhtml_shipping_view_edit_gridMapping" name="fields.grid"/>
             <block type="adminhtml/widget_grid_serializer" name="grid_serializer">
