@@ -51,6 +51,8 @@ class Flagbit_MEP_Model_Profile extends Mage_Core_Model_Abstract
             ->setOriginalId($this->getId())
             ->setCreatedAt(null)
             ->setUpdatedAt(null)
+            ->setFilename(null)
+            ->setFilepatch(null)
             ->setId(null);
 
         Mage::dispatchEvent(
