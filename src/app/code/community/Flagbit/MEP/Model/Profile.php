@@ -144,7 +144,6 @@ class Flagbit_MEP_Model_Profile extends Mage_Core_Model_Abstract
                 $_modifier = array();
                 switch($mapping->getBackendType()){
 
-                    case 'int':
                     case 'decimal':
                         $_modifier = array('number_format(2, ",", ".")');
                         break;
