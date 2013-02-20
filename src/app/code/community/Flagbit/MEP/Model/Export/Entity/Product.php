@@ -519,7 +519,16 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
             return false;
         }
 
-        $categoryId = array_shift($rowCategories[$productId]);
+        // get the deepest Category Path
+        $categoryId = null;
+        $max = 0;
+        foreach((array) $rowCategories[$productId] as $_categoryId){
+            if(isset($this->_categoryIds[$_categoryId]) && count($this->_categoryIds[$_categoryId]) > $max){
+                $max = $this->_categoryIds[$_categoryId];
+                $categoryId = $_categoryId;
+            }
+        }
+
         if (isset($this->_rootCategories[$categoryId])) {
             $dataRow[self::COL_ROOT_CATEGORY] = $this->_rootCategories[$categoryId];
         }
