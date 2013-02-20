@@ -209,7 +209,7 @@ class Flagbit_MEP_Adminhtml_ProfileController extends Mage_Adminhtml_Controller_
             $model->setExportFilter(array());
 
             if($this->getRequest()->getParam('debug')){
-                echo '<pre>'.$model->export().'</pre>';
+                $this->getResponse()->setBody('<pre>'.htmlspecialchars($model->export()).'</pre>');
                 return;
             }
 
