@@ -810,10 +810,14 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
 
                                     if (isset($this->_categoryIds[$categoryId])) {
 
-                                        $attrValue = implode(
-                                            $this->getProfile()->getCategoryDelimiter(),
-                                            $attributeMapping->getOptionValue($this->_categoryIds[$categoryId], $obj_profil->getStoreId())
-                                        );
+                                        if($attributeMapping->getCategoryType() == 'single'){
+                                            $attrValue = implode(
+                                                $this->getProfile()->getCategoryDelimiter(),
+                                                $attributeMapping->getOptionValue($this->_categoryIds[$categoryId], $obj_profil->getStoreId())
+                                            );
+                                        }else{
+                                            $attrValue = $attributeMapping->getOptionValue($categoryId, $obj_profil->getStoreId());
+                                        }
                                     }
                                 }
 

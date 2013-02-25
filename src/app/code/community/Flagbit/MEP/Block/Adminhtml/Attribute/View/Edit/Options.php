@@ -38,7 +38,12 @@ class Flagbit_MEP_Block_Adminhtml_Attribute_View_Edit_Options extends Mage_Eav_B
             $values = array();
             /* @var $categoryCollection Mage_Catalog_Model_Resource_Category_Collection */
             $categoryCollection = Mage::getResourceModel('catalog/category_collection')
-                                    ->addAttributeToSelect('name')->load();
+                                    ->addAttributeToSelect('name')
+                                    ->addAttributeToSelect('is_active')
+                                    ->addFieldToFilter('is_active', '1')
+                                    ->setOrder('position', 'asc')
+                                    ->load();
+
 
             /* @var $category Mage_Catalog_Model_Category */
             foreach ($categoryCollection as $category) {
