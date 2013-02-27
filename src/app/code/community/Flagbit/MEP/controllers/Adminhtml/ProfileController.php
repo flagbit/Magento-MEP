@@ -116,11 +116,6 @@ class Flagbit_MEP_Adminhtml_ProfileController extends Mage_Adminhtml_Controller_
                     Mage::throwException(Mage::helper('mep')->__('Error saving Profile'));
                 }
 
-                // Template Stuff
-                if (isset($data['template'])) {
-                    $result = Mage::helper('mep')->setTemplateProfil($model->getId(), $data['template']);
-                }
-
                 Mage::getSingleton('adminhtml/session')->setFormData(false);
 
                 if($this->getRequest()->getParam('duplicate')) {
@@ -209,7 +204,7 @@ class Flagbit_MEP_Adminhtml_ProfileController extends Mage_Adminhtml_Controller_
             $model->setExportFilter(array());
 
             if($this->getRequest()->getParam('debug')){
-                echo '<pre>'.$model->export().'</pre>';
+                $this->getResponse()->setBody('<pre>'.htmlspecialchars($model->export()).'</pre>');
                 return;
             }
 

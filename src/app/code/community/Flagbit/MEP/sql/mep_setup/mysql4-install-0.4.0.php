@@ -32,6 +32,7 @@ CREATE TABLE `{$this->getTable('mep/attribute_mapping')}` (
   `attribute_code` varchar(255) NOT NULL,
   `source_attribute_code` varchar(255) NOT NULL,
   `name` varchar(255) NOT NULL,
+  `category_type` enum('single', 'complete') DEFAULT 'single',
   `created_at` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
   `updated_at` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
   PRIMARY KEY (`id`)

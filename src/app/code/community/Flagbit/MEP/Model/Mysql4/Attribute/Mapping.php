@@ -60,7 +60,7 @@ class Flagbit_MEP_Model_Mysql4_Attribute_Mapping extends Mage_Core_Model_Mysql4_
      * @param $storeId
      * @return null
      */
-    public function getOptionValue(Mage_Core_Model_Abstract $object, $optionId, $storeId)
+    public function getOptionValue(Mage_Core_Model_Abstract $object, $optionId, $storeId, $removeEmptyValues = true)
     {
         $result = null;
         if($this->_optionValues === null || !isset($this->_optionValues[$object->getId()])){
@@ -73,7 +73,11 @@ class Flagbit_MEP_Model_Mysql4_Attribute_Mapping extends Mage_Core_Model_Mysql4_
         if(is_array($optionId)){
             $result = array();
             foreach($optionId as $id){
-                $result[] = $this->getOptionValue($object, $id, $storeId);
+                $value = $this->getOptionValue($object, $id, $storeId);
+                if($removeEmptyValues === true && empty($value)){
+                    continue;
+                }
+                $result[] = $value;
             }
         }else{
             $result = empty($this->_optionValues[$object->getId()][$optionId]) ? null : $this->_optionValues[$object->getId()][$optionId];
