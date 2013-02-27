@@ -29,24 +29,32 @@ class Flagbit_MEP_Helper_Shipping extends Mage_Core_Helper_Abstract
         $orderData = $this->orderData;
         if (!empty($orderData)) {
             $this->_initSession($orderData['session']);
+            $quote = $this->_getOrderCreateModel()->getQuote();
+            $address = $quote->getShippingAddress();
+
+            $this->_getOrderCreateModel()->resetShippingMethod();
+            Mage::unregister('rule_data');
             try {
                 $this->_processQuote($orderData);
                 if (!empty($orderData['payment'])) {
                     $this->_getOrderCreateModel()->setPaymentData($orderData['payment']);
                     $this->_getOrderCreateModel()->getQuote()->getPayment()->addData($orderData['payment']);
                 }
-                $quote = $this->_getOrderCreateModel()->getQuote();
+
                 $address = $quote->getShippingAddress();
+
+                $address->collectShippingRates();
                 $rate = $address->getShippingRateByCode($profile->getShippingMethod());
                 //$_order = $this->_getOrderCreateModel()
                 //    ->importPostData($orderData['order'])
                 //    ->createOrder();
                 $this->_getSession()->clear();
                 Mage::unregister('rule_data');
+                $quote->removeAllAddresses();
                 if ($rate == false) return false;
                 return $rate->getPrice();
             } catch (Exception $e) {
-                Mage::log("Order save error...");
+                Mage::log("Order save error...".$e->getMessage());
             }
         }
     }
@@ -176,8 +184,8 @@ class Flagbit_MEP_Helper_Shipping extends Mage_Core_Helper_Abstract
             $this->_getOrderCreateModel()->getQuote()->getPayment()->addData($data['payment']);
         }
         $this->_getOrderCreateModel()
-            ->initRuleData();
-        //->saveQuote();
+            ->initRuleData()
+        ->saveQuote();
 
         //$this->_getOrderCreateModel()->getQuote()->save();
 
