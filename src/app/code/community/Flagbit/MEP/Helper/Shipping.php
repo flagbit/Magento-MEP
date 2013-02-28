@@ -45,6 +45,14 @@ class Flagbit_MEP_Helper_Shipping extends Mage_Core_Helper_Abstract
 
                 $address->collectShippingRates();
                 $rate = $address->getShippingRateByCode($profile->getShippingMethod());
+
+                Mage::dispatchEvent('mep_calculate_shipping_rate', array(
+                    'product' => $this->_product, // Mage_Catalog_Model_Product
+                    'quote' => $quote, // Mage_Sales_Model_Quote
+                    'rate' => $rate // Mage_Sales_Model_Quote_Address_Rate
+                    )
+                );
+
                 //$_order = $this->_getOrderCreateModel()
                 //    ->importPostData($orderData['order'])
                 //    ->createOrder();

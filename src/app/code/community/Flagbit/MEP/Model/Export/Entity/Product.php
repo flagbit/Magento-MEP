@@ -962,7 +962,7 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
                         }
 
                     }
-                    $writer->writeRow(array_merge($defaultDataRow, array_filter( $dataRow, 'strlen' )));
+                    $writer->writeRow(array_merge($defaultDataRow, array_filter( $dataRow, create_function('$value', 'return empty($value) ? 0 : 1;'))));
                 }
             }
             return $writer->getContents();
