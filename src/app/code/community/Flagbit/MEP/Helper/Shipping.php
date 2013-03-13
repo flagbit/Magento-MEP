@@ -57,7 +57,7 @@ class Flagbit_MEP_Helper_Shipping extends Mage_Core_Helper_Abstract
      */
     protected function _getShippingRequest()
     {
-        if($this->_shippingRequest == null){
+        if($this->_shippingRequest === null){
             $this->_shippingRequest = Mage::getModel('shipping/rate_request');
         }
         return $this->_shippingRequest;

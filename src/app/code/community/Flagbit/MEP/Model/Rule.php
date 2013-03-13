@@ -47,7 +47,7 @@ class Flagbit_MEP_Model_Rule extends Mage_CatalogRule_Model_Rule
      * Gets an instance of the respective conditions model
      *
      * @see Mage_Rule_Model_Rule::getConditionsInstance()
-     * @return FireGento_DynamicCategory_Model_Rule_Condition_Combine Condition Instance
+     * @return Flagbit_MEP_Model_Rule_Condition_Combine Condition Instance
      */
     public function getConditionsInstance()
     {
@@ -58,7 +58,7 @@ class Flagbit_MEP_Model_Rule extends Mage_CatalogRule_Model_Rule
      * Enter description here ...
      *
      * @param array $rule
-     * @return FireGento_DynamicCategory_Model_Rule
+     * @return Flagbit_MEP_Model_Rule
      */
     public function loadPost(array $rule)
     {

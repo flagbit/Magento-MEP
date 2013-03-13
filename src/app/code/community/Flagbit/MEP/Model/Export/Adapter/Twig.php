@@ -209,11 +209,11 @@ class Flagbit_MEP_Model_Export_Adapter_Twig extends Mage_ImportExport_Model_Expo
     public function cleanLine($element)
     {
         return utf8_encode(
-                str_replace($this->_delimiter, '',
+                    str_replace($this->_delimiter, '',
                 trim(
                     preg_replace('/\s\s+/', ' ', html_entity_decode(htmlentities($element, ENT_SUBSTITUTE, 'UTF-8', false)))
                     )
                 )
-            );
+                );
     }
 }

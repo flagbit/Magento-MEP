@@ -1,36 +1,5 @@
 <?php
-/**
- * This file is part of the FIREGENTO project.
- *
- * FireGento_DynamicCategory is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License version 3 as
- * published by the Free Software Foundation.
- *
- * This script is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- *
- * PHP version 5
- *
- * @category  FireGento
- * @package   FireGento_DynamicCategory
- * @author    FireGento Team <team@firegento.com>
- * @copyright 2012 FireGento Team (http://www.firegento.de). All rights served.
- * @license   http://opensource.org/licenses/gpl-3.0 GNU General Public License, version 3 (GPLv3)
- * @version   1.0.0
- * @since     0.2.1
- */
-/**
- * Condition Class for Product Attributes and Products
- *
- * @category  FireGento
- * @package   FireGento_DynamicCategory
- * @author    FireGento Team <team@firegento.com>
- * @copyright 2012 FireGento Team (http://www.firegento.de). All rights served.
- * @license   http://opensource.org/licenses/gpl-3.0 GNU General Public License, version 3 (GPLv3)
- * @version   1.0.0
- * @since     0.2.1
- */
+
 class Flagbit_MEP_Model_Rule_Condition_Product
     extends Mage_Rule_Model_Condition_Abstract
 {
@@ -55,7 +24,7 @@ class Flagbit_MEP_Model_Rule_Condition_Product
     /**
      * Retrieve attribute object
      *
-     * @return FireGento_DynamicCategory_Model_Rule_Condition_Product Self.
+     * @return Flagbit_MEP_Model_Rule_Condition_Product Self.
      */
     public function getAttributeObject()
     {
@@ -83,7 +52,7 @@ class Flagbit_MEP_Model_Rule_Condition_Product
     /**
      * Load attribute options
      *
-     * @return FireGento_DynamicCategory_Model_Rule_Condition_Product Self.
+     * @return Flagbit_MEP_Model_Rule_Condition_Product Self.
      */
     public function loadAttributeOptions()
     {
@@ -208,7 +177,7 @@ class Flagbit_MEP_Model_Rule_Condition_Product
      *
      * @param Mage_Catalog_Model_Resource_Eav_Mysql4_Product_Collection $productCollection Collection
      *
-     * @return FireGento_DynamicCategory_Model_Rule_Condition_Product Self.
+     * @return Flagbit_MEP_Model_Rule_Condition_Product Self.
      */
     public function collectValidatedAttributes($productCollection)
     {
@@ -342,7 +311,7 @@ class Flagbit_MEP_Model_Rule_Condition_Product
      * Load array
      *
      * @param array $arr Attribute Array
-     * @return FireGento_DynamicCategory_Model_Rule_Condition_Product Self.
+     * @return Flagbit_MEP_Model_Rule_Condition_Product Self.
      */
     public function loadArray($arr)
     {
@@ -367,7 +336,7 @@ class Flagbit_MEP_Model_Rule_Condition_Product
     }
 
     /**
-     * Validate product attrbute value for condition
+     * Validate product attribute value for condition
      *
      * @param Varien_Object $object Object
      * @return boolean True/False
