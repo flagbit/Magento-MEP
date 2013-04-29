@@ -335,55 +335,5 @@ class Flagbit_MEP_Model_Rule_Condition_Product
         return parent::loadArray($arr);
     }
 
-    /**
-     * Validate product attribute value for condition
-     *
-     * @param Varien_Object $object Object
-     * @return boolean True/False
-     */
-    public function validate(Varien_Object $object)
-    {
-        $attrCode = $this->getAttribute();
 
-        if ('category_ids' == $attrCode) {
-            return $this->validateAttribute($object->getAvailableInCategories());
-        } elseif (!isset($this->_entityAttributeValues[$object->getId()])) {
-            $attr = $object->getResource()->getAttribute($attrCode);
-
-            if ($attr && $attr->getBackendType() == 'datetime' && !is_int($this->getValue())) {
-                $this->setValue(strtotime($this->getValue()));
-                $value = strtotime($object->getData($attrCode));
-                return $this->validateAttribute($value);
-            }
-
-            if ($attr && $attr->getFrontendInput() == 'multiselect') {
-                $value = $object->getData($attrCode);
-                $value = strlen($value) ? explode(',', $value) : array();
-                return $this->validateAttribute($value);
-            }
-
-            return parent::validate($object);
-        } else {
-            $result = false;
-            $oldAttrValue = $object->hasData($attrCode) ? $object->getData($attrCode) : null;
-
-            foreach ($this->_entityAttributeValues[$object->getId()] as $storeId => $value) {
-                $object->setData($attrCode, $value);
-
-                $result |= parent::validate($object);
-
-                if ($result) {
-                    break;
-                }
-            }
-
-            if (is_null($oldAttrValue)) {
-                $object->unsetData($attrCode);
-            } else {
-                $object->setData($attrCode, $oldAttrValue);
-            }
-
-            return (bool)$result;
-        }
-    }
 }

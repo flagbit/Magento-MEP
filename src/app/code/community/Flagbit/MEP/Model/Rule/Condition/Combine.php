@@ -12,38 +12,6 @@ class Flagbit_MEP_Model_Rule_Condition_Combine
         parent::__construct();
     }
 
-    /**
-     * Returns the aggregator options
-     *
-     * @see Mage_Rule_Model_Condition_Combine::loadAggregatorOptions()
-     * @return FireGento_DynamicCategory_Model_Rule_Condition_Combine Self.
-     */
-    public function loadAggregatorOptions()
-    {
-        $this->setAggregatorOption(
-            array(
-                'all' => Mage::helper('rule')->__('ALL'),
-            )
-        );
-        return $this;
-    }
-
-    /**
-     * Returns the value options
-     *
-     * @see Mage_Rule_Model_Condition_Combine::loadValueOptions()
-     * @return FireGento_DynamicCategory_Model_Rule_Condition_Combine Self.
-     */
-    public function loadValueOptions()
-    {
-        $this->setValueOption(
-            array(
-                1 => Mage::helper('rule')->__('TRUE'),
-                //0 => Mage::helper('rule')->__('FALSE'),
-            )
-        );
-        return $this;
-    }
 
     public function getNewChildSelectOptions()
     {

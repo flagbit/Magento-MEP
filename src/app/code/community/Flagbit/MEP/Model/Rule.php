@@ -95,25 +95,33 @@ class Flagbit_MEP_Model_Rule extends Mage_CatalogRule_Model_Rule
      *
      * @return array
      */
-    public function getMatchingProductIds(Mage_Catalog_Model_Resource_Product_Collection $collection = null)
+    public function getMatchingProductIds()
     {
         if (is_null($this->_productIds)) {
             $this->_productIds = array();
             $this->setCollectedAttributes(array());
-            //$websiteIds = explode(',', $this->getWebsiteIds());
 
-            //if ($websiteIds) {
-            $this->getConditions()->collectValidatedAttributes($collection);
-            Mage::getSingleton('core/resource_iterator')->walk(
-                $collection->getSelect(),
-                array(array($this, 'callbackValidateProduct')),
-                array(
-                    'attributes' => $this->getCollectedAttributes(),
-                    'product' => Mage::getModel('catalog/product'),
-                )
-            );
-            //}
+            if ($this->getWebsiteIds()) {
+                /** @var $productCollection Mage_Catalog_Model_Resource_Eav_Mysql4_Product_Collection */
+                $productCollection = Mage::getResourceModel('catalog/product_collection');
+                $productCollection->addWebsiteFilter($this->getWebsiteIds());
+                if ($this->_productsFilter) {
+                    $productCollection->addIdFilter($this->_productsFilter);
+                }
+                $this->getConditions()->collectValidatedAttributes($productCollection);
+
+                Mage::getSingleton('core/resource_iterator')->walk(
+                    $productCollection->getSelect(),
+                    array(array($this, 'callbackValidateProduct')),
+                    array(
+                        'attributes' => $this->getCollectedAttributes(),
+                        'product'    => Mage::getModel('catalog/product'),
+                    )
+                );
+            }
         }
+
         return $this->_productIds;
     }
+
 }

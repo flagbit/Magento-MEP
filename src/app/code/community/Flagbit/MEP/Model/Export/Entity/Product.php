@@ -580,6 +580,8 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
         //Execution time may be very long
         set_time_limit(0);
 
+        Mage::app()->setCurrentStore(0);
+
 
         /** @var $collection Mage_Catalog_Model_Resource_Eav_Mysql4_Product_Collection */
         $validAttrCodes = array();
@@ -590,31 +592,31 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
         $helperShipping = Mage::helper('mep/shipping');
 
         if ($this->hasProfileId()) {
-            /* @var $obj_profil Flagbit_MEP_Model_Profil */
-            $obj_profil = $this->getProfile();
-            $delimiter = $obj_profil->getDelimiter();
-            $enclosure = $obj_profil->getEnclose();
+            /* @var $obj_profile Flagbit_MEP_Model_Profil */
+            $obj_profile = $this->getProfile();
+            $delimiter = $obj_profile->getDelimiter();
+            $enclosure = $obj_profile->getEnclose();
 
             $this->_storeIdToCode[0] = 'admin';
-            $this->_storeIdToCode[$obj_profil->getStoreId()] = Mage::app()->getStore($obj_profil->getStoreId())->getCode();
+            $this->_storeIdToCode[$obj_profile->getStoreId()] = Mage::app()->getStore($obj_profile->getStoreId())->getCode();
 
 
             $writer->setDelimiter($delimiter);
             $writer->setEnclosure($enclosure);
 
             // add Twig Templates
-            $writer->setTwigTemplate($obj_profil->getTwigHeaderTemplate(), 'header');
-            $writer->setTwigTemplate($obj_profil->getTwigContentTemplate(), 'content');
-            $writer->setTwigTemplate($obj_profil->getTwigFooterTemplate(), 'footer');
+            $writer->setTwigTemplate($obj_profile->getTwigHeaderTemplate(), 'header');
+            $writer->setTwigTemplate($obj_profile->getTwigContentTemplate(), 'content');
+            $writer->setTwigTemplate($obj_profile->getTwigFooterTemplate(), 'footer');
 
-            if ($obj_profil->getOriginalrow() == 1) {
+            if ($obj_profile->getOriginalrow() == 1) {
                 $writer->setHeaderRow(true);
             } else {
                 $writer->setHeaderRow(false);
             }
 
             // Get Shipping Mapping
-            $shipping_id = $obj_profil->getShippingId();
+            $shipping_id = $obj_profile->getShippingId();
             if (!empty($shipping_id)) {
                 $collection = Mage::getModel('mep/shipping_attribute')->getCollection();
                 $collection->addFieldToFilter('profile_id', array('eq' => $shipping_id));
@@ -665,6 +667,20 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
             }
             $offsetProducts = 0;
 
+            // LOAD FILTER RULES
+            /* @var $ruleObject Flagbit_MEP_Model_Rule */
+            $ruleObject = Mage::getModel('mep/rule');
+            $rule = unserialize($obj_profile->getConditionsSerialized());
+            if (!empty($rule) && count($rule) > 1) {
+                $ruleObject->loadPost(array('conditions' => $rule));
+                $ruleObject->setWebsiteIds(array(Mage::app()->getStore($obj_profile->getStoreId())->getWebsiteId()));
+                $filteredProductIds = $ruleObject->getMatchingProductIds();
+
+                if(count($filteredProductIds) < 1){
+                    return;
+                }
+            }
+
 
             while (true) {
                 ++$offsetProducts;
@@ -680,12 +696,12 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
                 // prepare multi-store values and system columns values
                 foreach ($this->_storeIdToCode as $storeId => &$storeCode) { // go through all stores
 
-                    if($storeId != $obj_profil->getStoreId() && $storeId != $defaultStoreId){
+                    if($storeId != $obj_profile->getStoreId() && $storeId != $defaultStoreId){
                         continue;
                     }
 
                     //set locale code to provide best sprintf support
-                    $localeInfo = $obj_profil->getProfileLocale();
+                    $localeInfo = $obj_profile->getProfileLocale();
                     if ($localeInfo != null && strlen($localeInfo) > 0) {
                         setlocale(LC_ALL, $localeInfo);
                     } else {
@@ -697,15 +713,10 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
                         ->setStoreId($storeId)
                         ->setPage($offsetProducts, $limitProducts);
 
-                    /* @var $ruleObject Flagbit_MEP_Model_Rule */
-                    $ruleObject = Mage::getModel('mep/rule');
-                    $bla = unserialize($obj_profil->getConditionsSerialized());
-                    if (!empty($bla) && count($bla) > 1) {
-                        $bla2 = array('conditions' => $bla);
-                        $ruleObject->getConditions()->setConditions(array())->loadArray($bla2);
-                        $ids = $ruleObject->getMatchingProductIds($collection);
-                        $collection->addFieldToFilter("entity_id", array('nin' => $ids));
+                    if(!empty($filteredProductIds)){
+                        $collection->addFieldToFilter("entity_id", array('in' => $filteredProductIds));
                     }
+
 
                     if ($collection->getCurPage() < $offsetProducts) {
                         break;
@@ -741,17 +752,17 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
                                 // shipping
                                 if (array_key_exists($attrCode, $shippingAttrCodes)) {
                                     $shipping_item = $shippingAttrCodes[$attrCode];
-                                    $attrValue = $helperShipping->emulateCheckout($item, $obj_profil->getStoreId(), $shipping_item);
+                                    $attrValue = $helperShipping->emulateCheckout($item, $obj_profile->getStoreId(), $shipping_item);
                                 }
 
                                 // TODO dirty? Yes!
                                 if ($attrCode == 'url') {
-                                    $attrValue = Mage::app()->getStore($obj_profil->getStoreId())->getBaseUrl(Mage_Core_Model_Store::URL_TYPE_WEB) . $item->getUrlPath();
+                                    $attrValue = Mage::app()->getStore($obj_profile->getStoreId())->getBaseUrl(Mage_Core_Model_Store::URL_TYPE_WEB) . $item->getUrlPath();
                                 }
 
                                 if ($attrCode == 'gross_price') {
                                     $attrValue = Mage::helper('tax')->getPrice($item, $item->getFinalPrice(), null, null, null,
-                                        null, $obj_profil->getStoreId(), null
+                                        null, $obj_profile->getStoreId(), null
                                     );
                                 }
 
@@ -798,11 +809,11 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
                                     $attrValue = $item->getData($attributeMapping->getSourceAttributeCode());
 
                                     if ($this->_attributeTypes[$attributeMapping->getSourceAttributeCode()] == 'multiselect') {
-                                        $attrValue = $attributeMapping->getOptionValue(explode(',', $attrValue), $obj_profil->getStoreId());
+                                        $attrValue = $attributeMapping->getOptionValue(explode(',', $attrValue), $obj_profile->getStoreId());
                                         $rowMultiselects[$itemId][$attrCode] = $attrValue;
 
                                     } else {
-                                        $attrValue = $attributeMapping->getOptionValue($attrValue, $obj_profil->getStoreId());
+                                        $attrValue = $attributeMapping->getOptionValue($attrValue, $obj_profile->getStoreId());
                                     }
                                     // value Mapping category
                                 } elseif ($attributeMapping
@@ -817,10 +828,10 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
                                         if($attributeMapping->getCategoryType() == 'single'){
                                             $attrValue = implode(
                                                 $this->getProfile()->getCategoryDelimiter(),
-                                                $attributeMapping->getOptionValue($this->_categoryIds[$categoryId], $obj_profil->getStoreId())
+                                                $attributeMapping->getOptionValue($this->_categoryIds[$categoryId], $obj_profile->getStoreId())
                                             );
                                         }else{
-                                            $attrValue = $attributeMapping->getOptionValue($categoryId, $obj_profil->getStoreId());
+                                            $attrValue = $attributeMapping->getOptionValue($categoryId, $obj_profile->getStoreId());
                                         }
                                     }
                                 }
@@ -941,7 +952,7 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
                             }
                             if ($attrCode == 'image_url') {
                                 if (isset($dataRow['_media_image'])) {
-                                    $dataRow[$attrCode] = Mage::app()->getStore($obj_profil->getStoreId())->getBaseUrl(Mage_Core_Model_Store::URL_TYPE_MEDIA) . 'catalog/product' . $dataRow['_media_image'];
+                                    $dataRow[$attrCode] = Mage::app()->getStore($obj_profile->getStoreId())->getBaseUrl(Mage_Core_Model_Store::URL_TYPE_MEDIA) . 'catalog/product' . $dataRow['_media_image'];
                                 }
                             }
                             if ($attrCode == 'qty') {
