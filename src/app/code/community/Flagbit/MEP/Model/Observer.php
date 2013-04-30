@@ -13,6 +13,64 @@ class Flagbit_MEP_Model_Observer extends Varien_Object
     }
 
     /**
+     * Append a custom block to the category.product.grid block.
+     *
+     * @param Varien_Event_Observer $observer
+     * @return void
+     */
+    public function catalogCategoryPrepareSave(Varien_Event_Observer $observer)
+    {
+        $data = $observer->getRequest()->getParam('mep');
+        $category = $observer->getCategory();
+        $storeId = $observer->getRequest()->getParam('store');
+
+        if(!empty($data) && $category->getId() && $storeId){
+
+            foreach($data as $id => $value){
+                $id = ltrim($id, 'mapping_');
+                $model = Mage::getModel('mep/attribute_mapping')->load($id);
+                $model->load($id);
+
+                try {
+
+                    $model->setOption(
+                        array('value' => array(
+                                $category->getId() => array(
+                                                    $storeId => $value
+                                                      )
+                                        )
+                            )
+                    );
+                    $model->save();
+                }catch (Exception $e){
+                    Mage::logException($e);
+                }
+            }
+        }
+    }
+
+    /**
+     * Append a custom Tab to the category page
+     *
+     * @param Varien_Event_Observer $observer
+     * @return void
+     */
+    public function adminhtmlCatalogCategoryTabs(Varien_Event_Observer $observer)
+    {
+        $tabs = $observer->getEvent()->getTabs();
+
+        if($tabs->getCategory()->getStoreId() !== 0){
+            $tabs->addTab(
+                'mep',
+                array(
+                    'label'   => Mage::helper('catalog')->__('MEP Mappings'),
+                    'content' => $tabs->getLayout()->createBlock('mep/adminhtml_category_mapping', '')->toHtml()
+                )
+            );
+        }
+    }
+
+    /**
      * export Profile
      *
      * @param Flagbit_MEP_Model_Profile $profile

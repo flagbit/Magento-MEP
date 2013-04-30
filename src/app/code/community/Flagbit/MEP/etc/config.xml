@@ -104,6 +104,24 @@
     </admin>
 
     <adminhtml>
+        <events>
+            <catalog_category_prepare_save>
+                <observers>
+                    <mep_catalog_category_prepare_save>
+                        <class>mep/observer</class>
+                        <method>catalogCategoryPrepareSave</method>
+                    </mep_catalog_category_prepare_save>
+                </observers>
+            </catalog_category_prepare_save>
+            <adminhtml_catalog_category_tabs>
+                <observers>
+                    <mep_adminhtml_catalog_category_tabs>
+                        <class>mep/observer</class>
+                        <method>adminhtmlCatalogCategoryTabs</method>
+                    </mep_adminhtml_catalog_category_tabs>
+                </observers>
+            </adminhtml_catalog_category_tabs>
+        </events>
         <layout>
             <updates>
                 <mep>
