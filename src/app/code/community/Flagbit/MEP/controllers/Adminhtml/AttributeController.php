@@ -69,8 +69,6 @@ class Flagbit_MEP_Adminhtml_AttributeController extends Mage_Adminhtml_Controlle
             }
 
             try {
-                Zend_Debug::dump($data);
-                die();
                 $model->setData($data);
                 $model->save();
 
