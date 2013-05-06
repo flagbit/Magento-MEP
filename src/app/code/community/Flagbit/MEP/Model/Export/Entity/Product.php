@@ -707,9 +707,11 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
                         setlocale(LC_ALL, Mage::app()->getLocale()->getLocaleCode());
                     }
 
+                    /* @var $collection Mage_Catalog_Model_Resource_Product_Collection */
                     $collection = $this->_prepareEntityCollection(Mage::getResourceModel('catalog/product_collection'));
                     $collection
                         ->setStoreId($storeId)
+                        ->addStoreFilter($obj_profile->getStoreId())
                         ->setPage($offsetProducts, $limitProducts);
 
                     if(!empty($filteredProductIds)){
