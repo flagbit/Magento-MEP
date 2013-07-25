@@ -202,19 +202,9 @@ class Flagbit_MEP_Adminhtml_ProfileController extends Mage_Adminhtml_Controller_
             $model->setEntity("catalog_product");
             $model->setFileFormat("twig");
             $model->setExportFilter(array());
+            $model->setLimit(20);
 
-            if($this->getRequest()->getParam('debug')){
-                $this->getResponse()->setBody('<pre>'.htmlspecialchars($model->export()).'</pre>');
-                return;
-            }
-
-            $profile = Mage::getModel('mep/profile')->load($this->getRequest()->getParam('id'));
-
-            return $this->_prepareDownloadResponse(
-                $profile->getFilename(),
-                $model->export(),
-                $model->getContentType()
-            );
+            return $this->getResponse()->setBody('<pre>'.htmlspecialchars($model->export()).'</pre>');
 
         } catch (Mage_Core_Exception $e) {
             $this->_getSession()->addError($e->getMessage());
@@ -225,5 +215,6 @@ class Flagbit_MEP_Adminhtml_ProfileController extends Mage_Adminhtml_Controller_
                 throw $e;
             }
         }
+        $this->_redirect('*/*/edit', array('id' => $this->getRequest()->getParam('id')));
     }
 }

@@ -1,4 +1,4 @@
-var mepTools = {
+var mepAttributeSettingsDialog = {
     getDivHtml: function(id, html) {
         if (!html) html = '';
         return '<div id="' + id + '">' + html + '</div>';
@@ -50,3 +50,47 @@ var mepTools = {
         }
     }
 }
+
+
+var mepPreviewDialog = {
+    getDivHtml: function(id, html) {
+        if (!html) html = '';
+        return '<div id="' + id + '">' + html + '</div>';
+    },
+
+    openDialog: function(widgetUrl) {
+        if ($('widget_window') && typeof(Windows) != 'undefined') {
+            Windows.focus('widget_window');
+            return;
+        }
+        this.dialogWindow = Dialog.info(null, {
+            draggable:true,
+            resizable:true,
+            closable:true,
+            className:'magento',
+            windowClassName:"popup-window",
+            title:Translator.translate('Export Preview'),
+            top:100,
+            width:800,
+            //height:450,
+            zIndex:1000,
+            recenterAuto:false,
+            hideEffect:Element.hide,
+            showEffect:Element.show,
+            id:'widget_window',
+            onClose: this.closeDialog.bind(this)
+        });
+        new Ajax.Updater('modal_dialog_message', widgetUrl, {evalScripts: true});
+    },
+    closeDialog: function(window) {
+        if (!window) {
+            window = this.dialogWindow;
+        }
+        if (window) {
+            // IE fix - hidden form select fields after closing dialog
+            WindowUtilities._showSelect();
+            window.close();
+        }
+    }
+}
+

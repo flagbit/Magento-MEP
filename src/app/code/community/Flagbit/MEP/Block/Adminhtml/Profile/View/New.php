@@ -25,18 +25,10 @@ class Flagbit_MEP_Block_Adminhtml_Profile_View_New extends Mage_Adminhtml_Block_
         ), -100);
 
         $this->_formScripts[] = "
-			function toggleEditor() {
-				if (tinyMCE.getInstanceById('form_content') == null) {
-					tinyMCE.execCommand('mceAddControl', false, 'edit_form');
-				} else {
-					tinyMCE.execCommand('mceRemoveControl', false, 'edit_form');
-				}
-			}
-
-			function saveAndContinueEdit(){
-				editForm.submit($('edit_form').action+'back/edit/');
-			}
-		";
+            function saveAndContinueEdit(){
+                editForm.submit($('edit_form').action+'back/edit/');
+            }
+        ";
     }
 
     /**

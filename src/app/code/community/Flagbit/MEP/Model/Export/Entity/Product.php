@@ -43,6 +43,13 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
     protected $_categoryIds = array();
 
     /**
+     * export limit
+     *
+     * @var null
+     */
+    protected $_limit = null;
+
+    /**
      * Root category names for each category
      *
      * @var array
@@ -566,6 +573,18 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
     }
 
     /**
+     * set export Limit
+     *
+     * @param $limit
+     * @return $this
+     */
+    public function setLimit($limit)
+    {
+        $this->_limit = $limit;
+        return $this;
+    }
+
+    /**
      * Export process.
      *
      * @return string
@@ -664,6 +683,10 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
             if ($limitProducts < $minProductsLimit) {
                 $limitProducts = $minProductsLimit;
             }
+            if($this->_limit !== null){
+                $limitProducts = $this->_limit;
+            }
+
             $offsetProducts = 0;
 
             // LOAD FILTER RULES
@@ -683,6 +706,10 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
 
             while (true) {
                 ++$offsetProducts;
+
+                if($this->_limit !== null &&  $offsetProducts > 1){
+                    break;
+                }
 
                 $dataRows = array();
                 $rowCategories = array();
@@ -713,6 +740,7 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
                         ->setStoreId($storeId)
                         ->addStoreFilter($obj_profile->getStoreId())
                         ->setPage($offsetProducts, $limitProducts);
+
 
                     if(!empty($filteredProductIds)){
                         $collection->addFieldToFilter("entity_id", array('in' => $filteredProductIds));

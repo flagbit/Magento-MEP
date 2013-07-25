@@ -147,6 +147,7 @@ class Flagbit_MEP_Model_Export extends Mage_ImportExport_Model_Abstract
             $this->addLogComment(Mage::helper('importexport')->__('Begin export of %s', $this->getEntity()));
             $result = $this->_getEntityAdapter()
                 ->setWriter($this->_getWriter())
+                ->setLimit($this->getLimit())
                 ->export();
 
             $countRows = substr_count(trim($result), "\n");
