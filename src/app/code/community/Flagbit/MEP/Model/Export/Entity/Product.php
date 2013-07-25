@@ -158,8 +158,10 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
                 $path = array();
                 $pathIds = array();
                 for ($i = 1; $i < $pathSize; $i++) {
-                    $path[] = $collection->getItemById($structure[$i])->getName();
-                    $pathIds[] = $structure[$i];
+                    if(is_a($collection->getItemById($structure[$i]),'Mage_Catalog_Model_Category')){
+                        $path[] = $collection->getItemById($structure[$i])->getName();
+                        $pathIds[] = $structure[$i];
+                    }
                 }
                 $this->_rootCategories[$category->getId()] = array_shift($path);
                 if ($pathSize > 2) {
