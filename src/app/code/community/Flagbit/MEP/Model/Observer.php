@@ -13,6 +13,20 @@ class Flagbit_MEP_Model_Observer extends Varien_Object
     }
 
     /**
+     * run specific profile via cron
+     *
+     * @param $schedule
+     */
+    public function runProfile($schedule)
+    {
+        $profileId = (int) $schedule->getMessages();
+        if(!empty($profileId)){
+            $this->exportProfile($profileId);
+        }
+    }
+
+
+    /**
      * Append a custom block to the category.product.grid block.
      *
      * @param Varien_Event_Observer $observer

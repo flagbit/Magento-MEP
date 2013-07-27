@@ -140,6 +140,11 @@
                     <model>mep/observer::exportEnabledProfiles</model>
                 </run>
             </mep_profiles_enabled>
+            <mep_run_profile>
+                <run>
+                    <model>mep/observer::runProfile</model>
+                </run>
+            </mep_run_profile>
         </jobs>
     </crontab>
 </config>
