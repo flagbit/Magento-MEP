@@ -20,8 +20,9 @@ class Flagbit_MEP_Model_Observer extends Varien_Object
     public function runProfile($schedule)
     {
         $profileId = (int) $schedule->getMessages();
-        if(!empty($profileId)){
-            $this->exportProfile($profileId);
+        $profile = Mage::getModel('mep/profile')->load($profileId);
+        if($profile->getId()){
+            $this->exportProfile($profile);
         }
     }
 
