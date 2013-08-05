@@ -124,6 +124,7 @@ class Flagbit_MEP_Model_Data extends Mage_Catalog_Model_Convert_Parser_Product
 
         $options = array();
 
+        /** @var $_carrier Mage_Shipping_Model_Carrier_Abstract */
         foreach ($methods as $_ccode => $_carrier) {
             $_methodOptions = array();
             if ($_methods = $_carrier->getAllowedMethods()) {

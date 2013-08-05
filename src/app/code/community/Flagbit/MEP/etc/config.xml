@@ -2,7 +2,7 @@
 <config>
     <modules>
         <Flagbit_MEP>
-            <version>0.3.0</version>
+            <version>0.4.0</version>
         </Flagbit_MEP>
     </modules>
 
@@ -104,6 +104,24 @@
     </admin>
 
     <adminhtml>
+        <events>
+            <catalog_category_prepare_save>
+                <observers>
+                    <mep_catalog_category_prepare_save>
+                        <class>mep/observer</class>
+                        <method>catalogCategoryPrepareSave</method>
+                    </mep_catalog_category_prepare_save>
+                </observers>
+            </catalog_category_prepare_save>
+            <adminhtml_catalog_category_tabs>
+                <observers>
+                    <mep_adminhtml_catalog_category_tabs>
+                        <class>mep/observer</class>
+                        <method>adminhtmlCatalogCategoryTabs</method>
+                    </mep_adminhtml_catalog_category_tabs>
+                </observers>
+            </adminhtml_catalog_category_tabs>
+        </events>
         <layout>
             <updates>
                 <mep>
@@ -122,6 +140,11 @@
                     <model>mep/observer::exportEnabledProfiles</model>
                 </run>
             </mep_profiles_enabled>
+            <mep_run_profile>
+                <run>
+                    <model>mep/observer::runProfile</model>
+                </run>
+            </mep_run_profile>
         </jobs>
     </crontab>
 </config>

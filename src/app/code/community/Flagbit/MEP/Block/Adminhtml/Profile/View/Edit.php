@@ -20,6 +20,7 @@ class Flagbit_MEP_Block_Adminhtml_Profile_View_Edit extends Mage_Adminhtml_Block
 
         $this->_updateButton('save', 'label', Mage::helper('mep')->__('Save'));
         $this->_updateButton('delete', 'label', Mage::helper('mep')->__('Delete'));
+        $this->_removeButton('reset');
 
         $this->_addButton('save_and_continue', array(
             'label' => Mage::helper('adminhtml')->__('Save And Continue Edit'),
@@ -28,19 +29,26 @@ class Flagbit_MEP_Block_Adminhtml_Profile_View_Edit extends Mage_Adminhtml_Block
         ), -100);
 
         $profile_id = Mage::helper('mep')->getCurrentProfileData(true);
-        $this->_addButton('Run', array(
-            'label' => Mage::helper('adminhtml')->__('RUN'),
-            'onclick' => 'setLocation(\'' . $this->getUrl('*/*/runClick') . 'id/' . $profile_id . '\')',
-            'class' => 'go',
-        ), -1, 5);
-
 
         if (! empty($profile_id)) {
-                $this->_addButton('duplicate', array(
-                    'label' => Mage::helper('adminhtml')->__('Duplicate'),
-                    'onclick' => "$('edit_form').action += 'duplicate/true/'; editForm.submit();",
-                    'class' => 'scalable add',
-                ), 0);
+
+            $this->_addButton('Preview', array(
+                'label' => Mage::helper('adminhtml')->__('Preview'),
+                'onclick' => "mepPreviewDialog.openDialog('".$this->getUrl('*/*/preview', array('id' => $profile_id))."')",
+                'class' => 'go',
+            ), 0, 6);
+
+            $this->_addButton('Run', array(
+                'label' => Mage::helper('adminhtml')->__('RUN'),
+                'onclick' => 'setLocation(\'' . $this->getUrl('*/*/run') . 'id/' . $profile_id . '\')',
+                'class' => 'go',
+            ), 0, 5);
+
+            $this->_addButton('duplicate', array(
+                'label' => Mage::helper('adminhtml')->__('Duplicate'),
+                'onclick' => "$('edit_form').action += 'duplicate/true/'; editForm.submit();",
+                'class' => 'scalable add',
+            ), 0);
         }
 
         $this->_formScripts[] = "

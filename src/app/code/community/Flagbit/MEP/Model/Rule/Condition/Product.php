@@ -1,36 +1,5 @@
 <?php
-/**
- * This file is part of the FIREGENTO project.
- *
- * FireGento_DynamicCategory is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License version 3 as
- * published by the Free Software Foundation.
- *
- * This script is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- *
- * PHP version 5
- *
- * @category  FireGento
- * @package   FireGento_DynamicCategory
- * @author    FireGento Team <team@firegento.com>
- * @copyright 2012 FireGento Team (http://www.firegento.de). All rights served.
- * @license   http://opensource.org/licenses/gpl-3.0 GNU General Public License, version 3 (GPLv3)
- * @version   1.0.0
- * @since     0.2.1
- */
-/**
- * Condition Class for Product Attributes and Products
- *
- * @category  FireGento
- * @package   FireGento_DynamicCategory
- * @author    FireGento Team <team@firegento.com>
- * @copyright 2012 FireGento Team (http://www.firegento.de). All rights served.
- * @license   http://opensource.org/licenses/gpl-3.0 GNU General Public License, version 3 (GPLv3)
- * @version   1.0.0
- * @since     0.2.1
- */
+
 class Flagbit_MEP_Model_Rule_Condition_Product
     extends Mage_Rule_Model_Condition_Abstract
 {
@@ -55,7 +24,7 @@ class Flagbit_MEP_Model_Rule_Condition_Product
     /**
      * Retrieve attribute object
      *
-     * @return FireGento_DynamicCategory_Model_Rule_Condition_Product Self.
+     * @return Flagbit_MEP_Model_Rule_Condition_Product Self.
      */
     public function getAttributeObject()
     {
@@ -83,7 +52,7 @@ class Flagbit_MEP_Model_Rule_Condition_Product
     /**
      * Load attribute options
      *
-     * @return FireGento_DynamicCategory_Model_Rule_Condition_Product Self.
+     * @return Flagbit_MEP_Model_Rule_Condition_Product Self.
      */
     public function loadAttributeOptions()
     {
@@ -208,7 +177,7 @@ class Flagbit_MEP_Model_Rule_Condition_Product
      *
      * @param Mage_Catalog_Model_Resource_Eav_Mysql4_Product_Collection $productCollection Collection
      *
-     * @return FireGento_DynamicCategory_Model_Rule_Condition_Product Self.
+     * @return Flagbit_MEP_Model_Rule_Condition_Product Self.
      */
     public function collectValidatedAttributes($productCollection)
     {
@@ -342,7 +311,7 @@ class Flagbit_MEP_Model_Rule_Condition_Product
      * Load array
      *
      * @param array $arr Attribute Array
-     * @return FireGento_DynamicCategory_Model_Rule_Condition_Product Self.
+     * @return Flagbit_MEP_Model_Rule_Condition_Product Self.
      */
     public function loadArray($arr)
     {
@@ -366,55 +335,5 @@ class Flagbit_MEP_Model_Rule_Condition_Product
         return parent::loadArray($arr);
     }
 
-    /**
-     * Validate product attrbute value for condition
-     *
-     * @param Varien_Object $object Object
-     * @return boolean True/False
-     */
-    public function validate(Varien_Object $object)
-    {
-        $attrCode = $this->getAttribute();
 
-        if ('category_ids' == $attrCode) {
-            return $this->validateAttribute($object->getAvailableInCategories());
-        } elseif (!isset($this->_entityAttributeValues[$object->getId()])) {
-            $attr = $object->getResource()->getAttribute($attrCode);
-
-            if ($attr && $attr->getBackendType() == 'datetime' && !is_int($this->getValue())) {
-                $this->setValue(strtotime($this->getValue()));
-                $value = strtotime($object->getData($attrCode));
-                return $this->validateAttribute($value);
-            }
-
-            if ($attr && $attr->getFrontendInput() == 'multiselect') {
-                $value = $object->getData($attrCode);
-                $value = strlen($value) ? explode(',', $value) : array();
-                return $this->validateAttribute($value);
-            }
-
-            return parent::validate($object);
-        } else {
-            $result = false;
-            $oldAttrValue = $object->hasData($attrCode) ? $object->getData($attrCode) : null;
-
-            foreach ($this->_entityAttributeValues[$object->getId()] as $storeId => $value) {
-                $object->setData($attrCode, $value);
-
-                $result |= parent::validate($object);
-
-                if ($result) {
-                    break;
-                }
-            }
-
-            if (is_null($oldAttrValue)) {
-                $object->unsetData($attrCode);
-            } else {
-                $object->setData($attrCode, $oldAttrValue);
-            }
-
-            return (bool)$result;
-        }
-    }
 }

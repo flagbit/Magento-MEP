@@ -43,6 +43,13 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
     protected $_categoryIds = array();
 
     /**
+     * export limit
+     *
+     * @var null
+     */
+    protected $_limit = null;
+
+    /**
      * Root category names for each category
      *
      * @var array
@@ -151,8 +158,10 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
                 $path = array();
                 $pathIds = array();
                 for ($i = 1; $i < $pathSize; $i++) {
-                    $path[] = $collection->getItemById($structure[$i])->getName();
-                    $pathIds[] = $structure[$i];
+                    if(is_a($collection->getItemById($structure[$i]),'Mage_Catalog_Model_Category')){
+                        $path[] = $collection->getItemById($structure[$i])->getName();
+                        $pathIds[] = $structure[$i];
+                    }
                 }
                 $this->_rootCategories[$category->getId()] = array_shift($path);
                 if ($pathSize > 2) {
@@ -519,7 +528,16 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
             return false;
         }
 
-        $categoryId = array_shift($rowCategories[$productId]);
+        // get the deepest Category Path
+        $categoryId = null;
+        $max = 0;
+        foreach((array) $rowCategories[$productId] as $_categoryId){
+            if(isset($this->_categoryIds[$_categoryId]) && count($this->_categoryIds[$_categoryId]) > $max){
+                $max = $this->_categoryIds[$_categoryId];
+                $categoryId = $_categoryId;
+            }
+        }
+
         if (isset($this->_rootCategories[$categoryId])) {
             $dataRow[self::COL_ROOT_CATEGORY] = $this->_rootCategories[$categoryId];
         }
@@ -557,6 +575,18 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
     }
 
     /**
+     * set export Limit
+     *
+     * @param $limit
+     * @return $this
+     */
+    public function setLimit($limit)
+    {
+        $this->_limit = $limit;
+        return $this;
+    }
+
+    /**
      * Export process.
      *
      * @return string
@@ -571,6 +601,8 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
         //Execution time may be very long
         set_time_limit(0);
 
+        Mage::app()->setCurrentStore(0);
+
 
         /** @var $collection Mage_Catalog_Model_Resource_Eav_Mysql4_Product_Collection */
         $validAttrCodes = array();
@@ -581,31 +613,31 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
         $helperShipping = Mage::helper('mep/shipping');
 
         if ($this->hasProfileId()) {
-            /* @var $obj_profil Flagbit_MEP_Model_Profil */
-            $obj_profil = $this->getProfile();
-            $delimiter = $obj_profil->getDelimiter();
-            $enclosure = $obj_profil->getEnclose();
+            /* @var $obj_profile Flagbit_MEP_Model_Profil */
+            $obj_profile = $this->getProfile();
+            $delimiter = $obj_profile->getDelimiter();
+            $enclosure = $obj_profile->getEnclose();
 
             $this->_storeIdToCode[0] = 'admin';
-            $this->_storeIdToCode[$obj_profil->getStoreId()] = Mage::app()->getStore($obj_profil->getStoreId())->getCode();
+            $this->_storeIdToCode[$obj_profile->getStoreId()] = Mage::app()->getStore($obj_profile->getStoreId())->getCode();
 
 
             $writer->setDelimiter($delimiter);
             $writer->setEnclosure($enclosure);
 
             // add Twig Templates
-            $writer->setTwigTemplate($obj_profil->getTwigHeaderTemplate(), 'header');
-            $writer->setTwigTemplate($obj_profil->getTwigContentTemplate(), 'content');
-            $writer->setTwigTemplate($obj_profil->getTwigFooterTemplate(), 'footer');
+            $writer->setTwigTemplate($obj_profile->getTwigHeaderTemplate(), 'header');
+            $writer->setTwigTemplate($obj_profile->getTwigContentTemplate(), 'content');
+            $writer->setTwigTemplate($obj_profile->getTwigFooterTemplate(), 'footer');
 
-            if ($obj_profil->getOriginalrow() == 1) {
+            if ($obj_profile->getOriginalrow() == 1) {
                 $writer->setHeaderRow(true);
             } else {
                 $writer->setHeaderRow(false);
             }
 
             // Get Shipping Mapping
-            $shipping_id = $obj_profil->getShippingId();
+            $shipping_id = $obj_profile->getShippingId();
             if (!empty($shipping_id)) {
                 $collection = Mage::getModel('mep/shipping_attribute')->getCollection();
                 $collection->addFieldToFilter('profile_id', array('eq' => $shipping_id));
@@ -614,8 +646,7 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
                 }
             }
 
-
-            // Hole Field Mapping
+            // get Field Mapping
             /* @var $mapping Flagbit_MEP_Model_Mysql4_Mapping_Collection */
             $mapping = Mage::getModel('mep/mapping')->getCollection();
             $mapping->addFieldToFilter('profile_id', array('eq' => $this->getProfileId()));
@@ -654,11 +685,33 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
             if ($limitProducts < $minProductsLimit) {
                 $limitProducts = $minProductsLimit;
             }
+            if($this->_limit !== null){
+                $limitProducts = $this->_limit;
+            }
+
             $offsetProducts = 0;
+
+            // LOAD FILTER RULES
+            /* @var $ruleObject Flagbit_MEP_Model_Rule */
+            $ruleObject = Mage::getModel('mep/rule');
+            $rule = unserialize($obj_profile->getConditionsSerialized());
+            if (!empty($rule) && count($rule) > 1) {
+                $ruleObject->loadPost(array('conditions' => $rule));
+                $ruleObject->setWebsiteIds(array(Mage::app()->getStore($obj_profile->getStoreId())->getWebsiteId()));
+                $filteredProductIds = $ruleObject->getMatchingProductIds();
+
+                if(count($filteredProductIds) < 1){
+                    return;
+                }
+            }
 
 
             while (true) {
                 ++$offsetProducts;
+
+                if($this->_limit !== null &&  $offsetProducts > 1){
+                    break;
+                }
 
                 $dataRows = array();
                 $rowCategories = array();
@@ -671,28 +724,30 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
                 // prepare multi-store values and system columns values
                 foreach ($this->_storeIdToCode as $storeId => &$storeCode) { // go through all stores
 
+                    if($storeId != $obj_profile->getStoreId() && $storeId != $defaultStoreId){
+                        continue;
+                    }
+
                     //set locale code to provide best sprintf support
-                    $localeInfo = $obj_profil->getProfileLocale();
+                    $localeInfo = $obj_profile->getProfileLocale();
                     if ($localeInfo != null && strlen($localeInfo) > 0) {
                         setlocale(LC_ALL, $localeInfo);
                     } else {
                         setlocale(LC_ALL, Mage::app()->getLocale()->getLocaleCode());
                     }
 
+                    /* @var $collection Mage_Catalog_Model_Resource_Product_Collection */
                     $collection = $this->_prepareEntityCollection(Mage::getResourceModel('catalog/product_collection'));
                     $collection
                         ->setStoreId($storeId)
+                        ->addStoreFilter($obj_profile->getStoreId())
                         ->setPage($offsetProducts, $limitProducts);
 
-                    /* @var $test Flagbit_MEP_Model_Rule */
-                    $test = Mage::getModel('mep/rule');
-                    $bla = unserialize($obj_profil->getConditionsSerialized());
-                    if (!empty($bla) && count($bla) > 1) {
-                        $bla2 = array('conditions' => $bla);
-                        $test->getConditions()->setConditions(array())->loadArray($bla2);
-                        $ids = $test->getMatchingProductIds($collection);
-                        $collection->addFieldToFilter("entity_id", array('nin' => $ids));
+
+                    if(!empty($filteredProductIds)){
+                        $collection->addFieldToFilter("entity_id", array('in' => $filteredProductIds));
                     }
+
 
                     if ($collection->getCurPage() < $offsetProducts) {
                         break;
@@ -728,17 +783,17 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
                                 // shipping
                                 if (array_key_exists($attrCode, $shippingAttrCodes)) {
                                     $shipping_item = $shippingAttrCodes[$attrCode];
-                                    $attrValue = $helperShipping->emulateCheckout($item, $obj_profil->getStoreId(), $shipping_item);
+                                    $attrValue = $helperShipping->emulateCheckout($item, $obj_profile->getStoreId(), $shipping_item);
                                 }
 
                                 // TODO dirty? Yes!
                                 if ($attrCode == 'url') {
-                                    $attrValue = Mage::app()->getStore($obj_profil->getStoreId())->getBaseUrl(Mage_Core_Model_Store::URL_TYPE_WEB) . $item->getUrlPath();
+                                    $attrValue = Mage::app()->getStore($obj_profile->getStoreId())->getBaseUrl(Mage_Core_Model_Store::URL_TYPE_WEB) . $item->getUrlPath();
                                 }
 
                                 if ($attrCode == 'gross_price') {
                                     $attrValue = Mage::helper('tax')->getPrice($item, $item->getFinalPrice(), null, null, null,
-                                        null, $obj_profil->getStoreId(), null
+                                        null, $obj_profile->getStoreId(), null
                                     );
                                 }
 
@@ -785,11 +840,11 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
                                     $attrValue = $item->getData($attributeMapping->getSourceAttributeCode());
 
                                     if ($this->_attributeTypes[$attributeMapping->getSourceAttributeCode()] == 'multiselect') {
-                                        $attrValue = $attributeMapping->getOptionValue(explode(',', $attrValue), $obj_profil->getStoreId());
+                                        $attrValue = $attributeMapping->getOptionValue(explode(',', $attrValue), $obj_profile->getStoreId());
                                         $rowMultiselects[$itemId][$attrCode] = $attrValue;
 
                                     } else {
-                                        $attrValue = $attributeMapping->getOptionValue($attrValue, $obj_profil->getStoreId());
+                                        $attrValue = $attributeMapping->getOptionValue($attrValue, $obj_profile->getStoreId());
                                     }
                                     // value Mapping category
                                 } elseif ($attributeMapping
@@ -801,10 +856,14 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
 
                                     if (isset($this->_categoryIds[$categoryId])) {
 
-                                        $attrValue = implode(
-                                            $this->getProfile()->getCategoryDelimiter(),
-                                            $attributeMapping->getOptionValue($this->_categoryIds[$categoryId], $obj_profil->getStoreId())
-                                        );
+                                        if($attributeMapping->getCategoryType() == 'single'){
+                                            $attrValue = implode(
+                                                $this->getProfile()->getCategoryDelimiter(),
+                                                $attributeMapping->getOptionValue($this->_categoryIds[$categoryId], $obj_profile->getStoreId())
+                                            );
+                                        }else{
+                                            $attrValue = $attributeMapping->getOptionValue($categoryId, $obj_profile->getStoreId());
+                                        }
                                     }
                                 }
 
@@ -861,136 +920,7 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
                     Mage_Catalog_Model_Product_Link::LINK_TYPE_CROSSSELL => '_links_crosssell_',
                     Mage_Catalog_Model_Product_Link::LINK_TYPE_GROUPED => '_associated_'
                 );
-                $configurableProductsCollection = Mage::getResourceModel('catalog/product_collection');
-                $configurableProductsCollection->addAttributeToFilter(
-                    'entity_id',
-                    array(
-                        'in' => $productIds
-                    )
-                )->addAttributeToFilter(
-                    'type_id',
-                    array(
-                        'eq' => Mage_Catalog_Model_Product_Type_Configurable::TYPE_CODE
-                    )
-                );
-                $configurableData = array();
-                while ($product = $configurableProductsCollection->fetchItem()) {
-                    $productAttributesOptions = $product->getTypeInstance(true)->getConfigurableOptions($product);
 
-                    foreach ($productAttributesOptions as $productAttributeOption) {
-                        $configurableData[$product->getId()] = array();
-                        foreach ($productAttributeOption as $optionValues) {
-                            $configurableData[$product->getId()][] = array(
-                                '_super_products_sku' => $optionValues['sku'],
-                                '_super_attribute_code' => $optionValues['attribute_code'],
-                                '_super_attribute_option' => $optionValues['option_title'],
-                                '_super_attribute_price_corr' => $optionValues['pricing_value']
-                            );
-                        }
-                    }
-                }
-
-                // prepare custom options information
-                $customOptionsData = array();
-                $customOptionsDataPre = array();
-                $customOptCols = array(
-                    '_custom_option_store', '_custom_option_type', '_custom_option_title', '_custom_option_is_required',
-                    '_custom_option_price', '_custom_option_sku', '_custom_option_max_characters',
-                    '_custom_option_sort_order', '_custom_option_row_title', '_custom_option_row_price',
-                    '_custom_option_row_sku', '_custom_option_row_sort'
-                );
-
-                foreach ($this->_storeIdToCode as $storeId => &$storeCode) {
-                    $options = Mage::getResourceModel('catalog/product_option_collection')
-                        ->reset()
-                        ->addTitleToResult($storeId)
-                        ->addPriceToResult($storeId)
-                        ->addProductToFilter($productIds)
-                        ->addValuesToResult($storeId);
-
-                    foreach ($options as $option) {
-                        $row = array();
-                        $productId = $option['product_id'];
-                        $optionId = $option['option_id'];
-                        $customOptions = isset($customOptionsDataPre[$productId][$optionId])
-                            ? $customOptionsDataPre[$productId][$optionId]
-                            : array();
-
-                        if ($defaultStoreId == $storeId) {
-                            $row['_custom_option_type'] = $option['type'];
-                            $row['_custom_option_title'] = $option['title'];
-                            $row['_custom_option_is_required'] = $option['is_require'];
-                            $row['_custom_option_price'] = $option['price']
-                                . ($option['price_type'] == 'percent' ? '%' : '');
-                            $row['_custom_option_sku'] = $option['sku'];
-                            $row['_custom_option_max_characters'] = $option['max_characters'];
-                            $row['_custom_option_sort_order'] = $option['sort_order'];
-
-                            // remember default title for later comparisons
-                            $defaultTitles[$option['option_id']] = $option['title'];
-                        } elseif ($option['title'] != $customOptions[0]['_custom_option_title']) {
-                            $row['_custom_option_title'] = $option['title'];
-                        }
-                        $values = $option->getValues();
-                        if ($values) {
-                            $firstValue = array_shift($values);
-                            $priceType = $firstValue['price_type'] == 'percent' ? '%' : '';
-
-                            if ($defaultStoreId == $storeId) {
-                                $row['_custom_option_row_title'] = $firstValue['title'];
-                                $row['_custom_option_row_price'] = $firstValue['price'] . $priceType;
-                                $row['_custom_option_row_sku'] = $firstValue['sku'];
-                                $row['_custom_option_row_sort'] = $firstValue['sort_order'];
-
-                                $defaultValueTitles[$firstValue['option_type_id']] = $firstValue['title'];
-                            } elseif ($firstValue['title'] != $customOptions[0]['_custom_option_row_title']) {
-                                $row['_custom_option_row_title'] = $firstValue['title'];
-                            }
-                        }
-                        if ($row) {
-                            if ($defaultStoreId != $storeId) {
-                                $row['_custom_option_store'] = $this->_storeIdToCode[$storeId];
-                            }
-                            $customOptionsDataPre[$productId][$optionId][] = $row;
-                        }
-                        foreach ($values as $value) {
-                            $row = array();
-                            $valuePriceType = $value['price_type'] == 'percent' ? '%' : '';
-
-                            if ($defaultStoreId == $storeId) {
-                                $row['_custom_option_row_title'] = $value['title'];
-                                $row['_custom_option_row_price'] = $value['price'] . $valuePriceType;
-                                $row['_custom_option_row_sku'] = $value['sku'];
-                                $row['_custom_option_row_sort'] = $value['sort_order'];
-                            } elseif ($value['title'] != $customOptions[0]['_custom_option_row_title']) {
-                                $row['_custom_option_row_title'] = $value['title'];
-                            }
-                            if ($row) {
-                                if ($defaultStoreId != $storeId) {
-                                    $row['_custom_option_store'] = $this->_storeIdToCode[$storeId];
-                                }
-                                $customOptionsDataPre[$option['product_id']][$option['option_id']][] = $row;
-                            }
-                        }
-                        $option = null;
-                    }
-                    $options = null;
-                }
-                foreach ($customOptionsDataPre as $productId => &$optionsData) {
-                    $customOptionsData[$productId] = array();
-
-                    foreach ($optionsData as $optionId => &$optionRows) {
-                        $customOptionsData[$productId] = array_merge($customOptionsData[$productId], $optionRows);
-                    }
-                    unset($optionRows, $optionsData);
-                }
-                unset($customOptionsDataPre);
-
-                if ($offsetProducts == 1) {
-                    // create export file
-                    $writer->setHeaderCols($validAttrCodes);
-
-                }
 
                 foreach ($dataRows as $productId => &$productData) {
                     foreach ($productData as $storeId => &$dataRow) {
@@ -1053,7 +983,7 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
                             }
                             if ($attrCode == 'image_url') {
                                 if (isset($dataRow['_media_image'])) {
-                                    $dataRow[$attrCode] = Mage::app()->getStore($obj_profil->getStoreId())->getBaseUrl(Mage_Core_Model_Store::URL_TYPE_MEDIA) . 'catalog/product' . $dataRow['_media_image'];
+                                    $dataRow[$attrCode] = Mage::app()->getStore($obj_profile->getStoreId())->getBaseUrl(Mage_Core_Model_Store::URL_TYPE_MEDIA) . 'catalog/product' . $dataRow['_media_image'];
                                 }
                             }
                             if ($attrCode == 'qty') {
@@ -1067,89 +997,14 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
                                 }
                             }
                         }
-                        $writer->writeRow($dataRow);
-                    }
-                    // calculate largest links block
-                    $largestLinks = 0;
 
-                    if (isset($linksRows[$productId])) {
-                        $linksRowsKeys = array_keys($linksRows[$productId]);
-                        foreach ($linksRowsKeys as $linksRowsKey) {
-                            $largestLinks = max($largestLinks, count($linksRows[$productId][$linksRowsKey]));
+                        // store default store values;
+                        if ($defaultStoreId == $storeId) {
+                            $defaultDataRow = $dataRow;
                         }
-                    }
-                    $additionalRowsCount = max(
-                        count($rowCategories[$productId]),
-                        count($rowWebsites[$productId]),
-                        $largestLinks
-                    );
-                    if (!empty($rowTierPrices[$productId])) {
-                        $additionalRowsCount = max($additionalRowsCount, count($rowTierPrices[$productId]));
-                    }
-                    if (!empty($rowGroupPrices[$productId])) {
-                        $additionalRowsCount = max($additionalRowsCount, count($rowGroupPrices[$productId]));
-                    }
-                    if (!empty($mediaGalery[$productId])) {
-                        $additionalRowsCount = max($additionalRowsCount, count($mediaGalery[$productId]));
-                    }
-                    if (!empty($customOptionsData[$productId])) {
-                        $additionalRowsCount = max($additionalRowsCount, count($customOptionsData[$productId]));
-                    }
-                    if (!empty($configurableData[$productId])) {
-                        $additionalRowsCount = max($additionalRowsCount, count($configurableData[$productId]));
-                    }
-                    if (!empty($rowMultiselects[$productId])) {
-                        foreach ($rowMultiselects[$productId] as $attributes) {
-                            $additionalRowsCount = max($additionalRowsCount, count($attributes));
-                        }
-                    }
 
-                    if ($additionalRowsCount) {
-                        for ($i = 0; $i < $additionalRowsCount; $i++) {
-                            $dataRow = array();
-
-                            $this->_updateDataWithCategoryColumns($dataRow, $rowCategories, $productId);
-                            if ($rowWebsites[$productId]) {
-                                $dataRow['_product_websites'] = $this
-                                    ->_websiteIdToCode[array_shift($rowWebsites[$productId])];
-                            }
-                            if (!empty($rowTierPrices[$productId])) {
-                                $dataRow = array_merge($dataRow, array_shift($rowTierPrices[$productId]));
-                            }
-                            if (!empty($rowGroupPrices[$productId])) {
-                                $dataRow = array_merge($dataRow, array_shift($rowGroupPrices[$productId]));
-                            }
-                            if (!empty($mediaGalery[$productId])) {
-                                $dataRow = array_merge($dataRow, array_shift($mediaGalery[$productId]));
-                            }
-                            foreach ($linkIdColPrefix as $linkId => &$colPrefix) {
-                                if (!empty($linksRows[$productId][$linkId])) {
-                                    $linkData = array_shift($linksRows[$productId][$linkId]);
-                                    $dataRow[$colPrefix . 'position'] = $linkData['position'];
-                                    $dataRow[$colPrefix . 'sku'] = $linkData['sku'];
-
-                                    if (null !== $linkData['default_qty']) {
-                                        $dataRow[$colPrefix . 'default_qty'] = $linkData['default_qty'];
-                                    }
-                                }
-                            }
-                            if (!empty($customOptionsData[$productId])) {
-                                $dataRow = array_merge($dataRow, array_shift($customOptionsData[$productId]));
-                            }
-                            if (!empty($configurableData[$productId])) {
-                                $dataRow = array_merge($dataRow, array_shift($configurableData[$productId]));
-                            }
-                            if (!empty($rowMultiselects[$productId])) {
-                                foreach ($rowMultiselects[$productId] as $attrKey => $attrVal) {
-                                    if (!empty($rowMultiselects[$productId][$attrKey])) {
-                                        $dataRow[$attrKey] = array_shift($rowMultiselects[$productId][$attrKey]);
-                                    }
-                                }
-                            }
-                            //TODO HACK THE PLANET
-                            //$writer->writeRow($dataRow);
-                        }
                     }
+                    $writer->writeRow(array_merge($defaultDataRow, array_filter( $dataRow, create_function('$value', 'return empty($value) ? 0 : 1;'))));
                 }
             }
             return $writer->getContents();

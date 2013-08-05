@@ -65,6 +65,13 @@ class Flagbit_MEP_Model_Export extends Mage_ImportExport_Model_Abstract
     protected $_writer;
 
     /**
+     * export destination
+     *
+     * @var string|null
+     */
+    protected $_destination = null;
+
+    /**
      * Create instance of entity adapter and returns it.
      *
      * @throws Exception
@@ -116,7 +123,7 @@ class Flagbit_MEP_Model_Export extends Mage_ImportExport_Model_Abstract
 
             if (isset($validWriters[$this->getFileFormat()])) {
                 try {
-                    $this->_writer = Mage::getModel($validWriters[$this->getFileFormat()]['model']);
+                    $this->_writer = Mage::getModel($validWriters[$this->getFileFormat()]['model'], $this->_destination);
                 } catch (Exception $e) {
                     Mage::logException($e);
                     Mage::throwException(
@@ -147,6 +154,7 @@ class Flagbit_MEP_Model_Export extends Mage_ImportExport_Model_Abstract
             $this->addLogComment(Mage::helper('importexport')->__('Begin export of %s', $this->getEntity()));
             $result = $this->_getEntityAdapter()
                 ->setWriter($this->_getWriter())
+                ->setLimit($this->getLimit())
                 ->export();
 
             $countRows = substr_count(trim($result), "\n");
@@ -265,4 +273,17 @@ class Flagbit_MEP_Model_Export extends Mage_ImportExport_Model_Abstract
     {
         return $this->getEntity() . '_' . date('Ymd_His') .  '.' . $this->_getWriter()->getFileExtension();
     }
+
+    /**
+     * set export destination
+     *
+     * @param $destination string
+     * @return $this
+     */
+    public function setDestination($destination)
+    {
+        $this->_destination = $destination;
+        return $this;
+    }
+
 }

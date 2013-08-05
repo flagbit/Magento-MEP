@@ -73,7 +73,7 @@ class Flagbit_MEP_Adminhtml_ShippingController extends Mage_Adminhtml_Controller
 
             $this->renderLayout();
         } else {
-            Mage::getSingleton('adminhtml/session')->addError(Mage::helper('mep')->__('Profil does not exist'));
+            Mage::getSingleton('adminhtml/session')->addError(Mage::helper('mep')->__('Profile does not exist'));
             $this->_redirect('*/*/');
         }
     }
@@ -101,7 +101,7 @@ class Flagbit_MEP_Adminhtml_ShippingController extends Mage_Adminhtml_Controller
                 $model->save();
 
                 if (!$model->getId()) {
-                    Mage::throwException(Mage::helper('mep')->__('Error saving profil'));
+                    Mage::throwException(Mage::helper('mep')->__('Error saving profile'));
                 }
 
 
@@ -155,14 +155,14 @@ class Flagbit_MEP_Adminhtml_ShippingController extends Mage_Adminhtml_Controller
     {
         $productIds = $this->getRequest()->getParam('product');
         if (!is_array($productIds)) {
-            $this->_getSession()->addError($this->__('Please select product(s).'));
+            $this->_getSession()->addError($this->__('Please select profile(s).'));
         } else {
             try {
                 foreach ($productIds as $productId) {
                     Mage::getModel('mep/shipping')->load($productId)->delete();
                 }
                 $this->_getSession()->addSuccess(
-                    $this->__('Total of %d profil(s) have been deleted.', count($productIds))
+                    $this->__('Total of %d profile(s) have been deleted.', count($productIds))
                 );
             } catch (Exception $e) {
                 Mage::getSingleton('adminhtml/session')->addError($e->getMessage());

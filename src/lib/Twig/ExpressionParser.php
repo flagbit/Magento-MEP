@@ -365,15 +365,35 @@ class Twig_ExpressionParser
             } else {
                 throw new Twig_Error_Syntax('Expected name or number', $lineno, $this->parser->getFilename());
             }
+
+            if ($node instanceof Twig_Node_Expression_Name && null !== $alias = $this->parser->getImportedSymbol('template', $node->getAttribute('name'))) {
+                if (!$arg instanceof Twig_Node_Expression_Constant) {
+                    throw new Twig_Error_Syntax(sprintf('Dynamic macro names are not supported (called on "%s")', $node->getAttribute('name')), $token->getLine(), $this->parser->getFilename());
+                }
+
+                $node = new Twig_Node_Expression_MethodCall($node, 'get'.$arg->getAttribute('value'), $arguments, $lineno);
+                $node->setAttribute('safe', true);
+
+                return $node;
+            }
         } else {
             $type = Twig_TemplateInterface::ARRAY_CALL;
 
-            $arg = $this->parseExpression();
-
             // slice?
+            $slice = false;
             if ($stream->test(Twig_Token::PUNCTUATION_TYPE, ':')) {
-                $stream->next();
+                $slice = true;
+                $arg = new Twig_Node_Expression_Constant(0, $token->getLine());
+            } else {
+                $arg = $this->parseExpression();
+            }
 
+            if ($stream->test(Twig_Token::PUNCTUATION_TYPE, ':')) {
+                $slice = true;
+                $stream->next();
+            }
+
+            if ($slice) {
                 if ($stream->test(Twig_Token::PUNCTUATION_TYPE, ']')) {
                     $length = new Twig_Node_Expression_Constant(null, $token->getLine());
                 } else {
@@ -390,13 +410,6 @@ class Twig_ExpressionParser
             }
 
             $stream->expect(Twig_Token::PUNCTUATION_TYPE, ']');
-        }
-
-        if ($node instanceof Twig_Node_Expression_Name && null !== $alias = $this->parser->getImportedSymbol('template', $node->getAttribute('name'))) {
-            $node = new Twig_Node_Expression_MethodCall($node, 'get'.$arg->getAttribute('value'), $arguments, $lineno);
-            $node->setAttribute('safe', true);
-
-            return $node;
         }
 
         return new Twig_Node_Expression_GetAttr($node, $arg, $arguments, $type, $lineno);
@@ -543,6 +556,10 @@ class Twig_ExpressionParser
             throw new Twig_Error_Syntax($message, $line, $this->parser->getFilename());
         }
 
+        if ($function instanceof Twig_SimpleFunction) {
+            return $function->getNodeClass();
+        }
+
         return $function instanceof Twig_Function_Node ? $function->getClass() : 'Twig_Node_Expression_Function';
     }
 
@@ -557,6 +574,10 @@ class Twig_ExpressionParser
             }
 
             throw new Twig_Error_Syntax($message, $line, $this->parser->getFilename());
+        }
+
+        if ($filter instanceof Twig_SimpleFilter) {
+            return $filter->getNodeClass();
         }
 
         return $filter instanceof Twig_Filter_Node ? $filter->getClass() : 'Twig_Node_Expression_Filter';

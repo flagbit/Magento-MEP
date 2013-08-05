@@ -31,7 +31,7 @@ class Flagbit_MEP_Block_Adminhtml_Profile_View_Mapping_Grid extends Mage_Adminht
             $this->getLayout()->createBlock('adminhtml/widget_button')
                 ->setData(array(
                 'label' => Mage::helper('adminhtml')->__('Add Attribute'),
-                'onclick' => "mepTools.openDialog('".$this->getUrl('*/profile/popup', array('profile_id' => $this->getProfileId()))."')",
+                'onclick' => "mepAttributeSettingsDialog.openDialog('".$this->getUrl('*/profile/popup', array('profile_id' => $this->getProfileId()))."')",
                 'class' => 'add'
             ))
         );
@@ -46,7 +46,7 @@ class Flagbit_MEP_Block_Adminhtml_Profile_View_Mapping_Grid extends Mage_Adminht
 
     public function getRowUrl($row)
     {
-        return "javascript:mepTools.openDialog('".$this->getUrl('*/profile/popup', array('id' => $row->getId(), 'profile_id' => $this->getProfileId()))."')";
+        return "javascript:mepAttributeSettingsDialog.openDialog('".$this->getUrl('*/profile/popup', array('id' => $row->getId(), 'profile_id' => $this->getProfileId()))."')";
     }
 
     /**

@@ -13,60 +13,6 @@
 
 class Flagbit_MEP_Helper_Data extends Mage_Core_Helper_Abstract
 {
-    /**
-     * @param $profile_id
-     * @param $template_id
-     * @return bool
-     */
-    public function setTemplateProfil($profile_id, $template_id)
-    {
-
-        if ($profile_id > 0 && $template_id) {
-            /* @var $transaction Mage_Core_Model_Resource_Transaction */
-            $transaction = Mage::getResourceModel('core/transaction');
-            $template_fields = array();
-
-            if ($template_id == 1) {
-                $template_fields[] = array('profile_id' => $profile_id,
-                    'attribute_code' => 'sku',
-                    'to_field' => 'Karl'
-                );
-
-                $template_fields[] = array('profile_id' => $profile_id,
-                    'attribute_code' => 'name',
-                    'to_field' => 'Karl2'
-                );
-            } elseif ($template_id == 2) {
-                $template_fields[] = array('profile_id' => $profile_id,
-                    'attribute_code' => 'sku',
-                    'to_field' => 'Damian'
-                );
-
-                $template_fields[] = array('profile_id' => $profile_id,
-                    'attribute_code' => 'name',
-                    'to_field' => 'Damain2'
-                );
-            }
-
-            foreach ($template_fields as $template) {
-                /* @var $a Flagbit_MEP_Model_Mapping */
-                $a = Mage::getModel('mep/mapping');
-                $a->setData($template);
-                $transaction->addObject($a);
-            }
-
-
-            try {
-                $transaction->save();
-                return true;
-            } catch (Exception $e) {
-                return false;
-            }
-        } else {
-            return false;
-        }
-
-    }
 
     /**
      * get current Profile Data

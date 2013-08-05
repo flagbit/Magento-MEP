@@ -10,10 +10,37 @@ class Mage_Shell_Mep extends Mage_Shell_Abstract
      */
     public function run()
     {
-        if ($this->getArg('runAll')) {
-            /* @var $runner Flagbit_MEP_Model_Observer */
-            $runner = Mage::getModel('mep/observer');
-            $runner->exportEnabledProfiles();
+        /** @var $runner Flagbit_MEP_Model_Observer */
+        $runner = Mage::getModel('mep/observer');
+
+        if($this->getArg('list')){
+            echo sprintf('%-5s', 'ID');
+            echo 'Name' . PHP_EOL;
+            foreach($runner->getProfileCollection() as $profile){
+                echo sprintf('%-5s', $profile->getId());
+                echo $profile->getName() . PHP_EOL;
+            }
+        }elseif ($this->getArg('runAll')) {
+            foreach($runner->getProfileCollection() as $profile){
+                if($profile->hasData()){
+                    $file = $runner->exportProfile($profile);
+                    if($file){
+                        echo 'Profile "'.$profile->getName().'" successfully exported to: '.$file.PHP_EOL;
+                    }else{
+                        echo 'Profile "'.$profile->getName().'" export failed!'.PHP_EOL;
+                    }
+                }
+            }
+        }elseif($this->getArg('runProfile')){
+            $profile = Mage::getModel('mep/profile')->load($this->getArg('runProfile'));
+            if($profile->hasData()){
+                $file = $runner->exportProfile($profile);
+                if($file){
+                    echo 'Profile "'.$profile->getName().'" successfully exported to: '.$file.PHP_EOL;
+                }else{
+                    echo 'Profile "'.$profile->getName().'" export failed!'.PHP_EOL;
+                }
+            }
         } else {
             echo $this->usageHelp();
         }
@@ -29,8 +56,10 @@ class Mage_Shell_Mep extends Mage_Shell_Abstract
 Usage:  php -f mep.php -- [options]
         php -f mep.php --runAll
 
-  runAll    Export all enabled profiles.
-  help      This help
+  list              Show all enabled Profiles
+  runAll            Export all enabled profiles.
+  runProfile <id>   Run specific Profile by ID
+  help              This help
 
 USAGE;
     }

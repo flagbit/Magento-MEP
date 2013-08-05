@@ -11,6 +11,14 @@ class Flagbit_MEP_Block_Adminhtml_Attribute_View_Edit_Form extends Mage_Adminhtm
      */
     protected function _prepareForm()
     {
+
+        $data = array();
+        if($this->getRequest()->getPost()){
+            $data = $this->getRequest()->getPost();
+        }elseif(Mage::registry('mep_attribute_mapping') instanceof Flagbit_MEP_Model_Attribute_Mapping){
+            $data = Mage::registry('mep_attribute_mapping')->getData();
+        }
+
         $form = new Varien_Data_Form(array(
             'id' => 'edit_form',
             'action' => $this->getUrl('*/*/save', array('id' => $this->getRequest()->getParam('id'))),
@@ -59,17 +67,23 @@ class Flagbit_MEP_Block_Adminhtml_Attribute_View_Edit_Form extends Mage_Adminhtm
             )
         );
 
-        $form->setUseContainer(false);
-
-        $data = array();
-        if($this->getRequest()->getPost()){
-            $data = $this->getRequest()->getPost();
-        }elseif(Mage::registry('mep_attribute_mapping') instanceof Flagbit_MEP_Model_Attribute_Mapping){
-            $data = Mage::registry('mep_attribute_mapping')->getData();
+        if(isset($data['source_attribute_code']) && $data['source_attribute_code'] == 'category') {
+            $fieldset->addField(
+                'category_type',
+                'select',
+                array(
+                    'label' => Mage::helper('mep')->__('Mapping Type'),
+                    'name' => 'category_type',
+                    'options' => array(
+                                'single'    => Mage::helper('mep')->__('each single Category will be mapped'),
+                                'complete'  => Mage::helper('mep')->__('one Category contains the full Path'),
+                            )
+                )
+            );
         }
 
+        $form->setUseContainer(false);
         $form->setValues($data);
-
         $this->setForm($form);
 
         return parent::_prepareForm();

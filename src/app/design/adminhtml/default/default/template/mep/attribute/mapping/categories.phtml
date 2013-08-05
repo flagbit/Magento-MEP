@@ -1,0 +1,31 @@
+<div class="entity-edit" id="matage-options-panel">
+    <div class="entry-edit-head">
+    <h4 class="icon-head head-edit-form fieldset-legend"><?php echo Mage::helper('catalog')->__('Translate Attribute Options') ?></h4>
+    </div>
+    <div class="box">
+        <div class="hor-scroll">
+            <table class="dynamic-grid" cellspacing="0"  cellpadding="0">
+                <tr id="attribute-options-table">
+                    <?php foreach ($this->getStores() as $_store): ?>
+                        <th><?php echo $_store->getName() ?></th>
+                    <?php endforeach; ?>
+                    </tr>
+                    <?php foreach ($this->getCategories() as $_category): ?>
+                    <tr class="template" id="row-template">
+                        <?php foreach ($this->getStores() as $_store): ?>
+
+                            <?php $_value = isset($_category[$_store->getId()]) ? $_category[$_store->getId()] : '';?>
+                            <td>
+                                <?php if($_store->getId()):?>
+                                    <?php echo $_value; ?>
+                                <?php else:?>
+                                    <a href="<?php echo $this->getUrl('adminhtml/catalog_category/index', array('store' => 0, 'id' => $_category['id'], 'clear' => true))?>"><?php echo $_value; ?></a>
+                                <?php endif; ?>
+                            </td>
+                        <?php endforeach; ?>
+                    </tr>
+                    <?php endforeach; ?>
+            </table>
+        </div>
+    </div>
+</div>

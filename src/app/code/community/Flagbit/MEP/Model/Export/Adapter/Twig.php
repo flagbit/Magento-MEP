@@ -136,11 +136,7 @@ class Flagbit_MEP_Model_Export_Adapter_Twig extends Mage_ImportExport_Model_Expo
      */
     public function setDelimiter($delimiter)
     {
-        if ($delimiter == '\t') {
-            $this->_delimiter = chr(9);
-        } else {
-            $this->_delimiter = $delimiter;
-        }
+        $this->_delimiter = str_replace('\t', chr(9), $delimiter);
         return $this;
     }
 
@@ -151,8 +147,7 @@ class Flagbit_MEP_Model_Export_Adapter_Twig extends Mage_ImportExport_Model_Expo
      */
     public function setTwigTemplate($template, $type)
     {
-        $replace = '"'.chr(9).'"';
-        $template = str_replace('"\t"',$replace,$template);
+        $template = str_replace('\t', chr(9), $template);
         $this->_getTwigLoader()->setTemplate($type, $template);
         return $this;
     }
@@ -214,9 +209,11 @@ class Flagbit_MEP_Model_Export_Adapter_Twig extends Mage_ImportExport_Model_Expo
     public function cleanLine($element)
     {
         return utf8_encode(
+                    str_replace($this->_delimiter, '',
                 trim(
                     preg_replace('/\s\s+/', ' ', html_entity_decode(htmlentities($element, ENT_SUBSTITUTE, 'UTF-8', false)))
                     )
+                )
                 );
     }
 }

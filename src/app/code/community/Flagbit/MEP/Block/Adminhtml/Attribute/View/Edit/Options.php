@@ -8,7 +8,15 @@ class Flagbit_MEP_Block_Adminhtml_Attribute_View_Edit_Options extends Mage_Eav_B
     public function __construct()
     {
         #parent::__construct();
-        $this->setTemplate('mep/attribute/mapping/options.phtml');
+        switch($this->getAttributeMappingObject()->getSourceAttributeCode()){
+            case 'category':
+                $this->setTemplate('mep/attribute/mapping/categories.phtml');
+                break;
+
+            default:
+                $this->setTemplate('mep/attribute/mapping/options.phtml');
+                break;
+        }
     }
 
     /**
@@ -17,64 +25,6 @@ class Flagbit_MEP_Block_Adminhtml_Attribute_View_Edit_Options extends Mage_Eav_B
      * @return array
      */
     public function getOptionValues()
-    {
-        $values = array();
-        switch($this->getAttributeMappingObject()->getSourceAttributeCode()){
-
-            case 'category':
-                $values = $this->_getCategories();
-                break;
-
-            default:
-                $values = $this->_getAttributeOptionValues();
-        }
-        return $values;
-    }
-
-    protected function _getCategories()
-    {
-        $values = $this->getData('option_values');
-        if (is_null($values)) {
-            $values = array();
-            /* @var $categoryCollection Mage_Catalog_Model_Resource_Category_Collection */
-            $categoryCollection = Mage::getResourceModel('catalog/category_collection')
-                                    ->addAttributeToSelect('name')->load();
-
-            /* @var $category Mage_Catalog_Model_Category */
-            foreach ($categoryCollection as $category) {
-                $value = array();
-                $value['id'] = $category->getId();
-                if(!$category->getName()){
-                    continue;
-                }
-                foreach ($this->getStores() as $store) {
-                    if($store->getId()){
-                        $storeValues = $this->getStoreOptionValues($store->getId());
-                    }else{
-                        $storeValues[$category->getId()] = $category->getName();
-                    }
-                    if (isset($storeValues[$category->getId()])) {
-                        $value['store'.$store->getId()] = htmlspecialchars($storeValues[$category->getId()]);
-                    }
-                    else {
-                        $value['store'.$store->getId()] = '';
-                    }
-                }
-                $values[] = new Varien_Object($value);
-            }
-            $this->setData('option_values', $values);
-        }
-
-        return $values;
-    }
-
-
-    /**
-     * Retrieve attribute option values if attribute input type select or multiselect
-     *
-     * @return array
-     */
-    protected function _getAttributeOptionValues()
     {
         $values = $this->getData('option_values');
         if (is_null($values)) {
@@ -105,6 +55,58 @@ class Flagbit_MEP_Block_Adminhtml_Attribute_View_Edit_Options extends Mage_Eav_B
 
         return $values;
     }
+
+
+    /**
+     *
+     *
+     * @return Mage_Adminhtml_Block_Catalog_Category_Tree
+     */
+    protected function getCategories()
+    {
+        $values = $this->getData('option_values');
+        if (is_null($values)) {
+
+            $values = array();
+            /* @var $categoryCollection Mage_Catalog_Model_Resource_Category_Collection */
+            $categoryCollection = Mage::getResourceModel('catalog/category_collection')
+                                    ->addAttributeToSelect('name')
+                                    ->addAttributeToSelect('is_active')
+                                    ->addFieldToFilter('is_active', '1')
+                                    ->setOrder('position', 'asc')
+                                    ->load();
+
+
+            /* @var $category Mage_Catalog_Model_Category */
+            foreach ($categoryCollection as $category) {
+                $value = array();
+                $value['id'] = $category->getId();
+                $value['parent_id'] = $category->getParentId();
+                if(!$category->getName()){
+                    continue;
+                }
+                foreach ($this->getStores() as $store) {
+                    if($store->getId()){
+                        $storeValues = $this->getStoreOptionValues($store->getId());
+                    }else{
+                        $storeValues[$category->getId()] = $category->getName();
+                    }
+                    if (isset($storeValues[$category->getId()])) {
+                        $value[$store->getId()] = htmlspecialchars($storeValues[$category->getId()]);
+                    }
+                    else {
+                        $value[$store->getId()] = '';
+                    }
+                }
+                $values[] = new Varien_Object($value);
+            }
+            $this->setData('option_values', $values);
+        }
+
+        return $values;
+    }
+
+
 
     /**
      * Retrieve attribute option values for given store id
