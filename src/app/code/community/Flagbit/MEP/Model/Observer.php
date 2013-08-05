@@ -102,17 +102,18 @@ class Flagbit_MEP_Model_Observer extends Varien_Object
             // disable flat Tables
             Mage::app()->getConfig()->setNode('catalog/frontend/flat_catalog_product',0,true);
 
-            /* @var $export Mage_ImportExport_Model_Export */
+            /* @var $export Flagbit_MEP_Model_Export */
             $export = Mage::getModel('mep/export');
             $export->setData('id', $profile->getId());
             $export->setEntity("catalog_product");
             $export->setFileFormat("twig");
             $export->setExportFilter(array());
-            $exportFile = $this->_getExportPath($profile) . DS . $profile->getFilename();
-            file_put_contents($exportFile, $export->export());
+            $export->setDestination($this->_getExportPath($profile) . DS . $profile->getFilename());
+            $export->export();
 
             $appEmulation->stopEnvironmentEmulation($initialEnvironmentInfo);
         }catch (Exception $e){
+            echo $e->getMessage();
             Mage::logException($e);
         }
         return $exportFile;
@@ -140,7 +141,11 @@ class Flagbit_MEP_Model_Observer extends Varien_Object
     protected function _getExportPath($profile)
     {
         $exportDir = Mage::getConfig()->getOptions()->getBaseDir() . DS . $profile->getFilepath();
-        Mage::getConfig()->getOptions()->createDirIfNotExists($exportDir);
+
+        if(Mage::getConfig()->getOptions()->createDirIfNotExists($exportDir) === FALSE){
+            Mage::throwException('Export Directory is not writable ('.$exportDir.')');
+        }
+
         return $exportDir;
     }
 }

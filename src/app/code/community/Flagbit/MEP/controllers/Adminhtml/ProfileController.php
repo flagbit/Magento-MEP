@@ -262,7 +262,6 @@ class Flagbit_MEP_Adminhtml_ProfileController extends Mage_Adminhtml_Controller_
             if($_errorMsg !== NULL){
                 $this->_getSession()->addError($_errorMsg);
             }else{
-                $count = count($processIds);
                 $this->_getSession()->addSuccess(
                     Mage::helper('mep')->__('Export is scheduled and will run in %s seconds.', $now - time())
                 );
