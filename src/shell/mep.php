@@ -56,10 +56,10 @@ class Mage_Shell_Mep extends Mage_Shell_Abstract
 Usage:  php -f mep.php -- [options]
         php -f mep.php --runAll
 
-  list              Show all enabled Profiles
-  runAll            Export all enabled profiles.
-  runProfile <id>   Run specific Profile by ID
-  help              This help
+  list                Show all enabled Profiles
+  runAll              Export all enabled profiles.
+  --runProfile <id>   Run specific Profile by ID
+  help                This help
 
 USAGE;
     }
