@@ -175,7 +175,7 @@ class Flagbit_MEP_Model_Export_Adapter_Twig extends Mage_ImportExport_Model_Expo
             $this->setHeaderCols(array_keys($rowData));
         }
 
-        $twigDataRow = array_map(array($this, 'cleanLine'), $rowData);
+        $twigDataRow = array_map(array($this, 'cleanElement'), $rowData);
         $result = $this->_twig->render('content', $twigDataRow);
 
         fwrite($this->_fileHandler, trim($result).PHP_EOL);
@@ -206,14 +206,18 @@ class Flagbit_MEP_Model_Export_Adapter_Twig extends Mage_ImportExport_Model_Expo
         return $this;
     }
 
-    public function cleanLine($element)
+    /**
+     * clean CSV Data Element
+     *
+     * @param $element
+     * @return string
+     */
+    public function cleanElement($element)
     {
-        return utf8_encode(
-                    str_replace($this->_delimiter, '',
-                trim(
-                    preg_replace('/\s\s+/', ' ', html_entity_decode(htmlentities($element, ENT_SUBSTITUTE, 'UTF-8', false)))
-                    )
-                )
-                );
+        $element = preg_replace('/\s\s+/', ' ', html_entity_decode(htmlentities($element, ENT_SUBSTITUTE, 'UTF-8', false)));
+        $element = trim($element);
+        $element = str_replace(array($this->_delimiter, $this->_enclosure), '', $element);
+        //$element = utf8_encode($element);
+        return $element;
     }
 }
