@@ -30,6 +30,8 @@ class Flagbit_MEP_Model_Export_Adapter_Twig extends Mage_ImportExport_Model_Expo
      */
     protected $_headerRow = true;
 
+    protected $_headerDisabled = false;
+
     /**
      * @var Varien_File_Csv
      */
@@ -102,7 +104,7 @@ class Flagbit_MEP_Model_Export_Adapter_Twig extends Mage_ImportExport_Model_Expo
     public function _init()
     {
         parent::_init();
-        $this->_fileHandler = fopen($this->_destination, 'w');
+        $this->_fileHandler = fopen($this->_destination, 'a');
         $this->_twig = new Twig_Environment($this->_getTwigLoader(), array(
             'cache' => Mage::getBaseDir('cache'),
             'autoescape' => false,
@@ -162,6 +164,12 @@ class Flagbit_MEP_Model_Export_Adapter_Twig extends Mage_ImportExport_Model_Expo
         return $this;
     }
 
+    public function setHeaderIsDisabled()
+    {
+        $this->_headerDisabled = true;
+        return $this;
+    }
+
     /**
      * Write row data to source file.
      *
@@ -171,7 +179,7 @@ class Flagbit_MEP_Model_Export_Adapter_Twig extends Mage_ImportExport_Model_Expo
      */
     public function writeRow(array $rowData)
     {
-        if (null === $this->_headerCols) {
+        if ($this->_headerDisabled === false && null === $this->_headerCols) {
             $this->setHeaderCols(array_keys($rowData));
         }
 
@@ -217,6 +225,8 @@ class Flagbit_MEP_Model_Export_Adapter_Twig extends Mage_ImportExport_Model_Expo
         $element = preg_replace('/\s\s+/', ' ', html_entity_decode(htmlentities($element, ENT_SUBSTITUTE, 'UTF-8', false)));
         $element = trim($element);
         $element = str_replace(array($this->_delimiter, $this->_enclosure), '', $element);
+        $element = str_replace(array("\r\n", "\r", "\n"), '', $element);
+
         //$element = utf8_encode($element);
         return $element;
     }

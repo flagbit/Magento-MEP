@@ -99,6 +99,12 @@ class Flagbit_MEP_Model_Observer extends Varien_Object
             //Start environment emulation of the specified store
             $initialEnvironmentInfo = $appEmulation->startEnvironmentEmulation($profile->getStoreId());
 
+            // destination File
+            $exportFile = $this->_getExportPath($profile) . DS . $profile->getFilename();
+            if(file_exists($exportFile)){
+                unlink($exportFile);
+            }
+
             // disable flat Tables
             Mage::app()->getConfig()->setNode('catalog/frontend/flat_catalog_product',0,true);
 
@@ -108,11 +114,15 @@ class Flagbit_MEP_Model_Observer extends Varien_Object
             $export->setEntity("catalog_product");
             $export->setFileFormat("twig");
             $export->setExportFilter(array());
-            $export->setDestination($this->_getExportPath($profile) . DS . $profile->getFilename());
+            $export->setDestination($exportFile);
             $export->export();
 
-            $appEmulation->stopEnvironmentEmulation($initialEnvironmentInfo);
+            try{ // bypass MySQL server has gone away errors
+                $appEmulation->stopEnvironmentEmulation($initialEnvironmentInfo);
+            }catch (Exception $e){}
+
         }catch (Exception $e){
+            Mage::helper('mep/log')->err($e, $this);
             echo $e->getMessage();
             Mage::logException($e);
         }

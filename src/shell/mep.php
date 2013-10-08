@@ -25,8 +25,10 @@ class Mage_Shell_Mep extends Mage_Shell_Abstract
                 if($profile->hasData()){
                     $file = $runner->exportProfile($profile);
                     if($file){
+                        Mage::helper('mep/log')->info('Profile "'.$profile->getName().'" successfully exported to: '.$file, $this);
                         echo 'Profile "'.$profile->getName().'" successfully exported to: '.$file.PHP_EOL;
                     }else{
+                        Mage::helper('mep/log')->err('Profile "'.$profile->getName().'" export failed!', $this);
                         echo 'Profile "'.$profile->getName().'" export failed!'.PHP_EOL;
                     }
                 }
@@ -36,8 +38,10 @@ class Mage_Shell_Mep extends Mage_Shell_Abstract
             if($profile->hasData()){
                 $file = $runner->exportProfile($profile);
                 if($file){
+                    Mage::helper('mep/log')->info('Profile "'.$profile->getName().'" successfully exported to: '.$file, $this);
                     echo 'Profile "'.$profile->getName().'" successfully exported to: '.$file.PHP_EOL;
                 }else{
+                    Mage::helper('mep/log')->err('Profile "'.$profile->getName().'" export failed!', $this);
                     echo 'Profile "'.$profile->getName().'" export failed!'.PHP_EOL;
                 }
             }

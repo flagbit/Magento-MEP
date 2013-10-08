@@ -86,16 +86,21 @@ class Flagbit_MEP_Helper_Shipping extends Mage_Core_Helper_Abstract
      */
     public function emulateCheckout($product, $store_id, $profile)
     {
+        //Mage::helper('mep/log')->debug('START calculate Shipping ('.$product->getSku().')', $this);
+        $returnValue = null;
         switch($profile->getCheckoutType()){
 
             case 'quote':
-                return $this->emulateWithQuoteCheckout($product, $store_id, $profile);
+                $returnValue = $this->emulateWithQuoteCheckout($product, $store_id, $profile);
                 break;
 
             default:
-                return $this->emulateByShippingRequestCheckout($product, $store_id, $profile);
+                $returnValue = $this->emulateByShippingRequestCheckout($product, $store_id, $profile);
                 break;
         }
+
+        //Mage::helper('mep/log')->debug('END calculate Shipping ('.$product->getSku().')', $this);
+        return $returnValue;
     }
 
     /**

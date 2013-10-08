@@ -203,8 +203,9 @@ class Flagbit_MEP_Adminhtml_ProfileController extends Mage_Adminhtml_Controller_
             $model->setFileFormat("twig");
             $model->setExportFilter(array());
             $model->setLimit(20);
-
-            return $this->getResponse()->setBody('<pre>'.htmlspecialchars($model->export()).'</pre>');
+            echo '<pre>'.htmlspecialchars($model->export()).'</pre>';
+            die();
+            #return $this->getResponse()->setBody('<pre>'.htmlspecialchars('sss'.$model->export()).'</pre>');
 
         } catch (Mage_Core_Exception $e) {
             $this->_getSession()->addError($e->getMessage());
