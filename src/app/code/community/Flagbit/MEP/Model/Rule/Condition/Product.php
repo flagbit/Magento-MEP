@@ -183,14 +183,11 @@ class Flagbit_MEP_Model_Rule_Condition_Product
     {
         $attribute = $this->getAttribute();
         if ('category_ids' != $attribute) {
-            if ($this->getAttributeObject()->isScopeGlobal()) {
-                $attributes = $this->getRule()->getCollectedAttributes();
-                $attributes[$attribute] = true;
-                $this->getRule()->setCollectedAttributes($attributes);
-                $productCollection->addAttributeToSelect($attribute, 'left');
-            } else {
-                $this->_entityAttributeValues = $productCollection->getAllAttributeValues($attribute);
-            }
+            $attributes = $this->getRule()->getCollectedAttributes();
+            $attributes[$attribute] = true;
+            $this->getRule()->setCollectedAttributes($attributes);
+            $productCollection->addAttributeToSelect($attribute, 'left');
+            $this->_entityAttributeValues = $productCollection->getAllAttributeValues($attribute);
         }
 
         return $this;
