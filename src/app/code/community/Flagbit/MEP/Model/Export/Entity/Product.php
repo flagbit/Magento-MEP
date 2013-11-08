@@ -708,8 +708,7 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
 
                 // let the first fork go to ensure that the headline is correct set
                 if($index == 1){
-                    sleep(15);
-                    #while($this->_threads[$index]->isAlive()){ sleep(1); }
+                    while($this->_threads[$index]->isAlive()){ sleep(1); }
                 }
 
                 while( count($this->_threads) >= $maxThreads ) {
