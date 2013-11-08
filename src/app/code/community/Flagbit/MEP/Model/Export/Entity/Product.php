@@ -861,7 +861,14 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
 
                         // TODO dirty? Yes!
                         if ($attrCode == 'url') {
-                            $attrValue = Mage::app()->getStore($obj_profile->getStoreId())->getBaseUrl(Mage_Core_Model_Store::URL_TYPE_WEB) . $item->getUrlPath();
+                            $version = explode('.', Mage::getVersion());
+                            if ($version[0] == 1 && $version[1] >= 13) {
+                                $urlRewrite = Mage::getModel('enterprise_urlrewrite/url_rewrite')->getCollection()->addFieldToFilter('target_path', array('eq' => 'catalog/product/view/id/' . $item->getId()))->addFieldToFilter('is_system', array('eq' => 1));
+                                $attrValue = Mage::app()->getStore($obj_profile->getStoreId())->getBaseUrl(Mage_Core_Model_Store::URL_TYPE_WEB) . $urlRewrite->getFirstItem()->getRequestPath();
+                            }
+                            else {
+                                $attrValue = $item->getProductUrl();
+                            }
                         }
 
                         if ($attrCode == 'gross_price') {
