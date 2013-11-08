@@ -706,8 +706,10 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
                 $this->_threads[$index] = new Flagbit_MEP_Model_Thread( array($this, '_exportThread') );
                 $this->_threads[$index]->start($index, $writer, $limitProducts, $filteredProductIds, $mapping, $shippingAttrCodes);
 
+                // let the first fork go to ensure that the headline is correct set
                 if($index == 1){
-                    sleep(5);
+                    sleep(15);
+                    #while($this->_threads[$index]->isAlive()){ sleep(1); }
                 }
 
                 while( count($this->_threads) >= $maxThreads ) {
@@ -753,11 +755,6 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
         $entityCode = $this->getEntityTypeCode();
         $this->_entityTypeId = Mage::getSingleton('eav/config')->getEntityType($entityCode)->getEntityTypeId();
         $this->_connection   = Mage::getSingleton('core/resource')->getConnection('write');
-
-        //Mage::app()->getCacheInstance()->banUse('collections');
-        //Mage::app()->getCacheInstance()->banUse('eav');
-       // Mage::app()->getCacheInstance()->banUse('translate');
-
     }
 
     /**
@@ -793,6 +790,7 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
         $rowGroupPrices = array();
         $rowMultiselects = array();
         $mediaGalery = array();
+        $productsCount = 0;
 
         // prepare multi-store values and system columns values
         foreach ($this->_storeIdToCode as $storeId => &$storeCode) { // go through all stores
@@ -1076,9 +1074,12 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
             if($offsetProducts != 1){
                 $writer->setHeaderIsDisabled();
             }
-            $writer->writeRow(array_merge($defaultDataRow, array_filter( $dataRow, create_function('$value', 'return empty($value) ? 0 : 1;'))));
+            $dataRow = array_merge($defaultDataRow, array_filter( $dataRow, create_function('$value', 'return empty($value) ? 0 : 1;')));
+            $productsCount++;
+
+            $writer->writeRow($dataRow);
         }
-        Mage::helper('mep/log')->debug('END Thread '.$offsetProducts, $this);
+        Mage::helper('mep/log')->debug('END Thread '.$offsetProducts.' ('.$productsCount.' Products)', $this);
 
         return true;
     }

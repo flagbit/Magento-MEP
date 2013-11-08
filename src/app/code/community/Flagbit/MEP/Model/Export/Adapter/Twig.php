@@ -222,12 +222,28 @@ class Flagbit_MEP_Model_Export_Adapter_Twig extends Mage_ImportExport_Model_Expo
      */
     public function cleanElement($element)
     {
-        $element = preg_replace('/\s\s+/', ' ', html_entity_decode(htmlentities($element, ENT_SUBSTITUTE, 'UTF-8', false)));
-        $element = trim($element);
-        $element = str_replace(array($this->_delimiter, $this->_enclosure), '', $element);
-        $element = str_replace(array("\r\n", "\r", "\n"), '', $element);
+        $element = strip_tags($element); // remove HTML Tags
+        $element = $this->_convertEntities(htmlentities($element, ENT_SUBSTITUTE, 'UTF-8', false)); // remove HTML Entities
+        $element = utf8_encode($element); // utf8 encode
+        $element = preg_replace('/\s\s+/', ' ', $element); // remove linebreaks ans tabs
+        $element = trim($element); // stripped whitespaces from the beginning and end
+        $element = str_replace(array($this->_delimiter, $this->_enclosure), '', $element); // remove delimiter and enclosure
+        $element = str_replace(array("\r\n", "\r", "\n"), '', $element); // remove linebreaks
 
-        //$element = utf8_encode($element);
         return $element;
+    }
+
+    /**
+     * convert html entities
+     *
+     * @param $str
+     * @return string
+     */
+    protected function _convertEntities($str)
+    {
+        $allEntities = get_html_translation_table(HTML_ENTITIES, ENT_NOQUOTES);
+        $specialEntities = get_html_translation_table(HTML_SPECIALCHARS, ENT_NOQUOTES);
+        $noTags = array_diff($allEntities, $specialEntities);
+        return strtr($str, array_flip($noTags));
     }
 }

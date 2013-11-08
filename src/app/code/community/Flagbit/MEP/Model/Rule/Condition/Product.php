@@ -187,7 +187,7 @@ class Flagbit_MEP_Model_Rule_Condition_Product
             $attributes[$attribute] = true;
             $this->getRule()->setCollectedAttributes($attributes);
             $productCollection->addAttributeToSelect($attribute, 'left');
-            $this->_entityAttributeValues = $productCollection->getAllAttributeValues($attribute);
+            #this->_entityAttributeValues = $productCollection->getAllAttributeValues($attribute);
         }
 
         return $this;
