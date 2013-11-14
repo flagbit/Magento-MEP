@@ -102,7 +102,8 @@ class Flagbit_MEP_Model_Profile extends Mage_Core_Model_Abstract
             // gen Array with missing Fields
             $newMappings = array();
             foreach($collection as $mapping){
-                if(strpos($template, $mapping->getData($type == self::TWIG_TEMPLATE_TYPE_HEADER ? 'to_field' : 'attribute_code')) === false){
+                $field = $mapping->getData($type == self::TWIG_TEMPLATE_TYPE_HEADER ? 'to_field' : 'attribute_code');
+                if(!empty($field) && strpos($template, $field) === false){
                     $newMappings[] = $mapping;
                 }
             }
