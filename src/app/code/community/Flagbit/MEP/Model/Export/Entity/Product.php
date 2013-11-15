@@ -243,7 +243,7 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
         $rowTierPrices = array();
         $stmt = $this->_connection->query($select);
         while ($tierRow = $stmt->fetch()) {
-            $rowTierPrices[$tierRow['entity_id']][] = array(
+            $current_array = array(
                 '_tier_price_customer_group' => $tierRow['all_groups']
                         ? self::VALUE_ALL : $tierRow['customer_group_id'],
                 '_tier_price_website' => 0 == $tierRow['website_id']
@@ -252,6 +252,29 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
                 '_tier_price_qty' => $tierRow['qty'],
                 '_tier_price_price' => $tierRow['value']
             );
+            $currentProduct = Mage::getModel('catalog/product')->load($tierRow['entity_id']);
+            if ($currentProduct->getTypeId() == 'configurable') {
+                foreach ($current_array as $key => &$item) {
+                    $item = '';
+                }
+                $childs = array();
+                foreach ($currentProduct->getTypeInstance()->getUsedProducts() as $child) {
+                    $childs[] = $child->getId();
+                }
+                $select = $this->_connection->select()
+                    ->from($resource->getTableName('catalog/product_attribute_tier_price'))
+                    ->where('entity_id IN(?)', $childs);
+                $stmt_child = $this->_connection->query($select);
+                while ($tierRowChild = $stmt_child->fetch()) {
+                    foreach ($current_array as $key => &$item) {
+                        $item .= $tierRowChild[$key] . ',';
+                    }
+                }
+                foreach ($current_array as &$item) {
+                    $item = substr($item        , 0, -1);
+                }
+            }
+            $rowTierPrices[$tierRow['entity_id']][] = $current_array;
         }
 
         return $rowTierPrices;
@@ -888,8 +911,7 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
                     foreach ($mapitem->getAttributeCodeAsArray() as $attrCode) {
 
                         $attrValue = $item->getData($attrCode);
-                        if ($attrValue == null && $item->getTypeId() == 'configurable') {
-                            //Mage::log($attrCode . ': ' . $attrValue);
+                        if (($attrValue == null || ($attrCode == 'price' && $attrValue == 0)) && $item->getTypeId() == 'configurable') {
                             $attrValue = array();
                             foreach ($simpleChilds as $simpleChild) {
                                 $attrValue[] = array($simpleChild, $simpleChild->getData($attrCode));
@@ -973,7 +995,6 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
                             && $attributeMapping->getSourceAttributeCode() != 'category'
                             && $item->getData($attributeMapping->getSourceAttributeCode())
                         ) {
-
                             $attrValue = $item->getData($attributeMapping->getSourceAttributeCode());
                             if ($this->_attributeTypes[$attributeMapping->getSourceAttributeCode()] == 'multiselect') {
                                 $attrValue = $attributeMapping->getOptionValue(explode(',', $attrValue), $obj_profile->getStoreId());
@@ -1003,6 +1024,7 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
                             }
                         }
 
+
                         // do not save value same as default or not existent
                         if ($storeId != $defaultStoreId
                             && isset($dataRows[$itemId][$defaultStoreId][$attrCode])
@@ -1013,6 +1035,16 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
                         if (is_scalar($attrValue)) {
                             $dataRows[$itemId][$storeId][$attrCode] = $attrValue;
                             $rowIsEmpty = false;
+                        }
+                        else {
+                            if (is_array($attrValue) && $attrCode == 'price') {
+                                $tmpValue = array();
+                                foreach ($attrValue as $value) {
+                                    $tmpValue[] = $value[1];
+                                }
+                                $attrValue = implode(',', $tmpValue);
+                                $dataRows[$itemId][$defaultStoreId][$attrCode] = $attrValue;
+                            }
                         }
                     }
                 }
@@ -1034,7 +1066,6 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
             }
             $collection->clear();
         }
-
         if ($collection->getCurPage() < $offsetProducts) {
             return false;
         }
