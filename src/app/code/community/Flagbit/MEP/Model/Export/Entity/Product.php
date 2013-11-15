@@ -245,10 +245,10 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
         while ($tierRow = $stmt->fetch()) {
             $rowTierPrices[$tierRow['entity_id']][] = array(
                 '_tier_price_customer_group' => $tierRow['all_groups']
-                    ? self::VALUE_ALL : $tierRow['customer_group_id'],
+                        ? self::VALUE_ALL : $tierRow['customer_group_id'],
                 '_tier_price_website' => 0 == $tierRow['website_id']
-                    ? self::VALUE_ALL
-                    : $this->_websiteIdToCode[$tierRow['website_id']],
+                        ? self::VALUE_ALL
+                        : $this->_websiteIdToCode[$tierRow['website_id']],
                 '_tier_price_qty' => $tierRow['qty'],
                 '_tier_price_price' => $tierRow['value']
             );
@@ -278,11 +278,11 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
         while ($groupRow = $statement->fetch()) {
             $rowGroupPrices[$groupRow['entity_id']][] = array(
                 '_group_price_customer_group' => $groupRow['all_groups']
-                    ? self::VALUE_ALL
-                    : $groupRow['customer_group_id'],
+                        ? self::VALUE_ALL
+                        : $groupRow['customer_group_id'],
                 '_group_price_website' => (0 == $groupRow['website_id'])
-                    ? self::VALUE_ALL
-                    : $this->_websiteIdToCode[$groupRow['website_id']],
+                        ? self::VALUE_ALL
+                        : $this->_websiteIdToCode[$groupRow['website_id']],
                 '_group_price_price' => $groupRow['value']
             );
         }
@@ -304,17 +304,17 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
         $resource = Mage::getSingleton('core/resource');
         $select = $this->_connection->select()
             ->from(
-            array('mg' => $resource->getTableName('catalog/product_attribute_media_gallery')),
-            array(
-                'mg.entity_id', 'mg.attribute_id', 'filename' => 'mg.value', 'mgv.label',
-                'mgv.position', 'mgv.disabled'
+                array('mg' => $resource->getTableName('catalog/product_attribute_media_gallery')),
+                array(
+                    'mg.entity_id', 'mg.attribute_id', 'filename' => 'mg.value', 'mgv.label',
+                    'mgv.position', 'mgv.disabled'
+                )
             )
-        )
             ->joinLeft(
-            array('mgv' => $resource->getTableName('catalog/product_attribute_media_gallery_value')),
-            '(mg.value_id = mgv.value_id AND mgv.store_id = 0)',
-            array()
-        )
+                array('mgv' => $resource->getTableName('catalog/product_attribute_media_gallery_value')),
+                '(mg.value_id = mgv.value_id AND mgv.store_id = 0)',
+                array()
+            )
             ->where('entity_id IN(?)', $productIds);
 
         $rowMediaGallery = array();
@@ -349,13 +349,46 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
 
         $stmt = $this->_connection->query($select);
         $stockItemRows = array();
+        $i = 0;
         while ($stockItemRow = $stmt->fetch()) {
             $productId = $stockItemRow['product_id'];
+            $currentProduct = Mage::getModel('catalog/product')->load($stockItemRow['product_id']);
             unset(
             $stockItemRow['item_id'], $stockItemRow['product_id'], $stockItemRow['low_stock_date'],
             $stockItemRow['stock_id'], $stockItemRow['stock_status_changed_automatically']
             );
+            if ($currentProduct->getTypeId() == 'configurable') {
+                foreach ($stockItemRow as $key => &$stockItem) {
+                    $stockItem = '';
+                }
+                $childs = array();
+                foreach ($currentProduct->getTypeInstance()->getUsedProducts() as $child) {
+                    $childs[] = $child->getId();
+                }
+                $select_child = $this->_connection->select()
+                    ->from(Mage::getResourceModel('cataloginventory/stock_item')->getMainTable())
+                    ->where('product_id IN (?)', $childs);
+                $stmt_child = $this->_connection->query($select_child);
+                while ($stockItemRowChild = $stmt_child->fetch()) {
+                    unset(
+                    $stockItemRowChild['item_id'], $stockItemRowChild['product_id'], $stockItemRowChild['low_stock_date'],
+                    $stockItemRowChild['stock_id'], $stockItemRowChild['stock_status_changed_automatically']
+                    );
+                    foreach ($stockItemRow as $key => &$stockItem) {
+                        if ($key == 'qty') {
+                            $stockItem .= intval($stockItemRowChild[$key]) . ',';
+                        }
+                        else {
+                            $stockItem .= $stockItemRowChild[$key] . ',';
+                        }
+                    }
+                }
+                foreach ($stockItemRow as &$stockItem) {
+                    $stockItem = substr($stockItem, 0, -1);
+                }
+            }
             $stockItemRows[$productId] = $stockItemRow;
+            $i++;
         }
         return $stockItemRows;
     }
@@ -375,49 +408,49 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
         $adapter = $this->_connection;
         $select = $adapter->select()
             ->from(
-            array('cpl' => $resource->getTableName('catalog/product_link')),
-            array(
-                'cpl.product_id', 'cpe.sku', 'cpl.link_type_id',
-                'position' => 'cplai.value', 'default_qty' => 'cplad.value'
+                array('cpl' => $resource->getTableName('catalog/product_link')),
+                array(
+                    'cpl.product_id', 'cpe.sku', 'cpl.link_type_id',
+                    'position' => 'cplai.value', 'default_qty' => 'cplad.value'
+                )
             )
-        )
             ->joinLeft(
-            array('cpe' => $resource->getTableName('catalog/product')),
-            '(cpe.entity_id = cpl.linked_product_id)',
-            array()
-        )
+                array('cpe' => $resource->getTableName('catalog/product')),
+                '(cpe.entity_id = cpl.linked_product_id)',
+                array()
+            )
             ->joinLeft(
-            array('cpla' => $resource->getTableName('catalog/product_link_attribute')),
-            $adapter->quoteInto(
-                '(cpla.link_type_id = cpl.link_type_id AND cpla.product_link_attribute_code = ?)',
-                'position'
-            ),
-            array()
-        )
+                array('cpla' => $resource->getTableName('catalog/product_link_attribute')),
+                $adapter->quoteInto(
+                    '(cpla.link_type_id = cpl.link_type_id AND cpla.product_link_attribute_code = ?)',
+                    'position'
+                ),
+                array()
+            )
             ->joinLeft(
-            array('cplaq' => $resource->getTableName('catalog/product_link_attribute')),
-            $adapter->quoteInto(
-                '(cplaq.link_type_id = cpl.link_type_id AND cplaq.product_link_attribute_code = ?)',
-                'qty'
-            ),
-            array()
-        )
+                array('cplaq' => $resource->getTableName('catalog/product_link_attribute')),
+                $adapter->quoteInto(
+                    '(cplaq.link_type_id = cpl.link_type_id AND cplaq.product_link_attribute_code = ?)',
+                    'qty'
+                ),
+                array()
+            )
             ->joinLeft(
-            array('cplai' => $resource->getTableName('catalog/product_link_attribute_int')),
-            '(cplai.link_id = cpl.link_id AND cplai.product_link_attribute_id = cpla.product_link_attribute_id)',
-            array()
-        )
+                array('cplai' => $resource->getTableName('catalog/product_link_attribute_int')),
+                '(cplai.link_id = cpl.link_id AND cplai.product_link_attribute_id = cpla.product_link_attribute_id)',
+                array()
+            )
             ->joinLeft(
-            array('cplad' => $resource->getTableName('catalog/product_link_attribute_decimal')),
-            '(cplad.link_id = cpl.link_id AND cplad.product_link_attribute_id = cplaq.product_link_attribute_id)',
-            array()
-        )
+                array('cplad' => $resource->getTableName('catalog/product_link_attribute_decimal')),
+                '(cplad.link_id = cpl.link_id AND cplad.product_link_attribute_id = cplaq.product_link_attribute_id)',
+                array()
+            )
             ->where('cpl.link_type_id IN (?)', array(
-            Mage_Catalog_Model_Product_Link::LINK_TYPE_RELATED,
-            Mage_Catalog_Model_Product_Link::LINK_TYPE_UPSELL,
-            Mage_Catalog_Model_Product_Link::LINK_TYPE_CROSSSELL,
-            Mage_Catalog_Model_Product_Link::LINK_TYPE_GROUPED
-        ))
+                Mage_Catalog_Model_Product_Link::LINK_TYPE_RELATED,
+                Mage_Catalog_Model_Product_Link::LINK_TYPE_UPSELL,
+                Mage_Catalog_Model_Product_Link::LINK_TYPE_CROSSSELL,
+                Mage_Catalog_Model_Product_Link::LINK_TYPE_GROUPED
+            ))
             ->where('cpl.product_id IN (?)', $productIds);
 
         $stmt = $adapter->query($select);
@@ -449,14 +482,14 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
         $resource = Mage::getSingleton('core/resource');
         $select = $this->_connection->select()
             ->from(
-            array('cpsl' => $resource->getTableName('catalog/product_super_link')),
-            array('cpsl.parent_id', 'cpe.sku')
-        )
+                array('cpsl' => $resource->getTableName('catalog/product_super_link')),
+                array('cpsl.parent_id', 'cpe.sku')
+            )
             ->joinLeft(
-            array('cpe' => $resource->getTableName('catalog/product')),
-            '(cpe.entity_id = cpsl.product_id)',
-            array()
-        )
+                array('cpe' => $resource->getTableName('catalog/product')),
+                '(cpe.entity_id = cpsl.product_id)',
+                array()
+            )
             ->where('parent_id IN (?)', $productIds);
         $stmt = $this->_connection->query($select);
         $configurableData = array();
@@ -483,26 +516,26 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
         $resource = Mage::getSingleton('core/resource');
         $select = $this->_connection->select()
             ->from(
-            array('cpsa' => $resource->getTableName('catalog/product_super_attribute')),
-            array(
-                'cpsa.product_id', 'ea.attribute_code', 'eaov.value', 'cpsap.pricing_value', 'cpsap.is_percent'
+                array('cpsa' => $resource->getTableName('catalog/product_super_attribute')),
+                array(
+                    'cpsa.product_id', 'ea.attribute_code', 'eaov.value', 'cpsap.pricing_value', 'cpsap.is_percent'
+                )
             )
-        )
             ->joinLeft(
-            array('cpsap' => $resource->getTableName('catalog/product_super_attribute_pricing')),
-            '(cpsap.product_super_attribute_id = cpsa.product_super_attribute_id)',
-            array()
-        )
+                array('cpsap' => $resource->getTableName('catalog/product_super_attribute_pricing')),
+                '(cpsap.product_super_attribute_id = cpsa.product_super_attribute_id)',
+                array()
+            )
             ->joinLeft(
-            array('ea' => $resource->getTableName('eav/attribute')),
-            '(ea.attribute_id = cpsa.attribute_id)',
-            array()
-        )
+                array('ea' => $resource->getTableName('eav/attribute')),
+                '(ea.attribute_id = cpsa.attribute_id)',
+                array()
+            )
             ->joinLeft(
-            array('eaov' => $resource->getTableName('eav/attribute_option_value')),
-            '(eaov.option_id = cpsap.value_index AND store_id = 0)',
-            array()
-        )
+                array('eaov' => $resource->getTableName('eav/attribute_option_value')),
+                '(eaov.option_id = cpsap.value_index AND store_id = 0)',
+                array()
+            )
             ->where('cpsa.product_id IN (?)', $productIds);
         $configurablePrice = array();
         $stmt = $this->_connection->query($select);
@@ -844,6 +877,9 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
             /* @var $item Mage_Catalog_Model_Product */
             foreach ($collection as $itemId => $item) { // go through all products
                 $rowIsEmpty = true; // row is empty by default
+                if ($item->getTypeId() == 'configurable') {
+                    $simpleChilds = $item->getTypeInstance()->getUsedProducts();
+                }
 
                 #Mage::helper('mep/log')->debug('Export Product ('.$offsetProducts.') '.$item->getSku(), $this);
 
@@ -852,7 +888,13 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
                     foreach ($mapitem->getAttributeCodeAsArray() as $attrCode) {
 
                         $attrValue = $item->getData($attrCode);
-
+                        if ($attrValue == null && $item->getTypeId() == 'configurable') {
+                            //Mage::log($attrCode . ': ' . $attrValue);
+                            $attrValue = array();
+                            foreach ($simpleChilds as $simpleChild) {
+                                $attrValue[] = array($simpleChild, $simpleChild->getData($attrCode));
+                            }
+                        }
                         // shipping
                         if (array_key_exists($attrCode, $shippingAttrCodes)) {
                             $shipping_item = $shippingAttrCodes[$attrCode];
@@ -879,19 +921,35 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
                         if ($attrCode == 'fixed_value_format') {
                             $attrValue = $mapitem->getFormat();
                         }
-
                         if (!empty($this->_attributeValues[$attrCode])) {
+                            if (!is_array($attrValue)) {
+                                $attrValue = array(array($item, $attrValue));
+                            }
                             if ($this->_attributeTypes[$attrCode] == 'multiselect') {
-                                $attrValue = explode(',', $attrValue);
-                                $attrValue = array_intersect_key(
-                                    $this->_attributeValues[$attrCode],
-                                    array_flip($attrValue)
-                                );
+                                $tmpValue = array();
+                                foreach ($attrValue as $value) {
+                                    $value = explode(',', $value[1]);
+                                    $tmpValue = array_merge(array_intersect_key(
+                                        $this->_attributeValues[$attrCode],
+                                        array_flip($value)
+                                    ), $tmpValue);
+                                }
+                                $attrValue = $tmpValue;
                                 $rowMultiselects[$itemId][$attrCode] = $attrValue;
                             } else if ($this->_attributeTypes[$attrCode] == 'select') {
-                                $attrValue = $item->getAttributeText($attrCode);
-                            } else if (isset($this->_attributeValues[$attrCode][$attrValue])) {
-                                $attrValue = $this->_attributeValues[$attrCode][$attrValue];
+                                $tmpValue = array();
+                                foreach ($attrValue as $value) {
+                                    $tmpValue[] = $value[0]->getAttributeText($attrCode);
+                                }
+                                $attrValue = implode(',', $tmpValue);
+                            } else if (isset($this->_attributeValues[$attrCode][$attrValue[0][1]])) {
+                                $tmpValue = array();
+                                foreach ($attrValue as $value) {
+                                    if (isset($this->_attributeValues[$attrCode][$value[1]])) {
+                                        $tmpValue[] = $this->_attributeValues[$attrCode][$value[1]];
+                                    }
+                                }
+                                $attrValue = implode(',', $tmpValue);
                             } else {
                                 $attrValue = null;
                             }
@@ -917,7 +975,6 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
                         ) {
 
                             $attrValue = $item->getData($attributeMapping->getSourceAttributeCode());
-
                             if ($this->_attributeTypes[$attributeMapping->getSourceAttributeCode()] == 'multiselect') {
                                 $attrValue = $attributeMapping->getOptionValue(explode(',', $attrValue), $obj_profile->getStoreId());
                                 $rowMultiselects[$itemId][$attrCode] = $attrValue;
@@ -1011,9 +1068,7 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
                     $dataRow[self::COL_STORE] = null;
                     $dataRow += $stockItemRows[$productId];
                 }
-
                 $this->_updateDataWithCategoryColumns($dataRow, $rowCategories, $productId);
-
                 if ($rowWebsites[$productId]) {
                     $dataRow['_product_websites'] = $this->_websiteIdToCode[array_shift($rowWebsites[$productId])];
                 }
@@ -1064,9 +1119,6 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
                         if (isset($dataRow['_media_image'])) {
                             $dataRow[$attrCode] = Mage::app()->getStore($obj_profile->getStoreId())->getBaseUrl(Mage_Core_Model_Store::URL_TYPE_MEDIA) . 'catalog/product' . $dataRow['_media_image'];
                         }
-                    }
-                    if ($attrCode == 'qty' && isset($dataRow['qty'])) {
-                        $dataRow[$attrCode] = (int)$dataRow['qty'];
                     }
                 }
 
