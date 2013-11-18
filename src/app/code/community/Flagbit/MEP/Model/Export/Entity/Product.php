@@ -269,11 +269,11 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
                 $stmt_child = $this->_connection->query($select);
                 while ($tierRowChild = $stmt_child->fetch()) {
                     foreach ($current_array as $key => &$item) {
-                        $item .= $tierRowChild[$key] . ',';
+                        $item .= $tierRowChild[$key] . $this->_configurable_delimiter;
                     }
                 }
                 foreach ($current_array as &$item) {
-                    $item = substr($item        , 0, -1);
+                    $item = substr($item, 0, -1);
                 }
             }
             $rowTierPrices[$tierRow['entity_id']][] = $current_array;
@@ -394,6 +394,7 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
                     ->from(Mage::getResourceModel('cataloginventory/stock_item')->getMainTable())
                     ->where('product_id IN (?)', $childs);
                 $stmt_child = $this->_connection->query($select_child);
+                $currentChildValues = array();
                 while ($stockItemRowChild = $stmt_child->fetch()) {
                     unset(
                     $stockItemRowChild['item_id'], $stockItemRowChild['product_id'], $stockItemRowChild['low_stock_date'],
@@ -401,15 +402,21 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
                     );
                     foreach ($stockItemRow as $key => &$stockItem) {
                         if ($key == 'qty') {
-                            $stockItem .= intval($stockItemRowChild[$key]) . $this->_configurable_delimiter;
+                            $currentValue = intval($stockItemRowChild[$key]);
                         }
                         else {
-                            $stockItem .= $stockItemRowChild[$key] . $this->_configurable_delimiter;
+                            $currentValue = $stockItemRowChild[$key];
+                        }
+                        if (!isset($currentChildValues[$key])){
+                            $currentChildValues[$key] = array();
+                        }
+                        if (!in_array($currentValue, $currentChildValues[$key])) {
+                            $currentChildValues[$key][] = $currentValue;
                         }
                     }
                 }
-                foreach ($stockItemRow as &$stockItem) {
-                    $stockItem = substr($stockItem, 0, -1);
+                foreach ($stockItemRow as $key => &$stockItem) {
+                    $stockItem = implode($this->_configurable_delimiter, $currentChildValues[$key]);
                 }
             }
             $stockItemRows[$productId] = $stockItemRow;
@@ -916,8 +923,13 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
                         $attrValue = $item->getData($attrCode);
                         if (($attrValue == null || ($attrCode == 'price' && $attrValue == 0)) && $item->getTypeId() == 'configurable') {
                             $attrValue = array();
+                            $tmpAttrValue = array();
                             foreach ($simpleChilds as $simpleChild) {
-                                $attrValue[] = array($simpleChild, $simpleChild->getData($attrCode));
+                                $currentValue = $simpleChild->getData($attrCode);
+                                if (!in_array($currentValue, $tmpAttrValue)) {
+                                    $attrValue[] = array($simpleChild, $currentValue);
+                                    $tmpAttrValue[] = $currentValue;
+                                }
                             }
                         }
                         // shipping
@@ -1036,6 +1048,9 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
                             $attrValue = null;
                         }
                         if (is_scalar($attrValue)) {
+                            if ($attrCode == 'price') {
+                                $attrValue = number_format($attrValue, 2, ',', '.');
+                            }
                             $dataRows[$itemId][$storeId][$attrCode] = $attrValue;
                             $rowIsEmpty = false;
                         }
@@ -1043,7 +1058,10 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
                             if (is_array($attrValue) && $attrCode == 'price') {
                                 $tmpValue = array();
                                 foreach ($attrValue as $value) {
-                                    $tmpValue[] = number_format($value[1], 2, ',', '.');
+                                    $currentValue = number_format($value[1], 2, ',', '.');
+                                    if (!in_array($currentValue, $tmpValue)) {
+                                        $tmpValue[] = $currentValue;
+                                    }
                                 }
                                 $attrValue = implode($this->_configurable_delimiter, $tmpValue);
                                 $dataRows[$itemId][$defaultStoreId][$attrCode] = $attrValue;
