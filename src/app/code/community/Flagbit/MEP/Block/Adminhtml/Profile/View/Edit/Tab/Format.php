@@ -97,6 +97,13 @@ class Flagbit_MEP_Block_Adminhtml_Profile_View_Edit_Tab_Format extends Mage_Admi
             'name' => 'category_delimiter'
         ));
 
+        $fieldset->addField('configurable_value_delimiter', 'text', array(
+            'label' => Mage::helper('mep')->__('Separator between configurable values'),
+            'class' => 'required-entry',
+            'required' => true,
+            'name' => 'configurable_value_delimiter'
+        ));
+
         $fieldset->addField('profile_locale', 'text', array(
             'label' => Mage::helper('mep')->__('Change default locale'),
             'name' => 'profile_locale'

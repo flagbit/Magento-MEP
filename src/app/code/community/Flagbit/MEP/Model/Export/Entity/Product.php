@@ -23,7 +23,8 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
     const COL_CATEGORY = '_category';
     const COL_ROOT_CATEGORY = '_root_category';
     const COL_SKU = 'sku';
-    const CONFIGURABLE_SEPARATOR = '|';
+
+    protected $_configurable_delimiter = '|';
 
     /**
      * Pairs of attribute set ID-to-name.
@@ -400,10 +401,10 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
                     );
                     foreach ($stockItemRow as $key => &$stockItem) {
                         if ($key == 'qty') {
-                            $stockItem .= intval($stockItemRowChild[$key]) . self::CONFIGURABLE_SEPARATOR;
+                            $stockItem .= intval($stockItemRowChild[$key]) . $this->_configurable_delimiter;
                         }
                         else {
-                            $stockItem .= $stockItemRowChild[$key] . self::CONFIGURABLE_SEPARATOR;
+                            $stockItem .= $stockItemRowChild[$key] . $this->_configurable_delimiter;
                         }
                     }
                 }
@@ -675,6 +676,7 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
             /* @var $obj_profile Flagbit_MEP_Model_Profil */
             $obj_profile = $this->getProfile();
             $delimiter = $obj_profile->getDelimiter();
+            $this->_configurable_delimiter = $obj_profile->getConfigurableValueDelimiter();
             $enclosure = $obj_profile->getEnclose();
 
             $this->_storeIdToCode[0] = 'admin';
@@ -964,7 +966,7 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
                                 foreach ($attrValue as $value) {
                                     $tmpValue[] = $value[0]->getAttributeText($attrCode);
                                 }
-                                $attrValue = implode(self::CONFIGURABLE_SEPARATOR, $tmpValue);
+                                $attrValue = implode($this->_configurable_delimiter, $tmpValue);
                             } else if (isset($this->_attributeValues[$attrCode][$attrValue[0][1]])) {
                                 $tmpValue = array();
                                 foreach ($attrValue as $value) {
@@ -972,7 +974,7 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
                                         $tmpValue[] = $this->_attributeValues[$attrCode][$value[1]];
                                     }
                                 }
-                                $attrValue = implode(self::CONFIGURABLE_SEPARATOR, $tmpValue);
+                                $attrValue = implode($this->_configurable_delimiter, $tmpValue);
                             } else {
                                 $attrValue = null;
                             }
@@ -1043,7 +1045,7 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
                                 foreach ($attrValue as $value) {
                                     $tmpValue[] = number_format($value[1], 2, ',', '.');
                                 }
-                                $attrValue = implode(self::CONFIGURABLE_SEPARATOR, $tmpValue);
+                                $attrValue = implode($this->_configurable_delimiter, $tmpValue);
                                 $dataRows[$itemId][$defaultStoreId][$attrCode] = $attrValue;
                             }
                         }
