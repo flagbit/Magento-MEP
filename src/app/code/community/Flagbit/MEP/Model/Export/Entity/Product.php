@@ -843,7 +843,6 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
         if($this->_limit !== null &&  $offsetProducts > 1){
             return false;
         }
-
         $storeId = $obj_profile->getStoreId();
         $collection = $this->_prepareEntityCollection(Mage::getResourceModel('catalog/product_collection'));
         $collection
@@ -861,7 +860,6 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
                 $attrValues = array();
                 $attrInheritance = $mapItem->getInheritance();
                 foreach ($mapItem->getAttributeCodeAsArray() as $attrCode) {
-                    Mage::log($attrCode);
                     if ($attrInheritance == 1) {
                         $attrValues = $this->_manageAttributeInheritance($item, $attrCode, $mapItem);
                     }
@@ -929,6 +927,7 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
     protected function  _doInheritanceAndCache($parent, $items, $attrCode, $mapItem, $cacheType){
         $attrValues = array();
         foreach ($items as $itemId) {
+            //TODO USE COLLECTION
             $item = Mage::getModel('catalog/product')->load($itemId);
             $currentValue = $this->_manageAttributeForItem($item, $attrCode, $mapItem);
             $this->_addAttributeToArray($currentValue, $attrValues);
@@ -951,9 +950,12 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
      * Apply filters if necessary
      */
     protected function  _manageAttributeForItem($item, $attrCode, $mapItem) {
+        //Callback method configuration for special attribute
         $attributeValueFilter = array(
             'url' => '_getProductUrl',
-            'gross_price' => '_getGrossPrice'
+            'gross_price' => '_getGrossPrice',
+            'qty' => '_getQuantity',
+            'product_type' => '_getProductType'
         );
         if (isset($attributeValueFilter[$attrCode])) {
             return $this->$attributeValueFilter[$attrCode]($item, $mapItem);
@@ -962,6 +964,17 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
         if (isset($this->_attributeValues[$attrCode])) {
             if (isset($this->_attributeValues[$attrCode][$attrValue])) {
                 return $this->_attributeValues[$attrCode][$attrValue];
+            }
+        }
+        if (isset($this->_attributeTypes[$attrCode])) {
+            if ($this->_attributeTypes[$attrCode] == 'multiselect') {
+                $currentValues = explode(',', $attrValue);
+                foreach ($currentValues as &$currentValue) {
+                    if (isset($this->_attributeValues[$attrCode][$currentValue])) {
+                        $currentValue = $this->_attributeValues[$attrCode][$currentValue];
+                    }
+                }
+                $attrValue = implode(',', $currentValues);
             }
         }
         return $attrValue;
@@ -983,6 +996,25 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
         $objProfile = $this->getProfile();
         $attrValue = Mage::helper('tax')->getPrice($item, $item->getFinalPrice(), null, null, null, null, $objProfile->getStoreId(), null);
         return $attrValue;
+    }
+
+    protected function  _getQuantity($item, $mapItem) {
+        $attrValue = intval(Mage::getModel('cataloginventory/stock_item')->loadByProduct($item)->getQty());
+        return $attrValue;
+    }
+
+    protected function  _getProductType($item, $mapItem) {
+        $attrValue = $item->getTypeId();
+        $productTypeLabel = array(
+            'simple' => Mage::helper('admin')->__('Simple Product'),
+            'grouped' => Mage::helper('admin')->__('Grouped Product'),
+            'configurable' => Mage::helper('admin')->__('Configurable Product'),
+            'virtual' => Mage::helper('admin')->__('Virtual Product'),
+            'bundle' => Mage::helper('admin')->__('Bundle Product'),
+            'downloadable' => Mage::helper('admin')->__('Downloadable Product'),
+            'giftcard' => Mage::helper('admin')->__('Gift Card'),
+        );
+        return $productTypeLabel[$attrValue];
     }
 
     /**
