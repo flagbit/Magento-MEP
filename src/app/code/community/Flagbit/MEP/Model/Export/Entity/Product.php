@@ -127,6 +127,13 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
     protected $_itemsCache = array('parents' => array(), 'children' => array());
 
     /**
+     * Shipping attribute array
+     *
+     * @var array
+     */
+    protected $_shippingAttrCodes;
+
+    /**
      * Constructor.
      *
      * @return void
@@ -648,6 +655,13 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
         return $this->_attributeMapping;
     }
 
+    protected function  _getAttributeShipping($attributeCode) {
+        if (array_key_exists($attributeCode, $this->_shippingAttrCodes)) {
+            return $this->_shippingAttrCodes[$attributeCode];
+        }
+        return null;
+    }
+
     /**
      * set export Limit
      *
@@ -832,13 +846,9 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
     }
 
     public function _exportThread($offsetProducts, $writer, $limitProducts, $filteredProductIds, $mapping, $shippingAttrCodes) {
+        $this->_shippingAttrCodes = $shippingAttrCodes;
         $this->_cleanUpProcess();
         Mage::helper('mep/log')->debug('START Thread '.$offsetProducts, $this);
-
-        $defaultStoreId = Mage_Catalog_Model_Abstract::DEFAULT_STORE_ID;
-        /* @var $helperShipping Flagbit_MEP_Helper_Shipping */
-        $helperShipping = Mage::helper('mep/shipping');
-
         $obj_profile = $this->getProfile();
         if($this->_limit !== null &&  $offsetProducts > 1){
             return false;
@@ -854,8 +864,9 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
         }
         $collection->load();
         Mage::log('Item count: ' . count($collection));
-        foreach ($collection as $itemId => $item) {
+        foreach ($collection as $item) {
             Mage::log('Type Item: ' . $item->getTypeId());
+            $currentRow = array();
             foreach ($mapping->getItems() as $mapItem) {
                 $attrValues = array();
                 $attrInheritance = $mapItem->getInheritance();
@@ -867,9 +878,17 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
                         $currentValue = $this->_manageAttributeForItem($item, $attrCode, $mapItem);
                         $this->_addAttributeToArray($currentValue, $attrValues);
                     }
-                    Mage::log($attrValues);
+                    $currentRow[$attrCode] = implode('|', $attrValues);
                 }
             }
+            if($offsetProducts != 1) {
+                $writer->setHeaderIsDisabled();
+            }
+            $writer->writeRow($currentRow);
+        }
+        $collection->clear();
+        if ($collection->getCurPage() < $offsetProducts) {
+            return false;
         }
         return null;
     }
@@ -878,33 +897,49 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
      * Check if a product has inherited product, get attribute value if so and cache them
      * Get attribute value from normal item if no inherited product
      */
+
     protected function  _manageAttributeInheritance($item, $attrCode, $mapItem) {
         $attrValues = array();
         $inheritanceType = $mapItem->getInheritanceType();
         if ($inheritanceType == 'from_child') {
-            $hasChildren = false;
-            if (!isset($this->_itemsCache['children'][$item->getId()])) { //If there are no children cached for the current item
-                $childrenIds = $item->getTypeInstance()->getChildrenIds($item->getId(), false);
-                $this->_itemsCache['children'][$item->getId()] = array();
-                if (isset($childrenIds[0])) { //If there are children
-                    $hasChildren = true;
-                    $attrValues = $this->_doInheritanceAndCache($item, $childrenIds[0], $attrCode, $mapItem, 'children');
-                }
-            }
-            else { //If there are children cached
-                $children = $this->_itemsCache['children'][$item->getId()];
-                if (!empty($children)) { //If there are children
-                    $hasChildren = true;
-                    $attrValues = $this->_doInheritance($children, $attrCode, $mapItem);
-                }
-            }
-            if (!$hasChildren) {
-                $currentValue = $this->_manageAttributeForItem($item, $attrCode, $mapItem); //If there are no children, we use the normal item to get attribute value
-                $this->_addAttributeToArray($currentValue, $attrValues);
-            }
+            $cacheKey = 'children';
         }
         elseif ($inheritanceType == 'from_parent') {
-
+            $cacheKey = 'parents';
+        }
+        else {
+            return null;
+        }
+        $hasInheritor = false;
+        if (!isset($this->_itemsCache[$cacheKey][$item->getId()])) { //If there are no inheritor cached for the current item
+            if ($inheritanceType == 'from_child') {
+                $inheritorIds = $item->getTypeInstance()->getChildrenIds($item->getId(), false);
+                if (isset($inheritorIds[0])) {
+                    $inheritorIds = $inheritorIds[0];
+                }
+            }
+            else {
+                $inheritorIds = Mage::getModel('catalog/product_type_configurable')->getParentIdsByChild($item->getId());
+                if (empty($inheritorIds)) {
+                    $inheritorIds = Mage::getModel('catalog/product_type_grouped')->getParentIdsByChild($item->getId());
+                }
+            }
+            $this->_itemsCache[$cacheKey][$item->getId()] = array();
+            if (!empty($inheritorIds)) { //If there are inheritors
+                $hasInheritor = true;
+                $attrValues = $this->_doInheritanceAndCache($item, $inheritorIds, $attrCode, $mapItem, $cacheKey);
+            }
+        }
+        else { //If there are inheritor cached
+            $inheritor = $this->_itemsCache[$cacheKey][$item->getId()];
+            if (!empty($inheritor)) { //If there are inheritor
+                $hasInheritor = true;
+                $attrValues = $this->_doInheritance($inheritor, $attrCode, $mapItem);
+            }
+        }
+        if (!$hasInheritor) {
+            $currentValue = $this->_manageAttributeForItem($item, $attrCode, $mapItem); //If there are no inheritor, we use the normal item to get attribute value
+            $this->_addAttributeToArray($currentValue, $attrValues);
         }
         return $attrValues;
     }
@@ -946,10 +981,26 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
     }
 
     /*
-     * Manage attribute value for a given item.
-     * Apply filters if necessary
+     * Manage attribute value for a given item
      */
     protected function  _manageAttributeForItem($item, $attrCode, $mapItem) {
+        if (($attributeMapping = $this->_getAttributeMapping($attrCode))) {
+            $attrValue = $this->_manageAttributeMapping($attributeMapping, $item);
+        }
+        elseif (($attributeShipping = $this->_getAttributeShipping($attrCode))) {
+            $attrValue = Mage::helper('mep/shipping')->emulateCheckout($item, $this->getProfile()->getStoreId(), $attributeShipping);
+        }
+        else {
+            $attrValue = $this->_getAttributeValue($item, $attrCode, $mapItem);
+        }
+        return $attrValue;
+    }
+
+    /*
+     * Get attribute value for a given item
+     * Apply filters if necessary
+     */
+    protected function  _getAttributeValue($item, $attrCode, $mapItem) {
         //Callback method configuration for special attribute
         $attributeValueFilter = array(
             'url' => '_getProductUrl',
@@ -957,19 +1008,13 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
             'qty' => '_getQuantity',
             'image_url' => '_getImageUrl'
         );
-        if (($attributeMapping = $this->_getAttributeMapping($attrCode))) {
-            $attrValue = $this->_manageAttributeMapping($attributeMapping, $item);
-            if (!is_null($attrValue)) {
-                return $attrValue;
-            }
-        }
-        if (isset($attributeValueFilter[$attrCode])) {
-            return $this->$attributeValueFilter[$attrCode]($item, $mapItem);
-        }
         $attrValue = $item->getData($attrCode);
+        if (isset($attributeValueFilter[$attrCode])) {
+            $attrValue = $this->$attributeValueFilter[$attrCode]($item, $mapItem);
+        }
         if (isset($this->_attributeValues[$attrCode])) {
             if (isset($this->_attributeValues[$attrCode][$attrValue])) {
-                return $this->_attributeValues[$attrCode][$attrValue];
+                $attrValue = $this->_attributeValues[$attrCode][$attrValue];
             }
         }
         if (isset($this->_attributeTypes[$attrCode])) {
@@ -981,14 +1026,17 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
                     }
                 }
                 $attrValue = implode(',', $currentValues);
-                return $attrValue;
             }
         }
         return $attrValue;
     }
 
+    /*
+     * Map attribute value
+     */
     protected function  _manageAttributeMapping($attributeMapping, $item) {
         $sourceAttributeCode = $attributeMapping->getSourceAttributeCode();
+        $attrValue = $item->getData($sourceAttributeCode);
         if ($sourceAttributeCode == 'category') {
             $itemCategoriesIds = $item->getCategoryIds();
             $categoryId = array_shift($itemCategoriesIds);
@@ -1007,7 +1055,6 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
             }
         }
         else {
-            $attrValue = $item->getData($sourceAttributeCode);
             if (!empty($attrValue)) {
                 if ($this->_attributeTypes[$sourceAttributeCode] == 'multiselect') {
                     $attrValue = $attributeMapping->getOptionValue(explode(',', $attrValue), $this->getProfile()->getStoreId());
