@@ -955,8 +955,14 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
             'url' => '_getProductUrl',
             'gross_price' => '_getGrossPrice',
             'qty' => '_getQuantity',
-            'product_type' => '_getProductType'
+            'image_url' => '_getImageUrl'
         );
+        if (($attributeMapping = $this->_getAttributeMapping($attrCode))) {
+            $attrValue = $this->_manageAttributeMapping($attributeMapping, $item);
+            if (!is_null($attrValue)) {
+                return $attrValue;
+            }
+        }
         if (isset($attributeValueFilter[$attrCode])) {
             return $this->$attributeValueFilter[$attrCode]($item, $mapItem);
         }
@@ -975,9 +981,45 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
                     }
                 }
                 $attrValue = implode(',', $currentValues);
+                return $attrValue;
             }
         }
         return $attrValue;
+    }
+
+    protected function  _manageAttributeMapping($attributeMapping, $item) {
+        $sourceAttributeCode = $attributeMapping->getSourceAttributeCode();
+        if ($sourceAttributeCode == 'category') {
+            $itemCategoriesIds = $item->getCategoryIds();
+            $categoryId = array_shift($itemCategoriesIds);
+            if (empty($categoryId)) {
+                return null;
+            }
+            if ($attributeMapping->getCategoryType() == 'single') {
+                if (isset($this->_categoryIds[$categoryId])) {
+                    $attrValue = implode($this->getProfile()->getCategoryDelimiter(), $attributeMapping->getOptionValue($this->_categoryIds[$categoryId], $this->getProfile()->getStoreId()));
+                    return $attrValue;
+                }
+            }
+            else {
+                $attrValue = $attributeMapping->getOptionValue($categoryId, $this->getProfile()->getStoreId());
+                return $attrValue;
+            }
+        }
+        else {
+            $attrValue = $item->getData($sourceAttributeCode);
+            if (!empty($attrValue)) {
+                if ($this->_attributeTypes[$sourceAttributeCode] == 'multiselect') {
+                    $attrValue = $attributeMapping->getOptionValue(explode(',', $attrValue), $this->getProfile()->getStoreId());
+                    $attrValue = implode(',', $attrValue);
+
+                } else {
+                    $attrValue = $attributeMapping->getOptionValue($attrValue, $this->getProfile()->getStoreId());
+                }
+                return $attrValue;
+            }
+        }
+        return null;
     }
 
     protected function  _getProductUrl($item, $mapItem) {
@@ -1003,18 +1045,9 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
         return $attrValue;
     }
 
-    protected function  _getProductType($item, $mapItem) {
-        $attrValue = $item->getTypeId();
-        $productTypeLabel = array(
-            'simple' => Mage::helper('admin')->__('Simple Product'),
-            'grouped' => Mage::helper('admin')->__('Grouped Product'),
-            'configurable' => Mage::helper('admin')->__('Configurable Product'),
-            'virtual' => Mage::helper('admin')->__('Virtual Product'),
-            'bundle' => Mage::helper('admin')->__('Bundle Product'),
-            'downloadable' => Mage::helper('admin')->__('Downloadable Product'),
-            'giftcard' => Mage::helper('admin')->__('Gift Card'),
-        );
-        return $productTypeLabel[$attrValue];
+    protected function  _getImageUrl($item, $mapItem) {
+        $attrValue = $item->getMediaConfig()->getMediaUrl($item->getData('image'));
+        return $attrValue;
     }
 
     /**
