@@ -960,9 +960,12 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
      */
     protected function  _doInheritanceAndCache($parent, $items, $attrCode, $mapItem, $cacheType){
         $attrValues = array();
-        foreach ($items as $itemId) {
-            //TODO USE COLLECTION
-            $item = Mage::getModel('catalog/product')->load($itemId);
+        $collection = Mage::getModel('catalog/product')->getCollection();
+        $collection->addAttributeToSelect('*');
+        $collection->addFieldToFilter("entity_id", array('in' => $items));
+        $items = $collection->load();
+        foreach ($items as $item) {
+            $itemId = $item->getId();
             $currentValue = $this->_manageAttributeForItem($item, $attrCode, $mapItem);
             $this->_addAttributeToArray($currentValue, $attrValues);
             $this->_itemsCache[$cacheType][$parent->getId()][$itemId] = $item; //Add the item to the cache
