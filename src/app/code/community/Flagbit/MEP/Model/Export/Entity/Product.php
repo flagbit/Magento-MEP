@@ -878,7 +878,7 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
                         $currentValue = $this->_manageAttributeForItem($item, $attrCode, $mapItem);
                         $this->_addAttributeToArray($currentValue, $attrValues);
                     }
-                    $currentRow[$attrCode] = implode('|', $attrValues);
+                    $currentRow[$attrCode] = implode($obj_profile->getConfigurableValueDelimiter(), $attrValues);
                 }
             }
             if($offsetProducts != 1) {
