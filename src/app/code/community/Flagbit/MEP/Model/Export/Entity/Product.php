@@ -756,6 +756,7 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
             $rule = unserialize($obj_profile->getConditionsSerialized());
             $filteredProductIds = array();
             if (!empty($rule) && count($rule) > 1) {
+                $ruleObject->setProfile($obj_profile);
                 $ruleObject->loadPost(array('conditions' => $rule));
                 $ruleObject->setWebsiteIds(array(Mage::app()->getStore($obj_profile->getStoreId())->getWebsiteId()));
                 $filteredProductIds = $ruleObject->getMatchingProductIds();
@@ -863,9 +864,7 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
             $collection->addFieldToFilter("entity_id", array('in' => $filteredProductIds));
         }
         $collection->load();
-        Mage::log('Item count: ' . count($collection));
         foreach ($collection as $item) {
-            Mage::log('Type Item: ' . $item->getTypeId());
             $currentRow = array();
             foreach ($mapping->getItems() as $mapItem) {
                 $attrValues = array();
@@ -1110,7 +1109,6 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
     public function _exportThread_OLD($offsetProducts, $writer, $limitProducts, $filteredProductIds, $mapping, $shippingAttrCodes)
     {
         $this->_cleanUpProcess();
-        Mage::log($shippingAttrCodes);
         Mage::helper('mep/log')->debug('START Thread '.$offsetProducts, $this);
 
         $defaultStoreId = Mage_Catalog_Model_Abstract::DEFAULT_STORE_ID;
