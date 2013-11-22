@@ -457,19 +457,22 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
         $this->_connection   = Mage::getSingleton('core/resource')->getConnection('write');
     }
 
-    public function _exportThread($offsetProducts, $writer, $limitProducts, $filteredProductIds, $mapping, $shippingAttrCodes) {
+    public function _exportThread($offsetProducts, $writer, $limitProducts, $filteredProductIds, $mapping, $shippingAttrCodes)
+    {
         $this->_shippingAttrCodes = $shippingAttrCodes;
         $this->_cleanUpProcess();
         Mage::helper('mep/log')->debug('START Thread: ' . $offsetProducts, $this);
-        $obj_profile = $this->getProfile();
+        $objProfile = $this->getProfile();
         if($this->_limit !== null &&  $offsetProducts > 1){
             return false;
         }
-        $storeId = $obj_profile->getStoreId();
+        $storeId = $objProfile->getStoreId();
+        Mage::app()->setCurrentStore($storeId);
+
         $collection = $this->_prepareEntityCollection(Mage::getResourceModel('catalog/product_collection'));
         $collection
             ->setStoreId($storeId)
-            ->addStoreFilter($obj_profile->getStoreId())
+            ->addStoreFilter($objProfile->getStoreId())
             ->setPage($offsetProducts, $limitProducts);
         if (!empty($filteredProductIds)){
             $collection->addFieldToFilter("entity_id", array('in' => $filteredProductIds));
