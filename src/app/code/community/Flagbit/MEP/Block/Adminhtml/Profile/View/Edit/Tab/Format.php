@@ -97,6 +97,13 @@ class Flagbit_MEP_Block_Adminhtml_Profile_View_Edit_Tab_Format extends Mage_Admi
             'name' => 'category_delimiter'
         ));
 
+        $fieldset->addField('configurable_value_delimiter', 'text', array(
+            'label' => Mage::helper('mep')->__('Separator between configurable values'),
+            'class' => 'required-entry',
+            'required' => true,
+            'name' => 'configurable_value_delimiter'
+        ));
+
         $fieldset->addField('profile_locale', 'text', array(
             'label' => Mage::helper('mep')->__('Change default locale'),
             'name' => 'profile_locale'
@@ -111,9 +118,28 @@ class Flagbit_MEP_Block_Adminhtml_Profile_View_Edit_Tab_Format extends Mage_Admi
                 'options' => $this->_getShippingOptionsHash(),
             )
         );
+        $fieldset->addType('apply', 'Mage_Adminhtml_Block_Catalog_Product_Helper_Form_Apply');
+        $fieldset->addField('apply_to', 'apply', array(
+            'name'        => 'apply_to[]',
+            'label'       => Mage::helper('catalog')->__('Apply To'),
+            'values'      => Mage_Catalog_Model_Product_Type::getOptions(),
+            'mode_labels' => array(
+                'all'     => Mage::helper('catalog')->__('All Product Types'),
+                'custom'  => Mage::helper('catalog')->__('Selected Product Types')
+            ),
+            'required'    => true
+        ), 'frontend_class');
 
         $form->setValues(Mage::helper('mep')->getCurrentProfileData());
 
+        $profilData = Mage::helper('mep')->getCurrentProfileData();
+        $settings = unserialize($profilData['settings']);
+        if ($settings && $product_type = $settings['apply_to']) {
+            $product_type = is_array($product_type) ? $product_type : explode(',', $product_type);
+            $form->getElement('apply_to')->setValue($product_type);
+        } else {
+            $form->getElement('apply_to')->addClass('no-display ignore-validate');
+        }
 
 
         return parent::_prepareForm();

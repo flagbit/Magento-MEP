@@ -1,68 +1,93 @@
 <div id="container">
     <div id="field_content" class="mapping-dialog">
         <form action="<?php echo Mage::helper("adminhtml")->getUrl("adminhtml/profile_attribute/edit") ?>" id="mappingform">
-        <ul class="formfield_list">
-            <li>
-                <label for="attribute_code"><?php echo $this->__('In Database');?></label>
-                <div class="input-box">
-                    <select name="attribute_code[]" id="attribute_code" class="chzn-select" multiple="multiple">
-                    <?php $aha = Mage::getModel('mep/data')->getExternalAttributes($this->getProfileId()); ?>
-                    <?php foreach ($aha as $_value => $_label): ?>
-                        <?php if (is_array($_label)): ?>
-                        <optgroup label="<?php echo $_value ?>">
-                        <?php foreach ($_label as $_attributeCode => $_attributeLabel): ?>
-                            <option value="<?php echo $_attributeCode ?>" <?php echo $this->getIsSelectedAttribute($_attributeCode) ? 'selected' : '';?> ><?php echo $_attributeLabel ?></option>
-                        <?php endforeach?>
-                        </optgroup>
-                        <?php  else: ?>
-                            <option value="<?php echo $_value ?>" <?php echo $this->getIsSelectedAttribute($_value) ? 'selected' : '';?> ><?php echo $_label ?></option>
-                        <?php endif; ?>
-                    <?php endforeach; ?>
-                    </select>
-                </div>
-            </li>
-            <li>
-                <label for="to_field"><?php echo $this->__('To Field');?></label>
-                <div class="input-box">
-                    <input type="text" name="to_field" value="<?php echo $this->getMapping()->getToField();?>" id="to_field" class="input-text">
-                </div>
-            </li>
-            <li>
-                <label for="format"><?php echo $this->__('Format');?></label>
-                <div class="input-box">
-                    <input type="text" name="format" value="<?php echo $this->getMapping()->getFormat();?>" id="format" class="input-text">
-                </div>
-            </li>
-            <li>
-                <label for="position"><?php echo $this->__('Position');?></label>
-                <div class="input-box">
-                    <input type="text" name="position" value="<?php echo $this->getMapping()->getPosition();?>" id="position" class="input-text">
-                </div>
-            </li>
-            <li>
-                <div class="input-box">
-                    <button type="submit" value="Submit" class="scalable save" title="Submit"><span><span><span><?php echo $this->__('Save');?></span></span></span></button>
-                </div>
-            </li>
-        </ul>
-        <input type="hidden" name="profile_id" value="<?php echo $this->getProfileId() ?>" />
-        <input type="hidden" name="id" id="id" value="<?php echo $this->getMapping()->getId();?>" />
+            <ul class="formfield_list">
+                <li>
+                    <label for="attribute_code"><?php echo $this->__('In Database');?></label>
+                    <div class="input-box">
+                        <select name="attribute_code[]" id="attribute_code" class="chzn-select" multiple="multiple">
+                            <?php $aha = Mage::getModel('mep/data')->getExternalAttributes($this->getProfileId()); ?>
+                            <?php foreach ($aha as $_value => $_label): ?>
+                                <?php if (is_array($_label)): ?>
+                                    <optgroup label="<?php echo $_value ?>">
+                                        <?php foreach ($_label as $_attributeCode => $_attributeLabel): ?>
+                                            <option value="<?php echo $_attributeCode ?>" <?php echo $this->getIsSelectedAttribute($_attributeCode) ? 'selected' : '';?> ><?php echo $_attributeLabel ?></option>
+                                        <?php endforeach?>
+                                    </optgroup>
+                                <?php  else: ?>
+                                    <option value="<?php echo $_value ?>" <?php echo $this->getIsSelectedAttribute($_value) ? 'selected' : '';?> ><?php echo $_label ?></option>
+                                <?php endif; ?>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                </li>
+                <li>
+                    <label for="to_field"><?php echo $this->__('To Field');?></label>
+                    <div class="input-box">
+                        <input type="text" name="to_field" value="<?php echo $this->getMapping()->getToField();?>" id="to_field" class="input-text">
+                    </div>
+                </li>
+                <li>
+                    <label for="format"><?php echo $this->__('Format');?></label>
+                    <div class="input-box">
+                        <input type="text" name="format" value="<?php echo $this->getMapping()->getFormat();?>" id="format" class="input-text">
+                    </div>
+                </li>
+                <li>
+                    <label for="position"><?php echo $this->__('Position');?></label>
+                    <div class="input-box">
+                        <input type="text" name="position" value="<?php echo $this->getMapping()->getPosition();?>" id="position" class="input-text">
+                    </div>
+                </li>
+                <li class="block-checkbox">
+                    <label for="inheritance"><?php echo $this->__('Inheritance');?></label>
+                    <input type="checkbox" name="inheritance" value="1" <?php if ($this->getMapping()->getInheritance() == 1) echo 'checked="checked"'; ?> id="inheritance" class="input-checkbox">
+                </li>
+                <li id="inheritance_type_block" <?php if ($this->getMapping()->getInheritance() != 1) echo 'style="display: none;"'; ?>>
+                    <label for="inheritance_type"><?php echo $this->__('Inheritance type');?></label>
+                    <div class="input-box">
+                        <select name="inheritance_type" id="inheritance_type" class="select">
+                            <?php foreach (Mage::getStoreConfig('datas/inheritance_type') as $key => $value) : ?>
+                                <option value="<?php echo $key; ?>" <?php if ($this->getMapping()->getInheritanceType() == $key) echo 'selected="selected"'; ?>><?php echo $value; ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                </li>
+                <li>
+                    <div class="input-box">
+                        <button type="submit" value="Submit" class="scalable save" title="Submit"><span><span><span><?php echo $this->__('Save');?></span></span></span></button>
+                    </div>
+                </li>
+            </ul>
+            <input type="hidden" name="profile_id" value="<?php echo $this->getProfileId() ?>" />
+            <input type="hidden" name="id" id="id" value="<?php echo $this->getMapping()->getId();?>" />
         </form>
     </div>
 </div>
 
 <script type="text/javascript">
     // <![CDATA[
+    $('inheritance').observe('change', selectInheritance);
+
+    function    selectInheritance(event) {
+        var element = event.element();
+        if (element.checked == true) {
+            $('inheritance_type_block').show();
+        }
+        else{
+            $('inheritance_type_block').hide();
+        }
+    }
 
     AbstractChosen.prototype.set_default_text = function() {
-      this.form_field = $('attribute_code');
+        this.form_field = $('attribute_code');
         this.is_multiple = true;
-      if (this.is_multiple) {
-        this.default_text = "<?php echo $this->__('Select Some Attributes');?>";
-      } else {
-        this.default_text =  "<?php echo $this->__('Select a Attribute');?>";
-      }
-      return this.results_none_found =  "<?php echo $this->__('No results match');?>";
+        if (this.is_multiple) {
+            this.default_text = "<?php echo $this->__('Select Some Attributes');?>";
+        } else {
+            this.default_text =  "<?php echo $this->__('Select a Attribute');?>";
+        }
+        return this.results_none_found =  "<?php echo $this->__('No results match');?>";
     };
 
     new Chosen($$(".chzn-select"));

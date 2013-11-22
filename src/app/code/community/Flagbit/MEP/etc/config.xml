@@ -2,7 +2,7 @@
 <config>
     <modules>
         <Flagbit_MEP>
-            <version>0.4.0</version>
+            <version>0.7.0</version>
         </Flagbit_MEP>
     </modules>
 
@@ -147,4 +147,12 @@
             </mep_run_profile>
         </jobs>
     </crontab>
+    <default>
+        <datas>
+            <inheritance_type>
+                <from_child>From child</from_child>
+                <from_parent>From parent</from_parent>
+            </inheritance_type>
+        </datas>
+    </default>
 </config>

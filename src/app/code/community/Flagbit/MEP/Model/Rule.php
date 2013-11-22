@@ -33,6 +33,12 @@
  */
 class Flagbit_MEP_Model_Rule extends Mage_CatalogRule_Model_Rule
 {
+
+    protected $_profile;
+
+    public function setProfile($profile) {
+        $this->_profile = $profile;
+    }
     /**
      * Enter description here ...
      *
@@ -99,6 +105,10 @@ class Flagbit_MEP_Model_Rule extends Mage_CatalogRule_Model_Rule
      */
     public function getMatchingProductIds()
     {
+        $settings = $this->_profile->getSettings();
+        if (!is_array($settings)) {
+            $settings = unserialize($settings);
+        }
         if (is_null($this->_productIds)) {
             $this->_productIds = array();
             $this->setCollectedAttributes(array());
@@ -106,6 +116,9 @@ class Flagbit_MEP_Model_Rule extends Mage_CatalogRule_Model_Rule
             if ($this->getWebsiteIds()) {
                 /** @var $productCollection Mage_Catalog_Model_Resource_Eav_Mysql4_Product_Collection */
                 $productCollection = Mage::getResourceModel('catalog/product_collection');
+                if (isset($settings['apply_to']) && !is_null($settings['apply_to'])) {
+                    $productCollection->addAttributeToFilter('type_id', array('in' => $settings['apply_to']));
+                }
                 $productCollection->addWebsiteFilter($this->getWebsiteIds());
                 if ($this->_productsFilter) {
                     $productCollection->addIdFilter($this->_productsFilter);

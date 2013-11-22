@@ -24,6 +24,8 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
     const COL_ROOT_CATEGORY = '_root_category';
     const COL_SKU = 'sku';
 
+    protected $_configurable_delimiter = '|';
+
     /**
      * Pairs of attribute set ID-to-name.
      *
@@ -116,6 +118,20 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
      * @var Flagbit_MEP_Model_Profil
      */
     protected $_profile = null;
+
+    /**
+     * Cache value for parent and children products
+     *
+     * @var array
+     */
+    protected $_itemsCache = array('parents' => array(), 'children' => array());
+
+    /**
+     * Shipping attribute array
+     *
+     * @var array
+     */
+    protected $_shippingAttrCodes;
 
     /**
      * Constructor.
@@ -225,332 +241,6 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
     }
 
     /**
-     * Prepare products tier prices
-     *
-     * @param  array $productIds
-     * @return array
-     */
-    protected function _prepareTierPrices(array $productIds)
-    {
-        if (empty($productIds)) {
-            return array();
-        }
-        $resource = Mage::getSingleton('core/resource');
-        $select = $this->_connection->select()
-            ->from($resource->getTableName('catalog/product_attribute_tier_price'))
-            ->where('entity_id IN(?)', $productIds);
-
-        $rowTierPrices = array();
-        $stmt = $this->_connection->query($select);
-        while ($tierRow = $stmt->fetch()) {
-            $rowTierPrices[$tierRow['entity_id']][] = array(
-                '_tier_price_customer_group' => $tierRow['all_groups']
-                    ? self::VALUE_ALL : $tierRow['customer_group_id'],
-                '_tier_price_website' => 0 == $tierRow['website_id']
-                    ? self::VALUE_ALL
-                    : $this->_websiteIdToCode[$tierRow['website_id']],
-                '_tier_price_qty' => $tierRow['qty'],
-                '_tier_price_price' => $tierRow['value']
-            );
-        }
-
-        return $rowTierPrices;
-    }
-
-    /**
-     * Prepare products group prices
-     *
-     * @param  array $productIds
-     * @return array
-     */
-    protected function _prepareGroupPrices(array $productIds)
-    {
-        if (empty($productIds)) {
-            return array();
-        }
-        $resource = Mage::getSingleton('core/resource');
-        $select = $this->_connection->select()
-            ->from($resource->getTableName('catalog/product_attribute_group_price'))
-            ->where('entity_id IN(?)', $productIds);
-
-        $rowGroupPrices = array();
-        $statement = $this->_connection->query($select);
-        while ($groupRow = $statement->fetch()) {
-            $rowGroupPrices[$groupRow['entity_id']][] = array(
-                '_group_price_customer_group' => $groupRow['all_groups']
-                    ? self::VALUE_ALL
-                    : $groupRow['customer_group_id'],
-                '_group_price_website' => (0 == $groupRow['website_id'])
-                    ? self::VALUE_ALL
-                    : $this->_websiteIdToCode[$groupRow['website_id']],
-                '_group_price_price' => $groupRow['value']
-            );
-        }
-
-        return $rowGroupPrices;
-    }
-
-    /**
-     * Prepare products media gallery
-     *
-     * @param  array $productIds
-     * @return array
-     */
-    protected function _prepareMediaGallery(array $productIds)
-    {
-        if (empty($productIds)) {
-            return array();
-        }
-        $resource = Mage::getSingleton('core/resource');
-        $select = $this->_connection->select()
-            ->from(
-            array('mg' => $resource->getTableName('catalog/product_attribute_media_gallery')),
-            array(
-                'mg.entity_id', 'mg.attribute_id', 'filename' => 'mg.value', 'mgv.label',
-                'mgv.position', 'mgv.disabled'
-            )
-        )
-            ->joinLeft(
-            array('mgv' => $resource->getTableName('catalog/product_attribute_media_gallery_value')),
-            '(mg.value_id = mgv.value_id AND mgv.store_id = 0)',
-            array()
-        )
-            ->where('entity_id IN(?)', $productIds);
-
-        $rowMediaGallery = array();
-        $stmt = $this->_connection->query($select);
-        while ($mediaRow = $stmt->fetch()) {
-            $rowMediaGallery[$mediaRow['entity_id']][] = array(
-                '_media_attribute_id' => $mediaRow['attribute_id'],
-                '_media_image' => $mediaRow['filename'],
-                '_media_lable' => $mediaRow['label'],
-                '_media_position' => $mediaRow['position'],
-                '_media_is_disabled' => $mediaRow['disabled']
-            );
-        }
-
-        return $rowMediaGallery;
-    }
-
-    /**
-     * Prepare catalog inventory
-     *
-     * @param  array $productIds
-     * @return array
-     */
-    protected function _prepareCatalogInventory(array $productIds)
-    {
-        if (empty($productIds)) {
-            return array();
-        }
-        $select = $this->_connection->select()
-            ->from(Mage::getResourceModel('cataloginventory/stock_item')->getMainTable())
-            ->where('product_id IN (?)', $productIds);
-
-        $stmt = $this->_connection->query($select);
-        $stockItemRows = array();
-        while ($stockItemRow = $stmt->fetch()) {
-            $productId = $stockItemRow['product_id'];
-            unset(
-            $stockItemRow['item_id'], $stockItemRow['product_id'], $stockItemRow['low_stock_date'],
-            $stockItemRow['stock_id'], $stockItemRow['stock_status_changed_automatically']
-            );
-            $stockItemRows[$productId] = $stockItemRow;
-        }
-        return $stockItemRows;
-    }
-
-    /**
-     * Prepare product links
-     *
-     * @param  array $productIds
-     * @return array
-     */
-    protected function _prepareLinks(array $productIds)
-    {
-        if (empty($productIds)) {
-            return array();
-        }
-        $resource = Mage::getSingleton('core/resource');
-        $adapter = $this->_connection;
-        $select = $adapter->select()
-            ->from(
-            array('cpl' => $resource->getTableName('catalog/product_link')),
-            array(
-                'cpl.product_id', 'cpe.sku', 'cpl.link_type_id',
-                'position' => 'cplai.value', 'default_qty' => 'cplad.value'
-            )
-        )
-            ->joinLeft(
-            array('cpe' => $resource->getTableName('catalog/product')),
-            '(cpe.entity_id = cpl.linked_product_id)',
-            array()
-        )
-            ->joinLeft(
-            array('cpla' => $resource->getTableName('catalog/product_link_attribute')),
-            $adapter->quoteInto(
-                '(cpla.link_type_id = cpl.link_type_id AND cpla.product_link_attribute_code = ?)',
-                'position'
-            ),
-            array()
-        )
-            ->joinLeft(
-            array('cplaq' => $resource->getTableName('catalog/product_link_attribute')),
-            $adapter->quoteInto(
-                '(cplaq.link_type_id = cpl.link_type_id AND cplaq.product_link_attribute_code = ?)',
-                'qty'
-            ),
-            array()
-        )
-            ->joinLeft(
-            array('cplai' => $resource->getTableName('catalog/product_link_attribute_int')),
-            '(cplai.link_id = cpl.link_id AND cplai.product_link_attribute_id = cpla.product_link_attribute_id)',
-            array()
-        )
-            ->joinLeft(
-            array('cplad' => $resource->getTableName('catalog/product_link_attribute_decimal')),
-            '(cplad.link_id = cpl.link_id AND cplad.product_link_attribute_id = cplaq.product_link_attribute_id)',
-            array()
-        )
-            ->where('cpl.link_type_id IN (?)', array(
-            Mage_Catalog_Model_Product_Link::LINK_TYPE_RELATED,
-            Mage_Catalog_Model_Product_Link::LINK_TYPE_UPSELL,
-            Mage_Catalog_Model_Product_Link::LINK_TYPE_CROSSSELL,
-            Mage_Catalog_Model_Product_Link::LINK_TYPE_GROUPED
-        ))
-            ->where('cpl.product_id IN (?)', $productIds);
-
-        $stmt = $adapter->query($select);
-        $linksRows = array();
-        while ($linksRow = $stmt->fetch()) {
-            $linksRows[$linksRow['product_id']][$linksRow['link_type_id']][] = array(
-                'sku' => $linksRow['sku'],
-                'position' => $linksRow['position'],
-                'default_qty' => $linksRow['default_qty']
-            );
-        }
-
-        return $linksRows;
-    }
-
-    /**
-     * Prepare configurable product data
-     *
-     * @deprecated since 1.6.1.0
-     * @see Mage_Catalog_Model_Resource_Product_Type_Configurable::getConfigurableOptions()
-     * @param  array $productIds
-     * @return array
-     */
-    protected function _prepareConfigurableProductData(array $productIds)
-    {
-        if (empty($productIds)) {
-            return array();
-        }
-        $resource = Mage::getSingleton('core/resource');
-        $select = $this->_connection->select()
-            ->from(
-            array('cpsl' => $resource->getTableName('catalog/product_super_link')),
-            array('cpsl.parent_id', 'cpe.sku')
-        )
-            ->joinLeft(
-            array('cpe' => $resource->getTableName('catalog/product')),
-            '(cpe.entity_id = cpsl.product_id)',
-            array()
-        )
-            ->where('parent_id IN (?)', $productIds);
-        $stmt = $this->_connection->query($select);
-        $configurableData = array();
-        while ($cfgLinkRow = $stmt->fetch()) {
-            $configurableData[$cfgLinkRow['parent_id']][] = array('_super_products_sku' => $cfgLinkRow['sku']);
-        }
-
-        return $configurableData;
-    }
-
-    /**
-     * Prepare configurable product price
-     *
-     * @deprecated since 1.6.1.0
-     * @see Mage_Catalog_Model_Resource_Product_Type_Configurable::getConfigurableOptions()
-     * @param  array $productIds
-     * @return array
-     */
-    protected function _prepareConfigurableProductPrice(array $productIds)
-    {
-        if (empty($productIds)) {
-            return array();
-        }
-        $resource = Mage::getSingleton('core/resource');
-        $select = $this->_connection->select()
-            ->from(
-            array('cpsa' => $resource->getTableName('catalog/product_super_attribute')),
-            array(
-                'cpsa.product_id', 'ea.attribute_code', 'eaov.value', 'cpsap.pricing_value', 'cpsap.is_percent'
-            )
-        )
-            ->joinLeft(
-            array('cpsap' => $resource->getTableName('catalog/product_super_attribute_pricing')),
-            '(cpsap.product_super_attribute_id = cpsa.product_super_attribute_id)',
-            array()
-        )
-            ->joinLeft(
-            array('ea' => $resource->getTableName('eav/attribute')),
-            '(ea.attribute_id = cpsa.attribute_id)',
-            array()
-        )
-            ->joinLeft(
-            array('eaov' => $resource->getTableName('eav/attribute_option_value')),
-            '(eaov.option_id = cpsap.value_index AND store_id = 0)',
-            array()
-        )
-            ->where('cpsa.product_id IN (?)', $productIds);
-        $configurablePrice = array();
-        $stmt = $this->_connection->query($select);
-        while ($priceRow = $stmt->fetch()) {
-            $configurablePrice[$priceRow['product_id']][] = array(
-                '_super_attribute_code' => $priceRow['attribute_code'],
-                '_super_attribute_option' => $priceRow['value'],
-                '_super_attribute_price_corr' => $priceRow['pricing_value'] . ($priceRow['is_percent'] ? '%' : '')
-            );
-        }
-        return $configurablePrice;
-    }
-
-    /**
-     * Update data row with information about categories. Return true, if data row was updated
-     *
-     * @param array $dataRow
-     * @param array $rowCategories
-     * @param int $productId
-     * @return bool
-     */
-    protected function _updateDataWithCategoryColumns(&$dataRow, &$rowCategories, $productId)
-    {
-        if (!isset($rowCategories[$productId])) {
-            return false;
-        }
-
-        // get the deepest Category Path
-        $categoryId = null;
-        $max = 0;
-        foreach((array) $rowCategories[$productId] as $_categoryId){
-            if(isset($this->_categoryIds[$_categoryId]) && count($this->_categoryIds[$_categoryId]) > $max){
-                $max = $this->_categoryIds[$_categoryId];
-                $categoryId = $_categoryId;
-            }
-        }
-
-        if (isset($this->_rootCategories[$categoryId])) {
-            $dataRow[self::COL_ROOT_CATEGORY] = $this->_rootCategories[$categoryId];
-        }
-        if (isset($this->_categories[$categoryId])) {
-            $dataRow[self::COL_CATEGORY] = $this->_categories[$categoryId];
-        }
-
-        return true;
-    }
-
-    /**
      * get Attribute Mapping
      *
      * @param bool $attributeCode
@@ -574,6 +264,13 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
             }
         }
         return $this->_attributeMapping;
+    }
+
+    protected function  _getAttributeShipping($attributeCode) {
+        if (array_key_exists($attributeCode, $this->_shippingAttrCodes)) {
+            return $this->_shippingAttrCodes[$attributeCode];
+        }
+        return null;
     }
 
     /**
@@ -618,6 +315,7 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
             /* @var $obj_profile Flagbit_MEP_Model_Profil */
             $obj_profile = $this->getProfile();
             $delimiter = $obj_profile->getDelimiter();
+            $this->_configurable_delimiter = $obj_profile->getConfigurableValueDelimiter();
             $enclosure = $obj_profile->getEnclose();
 
             $this->_storeIdToCode[0] = 'admin';
@@ -669,6 +367,7 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
             $rule = unserialize($obj_profile->getConditionsSerialized());
             $filteredProductIds = array();
             if (!empty($rule) && count($rule) > 1) {
+                $ruleObject->setProfile($obj_profile);
                 $ruleObject->loadPost(array('conditions' => $rule));
                 $ruleObject->setWebsiteIds(array(Mage::app()->getStore($obj_profile->getStoreId())->getWebsiteId()));
                 $filteredProductIds = $ruleObject->getMatchingProductIds();
@@ -708,7 +407,9 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
 
                 // let the first fork go to ensure that the headline is correct set
                 if($index == 1){
-                    while($this->_threads[$index]->isAlive()){ sleep(1); }
+                    while($this->_threads[$index]->isAlive()){
+                        sleep(1);
+                    }
                 }
 
                 while( count($this->_threads) >= $maxThreads ) {
@@ -756,344 +457,259 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
         $this->_connection   = Mage::getSingleton('core/resource')->getConnection('write');
     }
 
-    /**
-     *
-     *
-     * @param $offsetProducts
-     * @param $writer
-     * @param $limitProducts
-     * @param $filteredProductIds
-     * @param $mapping
-     * @return bool
-     */
-    public function _exportThread($offsetProducts, $writer, $limitProducts, $filteredProductIds, $mapping, $shippingAttrCodes)
-    {
+    public function _exportThread($offsetProducts, $writer, $limitProducts, $filteredProductIds, $mapping, $shippingAttrCodes) {
+        $this->_shippingAttrCodes = $shippingAttrCodes;
         $this->_cleanUpProcess();
-
-        Mage::helper('mep/log')->debug('START Thread '.$offsetProducts, $this);
-
-        $defaultStoreId = Mage_Catalog_Model_Abstract::DEFAULT_STORE_ID;
-        /* @var $helperShipping Flagbit_MEP_Helper_Shipping */
-        $helperShipping = Mage::helper('mep/shipping');
-
+        Mage::helper('mep/log')->debug('START Thread: ' . $offsetProducts, $this);
         $obj_profile = $this->getProfile();
-
         if($this->_limit !== null &&  $offsetProducts > 1){
             return false;
         }
-
-        $dataRows = array();
-        $rowCategories = array();
-        $rowWebsites = array();
-        $rowTierPrices = array();
-        $rowGroupPrices = array();
-        $rowMultiselects = array();
-        $mediaGalery = array();
-        $productsCount = 0;
-
-        // prepare multi-store values and system columns values
-        foreach ($this->_storeIdToCode as $storeId => &$storeCode) { // go through all stores
-
-            if($storeId != $obj_profile->getStoreId() && $storeId != $defaultStoreId){
-                continue;
-            }
-
-            Mage::helper('mep/log')->debug('START Export storeview '.$storeCode, $this);
-
-            //set locale code to provide best sprintf support
-            $localeInfo = $obj_profile->getProfileLocale();
-            if ($localeInfo != null && strlen($localeInfo) > 0) {
-                setlocale(LC_ALL, $localeInfo);
-            } else {
-                setlocale(LC_ALL, Mage::app()->getLocale()->getLocaleCode());
-            }
-
-            /* @var $collection Mage_Catalog_Model_Resource_Product_Collection */
-            $collection = $this->_prepareEntityCollection(Mage::getResourceModel('catalog/product_collection'));
-            $collection
-                ->setStoreId($storeId)
-                ->addStoreFilter($obj_profile->getStoreId())
-                ->setPage($offsetProducts, $limitProducts);
-
-
-            if(!empty($filteredProductIds)){
-                $collection->addFieldToFilter("entity_id", array('in' => $filteredProductIds));
-            }
-
-
-            if ($collection->getCurPage() < $offsetProducts) {
-                return false;
-            }
-            $collection->addUrlRewrite();
-            $collection->load();
-
-            if ($collection->count() == 0) {
-                return false;
-            }
-
-            if ($defaultStoreId == $storeId) {
-                $collection->addCategoryIds()->addWebsiteNamesToResult();
-
-                // tier and group price data getting only once
-                $rowTierPrices = $this->_prepareTierPrices($collection->getAllIds());
-                $rowGroupPrices = $this->_prepareGroupPrices($collection->getAllIds());
-
-                // getting media gallery data
-                $mediaGalery = $this->_prepareMediaGallery($collection->getAllIds());
-            }
-            /* @var $item Mage_Catalog_Model_Product */
-            foreach ($collection as $itemId => $item) { // go through all products
-                $rowIsEmpty = true; // row is empty by default
-
-                #Mage::helper('mep/log')->debug('Export Product ('.$offsetProducts.') '.$item->getSku(), $this);
-
-                foreach ($mapping->getItems() as $mapitem) {
-
-                    foreach ($mapitem->getAttributeCodeAsArray() as $attrCode) {
-
-                        $attrValue = $item->getData($attrCode);
-
-                        // shipping
-                        if (array_key_exists($attrCode, $shippingAttrCodes)) {
-                            $shipping_item = $shippingAttrCodes[$attrCode];
-                            $attrValue = $helperShipping->emulateCheckout($item, $obj_profile->getStoreId(), $shipping_item);
-                        }
-
-                        // TODO dirty? Yes!
-                        if ($attrCode == 'url') {
-                            if (version_compare(Mage::getVersion(), '1.13.0.0') >= 0) {
-                                $urlRewrite = Mage::getModel('enterprise_urlrewrite/url_rewrite')
-                                    ->getCollection()
-                                    ->addFieldToFilter('target_path', array('eq' => 'catalog/product/view/id/' . $item->getId()))
-                                    ->addFieldToFilter('is_system', array('eq' => 1));
-                                $attrValue = Mage::app()->getStore($obj_profile->getStoreId())->getBaseUrl(Mage_Core_Model_Store::URL_TYPE_WEB) . $urlRewrite->getFirstItem()->getRequestPath();
-                            }
-                            else {
-                                Mage::app()->setCurrentStore($obj_profile->getStoreId());
-                                $item->setStoreId($obj_profile->getStoreId());
-                                $attrValue = $item->getProductUrl(false);
-                                $item->setStoreId($storeId);
-                                Mage::app()->setCurrentStore($storeId);
-                            }
-                        }
-
-                        if ($attrCode == 'gross_price') {
-                            $attrValue = Mage::helper('tax')->getPrice($item, $item->getFinalPrice(), null, null, null,
-                                null, $obj_profile->getStoreId(), null
-                            );
-                        }
-
-                        if ($attrCode == 'fixed_value_format') {
-                            $attrValue = $mapitem->getFormat();
-                        }
-
-                        if (!empty($this->_attributeValues[$attrCode])) {
-                            if ($this->_attributeTypes[$attrCode] == 'multiselect') {
-                                $attrValue = explode(',', $attrValue);
-                                $attrValue = array_intersect_key(
-                                    $this->_attributeValues[$attrCode],
-                                    array_flip($attrValue)
-                                );
-                                $rowMultiselects[$itemId][$attrCode] = $attrValue;
-                            } else if ($this->_attributeTypes[$attrCode] == 'select') {
-                                $attrValue = $item->getAttributeText($attrCode);
-                            } else if (isset($this->_attributeValues[$attrCode][$attrValue])) {
-                                $attrValue = $this->_attributeValues[$attrCode][$attrValue];
-                            } else {
-                                $attrValue = null;
-                            }
-                        }
-
-                        // handle frontend Models
-                        if (!empty($this->_attributeModels[$attrCode])
-                            && $this->_attributeModels[$attrCode]->getFrontendModel()
-                            && $this->_attributeModels[$attrCode]->getBackendType() != 'datetime'
-                        ) {
-
-                            $attrValue = $this->_frontend = Mage::getModel($this->_attributeModels[$attrCode]->getFrontendModel())->setAttribute($this->_attributeModels[$attrCode])->getValue($item);
-                            if (isset($rowMultiselects[$itemId])) {
-                                unset($rowMultiselects[$itemId]);
-                            }
-                        }
-
-                        // value Mapping Attributes
-                        $attributeMapping = $this->_getAttributeMapping($attrCode);
-                        if ($attributeMapping
-                            && $attributeMapping->getSourceAttributeCode() != 'category'
-                            && $item->getData($attributeMapping->getSourceAttributeCode())
-                        ) {
-
-                            $attrValue = $item->getData($attributeMapping->getSourceAttributeCode());
-
-                            if ($this->_attributeTypes[$attributeMapping->getSourceAttributeCode()] == 'multiselect') {
-                                $attrValue = $attributeMapping->getOptionValue(explode(',', $attrValue), $obj_profile->getStoreId());
-                                $rowMultiselects[$itemId][$attrCode] = $attrValue;
-
-                            } else {
-                                $attrValue = $attributeMapping->getOptionValue($attrValue, $obj_profile->getStoreId());
-                            }
-                            // value Mapping category
-                        } elseif ($attributeMapping
-                            && $attributeMapping->getSourceAttributeCode() == 'category'
-                        ) {
-
-                            $rrowCategories = $item->getCategoryIds();
-                            $categoryId = array_shift($rrowCategories);
-
-                            if (isset($this->_categoryIds[$categoryId])) {
-
-                                if($attributeMapping->getCategoryType() == 'single'){
-                                    $attrValue = implode(
-                                        $this->getProfile()->getCategoryDelimiter(),
-                                        $attributeMapping->getOptionValue($this->_categoryIds[$categoryId], $obj_profile->getStoreId())
-                                    );
-                                }else{
-                                    $attrValue = $attributeMapping->getOptionValue($categoryId, $obj_profile->getStoreId());
-                                }
-                            }
-                        }
-
-                        // do not save value same as default or not existent
-                        if ($storeId != $defaultStoreId
-                            && isset($dataRows[$itemId][$defaultStoreId][$attrCode])
-                            && $dataRows[$itemId][$defaultStoreId][$attrCode] == $attrValue
-                        ) {
-                            $attrValue = null;
-                        }
-                        if (is_scalar($attrValue)) {
-                            $dataRows[$itemId][$storeId][$attrCode] = $attrValue;
-                            $rowIsEmpty = false;
-                        }
-                    }
-                }
-
-                if ($rowIsEmpty) { // remove empty rows
-                    unset($dataRows[$itemId][$storeId]);
-                } else {
-                    $attrSetId = $item->getAttributeSetId();
-                    $dataRows[$itemId][$storeId][self::COL_STORE] = $storeCode;
-                    $dataRows[$itemId][$storeId][self::COL_ATTR_SET] = $this->_attrSetIdToName[$attrSetId];
-                    $dataRows[$itemId][$storeId][self::COL_TYPE] = $item->getTypeId();
-
-                    if ($defaultStoreId == $storeId) {
-                        $rowWebsites[$itemId] = $item->getWebsites();
-                        $rowCategories[$itemId] = $item->getCategoryIds();
-                    }
-                }
-                $item = null;
-            }
-            $collection->clear();
+        $storeId = $obj_profile->getStoreId();
+        $collection = $this->_prepareEntityCollection(Mage::getResourceModel('catalog/product_collection'));
+        $collection
+            ->setStoreId($storeId)
+            ->addStoreFilter($obj_profile->getStoreId())
+            ->setPage($offsetProducts, $limitProducts);
+        if (!empty($filteredProductIds)){
+            $collection->addFieldToFilter("entity_id", array('in' => $filteredProductIds));
         }
-
+        $collection->load();
+        foreach ($collection as $item) {
+            $currentRow = array();
+            foreach ($mapping->getItems() as $mapItem) {
+                $attrValues = array();
+                $attrInheritance = $mapItem->getInheritance();
+                foreach ($mapItem->getAttributeCodeAsArray() as $attrCode) {
+                    if ($attrInheritance == 1) {
+                        $attrValues = $this->_manageAttributeInheritance($item, $attrCode, $mapItem);
+                    }
+                    else {
+                        $currentValue = $this->_manageAttributeForItem($item, $attrCode, $mapItem);
+                        $this->_addAttributeToArray($currentValue, $attrValues);
+                    }
+                    $currentRow[$attrCode] = implode($this->_configurable_delimiter, $attrValues);
+                }
+            }
+            if($offsetProducts != 1) {
+                $writer->setHeaderIsDisabled();
+            }
+            $writer->writeRow($currentRow);
+        }
+        $collection->clear();
         if ($collection->getCurPage() < $offsetProducts) {
             return false;
         }
-        // remove unused categories
-        $allCategoriesIds = array_merge(array_keys($this->_categories), array_keys($this->_rootCategories));
-        foreach ($rowCategories as &$categories) {
-            $categories = array_intersect($categories, $allCategoriesIds);
-        }
-
-        // prepare catalog inventory information
-        $productIds = array_keys($dataRows);
-        $stockItemRows = $this->_prepareCatalogInventory($productIds);
-
-        // prepare links information
-        $linksRows = $this->_prepareLinks($productIds);
-        $linkIdColPrefix = array(
-            Mage_Catalog_Model_Product_Link::LINK_TYPE_RELATED => '_links_related_',
-            Mage_Catalog_Model_Product_Link::LINK_TYPE_UPSELL => '_links_upsell_',
-            Mage_Catalog_Model_Product_Link::LINK_TYPE_CROSSSELL => '_links_crosssell_',
-            Mage_Catalog_Model_Product_Link::LINK_TYPE_GROUPED => '_associated_'
-        );
-
-
-        foreach ($dataRows as $productId => &$productData) {
-            foreach ($productData as $storeId => &$dataRow) {
-                if ($defaultStoreId != $storeId) {
-                    $dataRow[self::COL_SKU] = null;
-                    $dataRow[self::COL_ATTR_SET] = null;
-                    $dataRow[self::COL_TYPE] = null;
-                } else {
-                    $dataRow[self::COL_STORE] = null;
-                    $dataRow += $stockItemRows[$productId];
-                }
-
-                $this->_updateDataWithCategoryColumns($dataRow, $rowCategories, $productId);
-
-                if ($rowWebsites[$productId]) {
-                    $dataRow['_product_websites'] = $this->_websiteIdToCode[array_shift($rowWebsites[$productId])];
-                }
-                if (!empty($rowTierPrices[$productId])) {
-                    $dataRow = array_merge($dataRow, array_shift($rowTierPrices[$productId]));
-                }
-                if (!empty($rowGroupPrices[$productId])) {
-                    $dataRow = array_merge($dataRow, array_shift($rowGroupPrices[$productId]));
-                }
-                if (!empty($mediaGalery[$productId])) {
-                    $dataRow = array_merge($dataRow, array_shift($mediaGalery[$productId]));
-                }
-                foreach ($linkIdColPrefix as $linkId => &$colPrefix) {
-                    if (!empty($linksRows[$productId][$linkId])) {
-                        $linkData = array_shift($linksRows[$productId][$linkId]);
-                        $dataRow[$colPrefix . 'position'] = $linkData['position'];
-                        $dataRow[$colPrefix . 'sku'] = $linkData['sku'];
-
-                        if (null !== $linkData['default_qty']) {
-                            $dataRow[$colPrefix . 'default_qty'] = $linkData['default_qty'];
-                        }
-                    }
-                }
-                if (!empty($customOptionsData[$productId])) {
-                    $dataRow = array_merge($dataRow, array_shift($customOptionsData[$productId]));
-                }
-                if (!empty($configurableData[$productId])) {
-                    $dataRow = array_merge($dataRow, array_shift($configurableData[$productId]));
-                }
-                if (!empty($rowMultiselects[$productId])) {
-                    foreach ($rowMultiselects[$productId] as $attrKey => $attrVal) {
-                        if (!empty($rowMultiselects[$productId][$attrKey])) {
-                            $dataRow[$attrKey] = array_shift($rowMultiselects[$productId][$attrKey]);
-                        }
-                    }
-                }
-
-
-                //INSERT _category mapping
-                foreach ($mapping->getItems() as $mapitem) {
-                    $attrCode = $mapitem->getAttributeCode();
-                    if ($attrCode == '_category') {
-                        if (isset($dataRow['_category'])) {
-                            $dataRow[$attrCode] = $dataRow['_category'];
-                        }
-                    }
-                    if ($attrCode == 'image_url') {
-                        if (isset($dataRow['_media_image'])) {
-                            $dataRow[$attrCode] = Mage::app()->getStore($obj_profile->getStoreId())->getBaseUrl(Mage_Core_Model_Store::URL_TYPE_MEDIA) . 'catalog/product' . $dataRow['_media_image'];
-                        }
-                    }
-                    if ($attrCode == 'qty' && isset($dataRow['qty'])) {
-                        $dataRow[$attrCode] = (int)$dataRow['qty'];
-                    }
-                }
-
-                // store default store values;
-                if ($defaultStoreId == $storeId) {
-                    $defaultDataRow = $dataRow;
-                }
-
-            }
-            if($offsetProducts != 1){
-                $writer->setHeaderIsDisabled();
-            }
-            $dataRow = array_merge($defaultDataRow, array_filter( $dataRow, create_function('$value', 'return empty($value) ? 0 : 1;')));
-            $productsCount++;
-
-            $writer->writeRow($dataRow);
-        }
-        Mage::helper('mep/log')->debug('END Thread '.$offsetProducts.' ('.$productsCount.' Products)', $this);
-
         return true;
+    }
+
+    /*
+     * Check if a product has inherited product, get attribute value if so and cache them
+     * Get attribute value from normal item if no inherited product
+     */
+
+    protected function  _manageAttributeInheritance($item, $attrCode, $mapItem) {
+        $attrValues = array();
+        $inheritanceType = $mapItem->getInheritanceType();
+        if ($inheritanceType == 'from_child') {
+            $cacheKey = 'children';
+        }
+        elseif ($inheritanceType == 'from_parent') {
+            $cacheKey = 'parents';
+        }
+        else {
+            return null;
+        }
+        $hasInheritor = false;
+        if (!isset($this->_itemsCache[$cacheKey][$item->getId()])) { //If there are no inheritor cached for the current item
+            if ($inheritanceType == 'from_child') {
+                $inheritorIds = $item->getTypeInstance()->getChildrenIds($item->getId(), false);
+                if (isset($inheritorIds[0])) {
+                    $inheritorIds = $inheritorIds[0];
+                }
+            }
+            else {
+                $inheritorIds = Mage::getModel('catalog/product_type_configurable')->getParentIdsByChild($item->getId());
+                if (empty($inheritorIds)) {
+                    $inheritorIds = Mage::getModel('catalog/product_type_grouped')->getParentIdsByChild($item->getId());
+                }
+            }
+            $this->_itemsCache[$cacheKey][$item->getId()] = array();
+            if (!empty($inheritorIds)) { //If there are inheritors
+                $hasInheritor = true;
+                $attrValues = $this->_doInheritanceAndCache($item, $inheritorIds, $attrCode, $mapItem, $cacheKey);
+            }
+        }
+        else { //If there are inheritor cached
+            $inheritor = $this->_itemsCache[$cacheKey][$item->getId()];
+            if (!empty($inheritor)) { //If there are inheritor
+                $hasInheritor = true;
+                $attrValues = $this->_doInheritance($inheritor, $attrCode, $mapItem);
+            }
+        }
+        if (!$hasInheritor) {
+            $currentValue = $this->_manageAttributeForItem($item, $attrCode, $mapItem); //If there are no inheritor, we use the normal item to get attribute value
+            $this->_addAttributeToArray($currentValue, $attrValues);
+        }
+        return $attrValues;
+    }
+
+    /*
+     * Parse each inherited product to get attribute value
+     */
+    protected function  _doInheritance($items, $attrCode, $mapItem) {
+        $attrValues = array();
+        foreach ($items as $item) {
+            $currentValue = $this->_manageAttributeForItem($item, $attrCode, $mapItem);
+            $this->_addAttributeToArray($currentValue, $attrValues);
+        }
+        return $attrValues;
+    }
+
+    /*
+     * Parse each inherited product to get attribute value and cache them
+     */
+    protected function  _doInheritanceAndCache($parent, $items, $attrCode, $mapItem, $cacheType){
+        $attrValues = array();
+        $collection = Mage::getModel('catalog/product')->getCollection();
+        $collection->addAttributeToSelect('*');
+        $collection->addFieldToFilter("entity_id", array('in' => $items));
+        $items = $collection->load();
+        foreach ($items as $item) {
+            $itemId = $item->getId();
+            $currentValue = $this->_manageAttributeForItem($item, $attrCode, $mapItem);
+            $this->_addAttributeToArray($currentValue, $attrValues);
+            $this->_itemsCache[$cacheType][$parent->getId()][$itemId] = $item; //Add the item to the cache
+        }
+        return $attrValues;
+    }
+
+    /*
+     * Insert a new attribute value in the given array if the value is not empty and not already in the array
+     */
+    protected function  _addAttributeToArray($value, &$attrValues) {
+        if (!empty($value) && !in_array($value, $attrValues)) {
+            $attrValues[] = $value;
+        }
+    }
+
+    /*
+     * Manage attribute value for a given item
+     */
+    protected function  _manageAttributeForItem($item, $attrCode, $mapItem) {
+        if (($attributeMapping = $this->_getAttributeMapping($attrCode))) {
+            $attrValue = $this->_manageAttributeMapping($attributeMapping, $item);
+        }
+        elseif (($attributeShipping = $this->_getAttributeShipping($attrCode))) {
+            $attrValue = Mage::helper('mep/shipping')->emulateCheckout($item, $this->getProfile()->getStoreId(), $attributeShipping);
+        }
+        else {
+            $attrValue = $this->_getAttributeValue($item, $attrCode, $mapItem);
+        }
+        return $attrValue;
+    }
+
+    /*
+     * Get attribute value for a given item
+     * Apply filters if necessary
+     */
+    protected function  _getAttributeValue($item, $attrCode, $mapItem) {
+        //Callback method configuration for special attribute
+        $attributeValueFilter = array(
+            'url' => '_getProductUrl',
+            'gross_price' => '_getGrossPrice',
+            'qty' => '_getQuantity',
+            'image_url' => '_getImageUrl'
+        );
+        $attrValue = $item->getData($attrCode);
+        if (isset($attributeValueFilter[$attrCode])) {
+            $attrValue = $this->$attributeValueFilter[$attrCode]($item, $mapItem);
+        }
+        if (isset($this->_attributeValues[$attrCode])) {
+            if (isset($this->_attributeValues[$attrCode][$attrValue])) {
+                $attrValue = $this->_attributeValues[$attrCode][$attrValue];
+            }
+        }
+        if (isset($this->_attributeTypes[$attrCode])) {
+            if ($this->_attributeTypes[$attrCode] == 'multiselect') {
+                $currentValues = explode(',', $attrValue);
+                foreach ($currentValues as &$currentValue) {
+                    if (isset($this->_attributeValues[$attrCode][$currentValue])) {
+                        $currentValue = $this->_attributeValues[$attrCode][$currentValue];
+                    }
+                }
+                $attrValue = implode(',', $currentValues);
+            }
+        }
+        return $attrValue;
+    }
+
+    /*
+     * Map attribute value
+     */
+    protected function  _manageAttributeMapping($attributeMapping, $item) {
+        $sourceAttributeCode = $attributeMapping->getSourceAttributeCode();
+        $attrValue = $item->getData($sourceAttributeCode);
+        if ($sourceAttributeCode == 'category') {
+            $itemCategoriesIds = $item->getCategoryIds();
+            $categoryId = array_shift($itemCategoriesIds);
+            if (empty($categoryId)) {
+                return null;
+            }
+            if ($attributeMapping->getCategoryType() == 'single') {
+                if (isset($this->_categoryIds[$categoryId])) {
+                    $attrValue = implode($this->getProfile()->getCategoryDelimiter(), $attributeMapping->getOptionValue($this->_categoryIds[$categoryId], $this->getProfile()->getStoreId()));
+                    return $attrValue;
+                }
+            }
+            else {
+                $attrValue = $attributeMapping->getOptionValue($categoryId, $this->getProfile()->getStoreId());
+                return $attrValue;
+            }
+        }
+        else {
+            if (!empty($attrValue)) {
+                if ($this->_attributeTypes[$sourceAttributeCode] == 'multiselect') {
+                    $attrValue = $attributeMapping->getOptionValue(explode(',', $attrValue), $this->getProfile()->getStoreId());
+                    $attrValue = implode(',', $attrValue);
+
+                } else {
+                    $attrValue = $attributeMapping->getOptionValue($attrValue, $this->getProfile()->getStoreId());
+                }
+                return $attrValue;
+            }
+        }
+        return null;
+    }
+
+    protected function  _getProductUrl($item, $mapItem)
+    {
+        $objProfile = $this->getProfile();
+        if (version_compare(Mage::getVersion(), '1.13.0.0') >= 0) {
+            $urlRewrite = Mage::getModel('enterprise_urlrewrite/url_rewrite')->getCollection()->addFieldToFilter('target_path', array('eq' => 'catalog/product/view/id/' . $item->getId()))->addFieldToFilter('is_system', array('eq' => 1));
+            $attrValue = Mage::app()->getStore($objProfile->getStoreId())->getBaseUrl(Mage_Core_Model_Store::URL_TYPE_WEB) . $urlRewrite->getFirstItem()->getRequestPath();
+        }
+        else {
+            $attrValue = $item->getProductUrl(false);
+        }
+
+        return $attrValue;
+    }
+
+    protected function  _getGrossPrice($item, $mapItem) {
+        $objProfile = $this->getProfile();
+        $attrValue = Mage::helper('tax')->getPrice($item, $item->getFinalPrice(), null, null, null, null, $objProfile->getStoreId(), null);
+        return $attrValue;
+    }
+
+    protected function  _getQuantity($item, $mapItem) {
+        $attrValue = intval(Mage::getModel('cataloginventory/stock_item')->loadByProduct($item)->getQty());
+        return $attrValue;
+    }
+
+    protected function  _getImageUrl($item, $mapItem) {
+        $attrValue = $item->getMediaConfig()->getMediaUrl($item->getData('image'));
+        return $attrValue;
     }
 
 
