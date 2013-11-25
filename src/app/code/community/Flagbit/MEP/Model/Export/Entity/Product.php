@@ -597,6 +597,7 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
      * Manage attribute value for a given item
      */
     protected function  _manageAttributeForItem($item, $attrCode, $mapItem) {
+        Mage::app()->setCurrentStore($this->getProfile()->getStoreId());
         if (($attributeMapping = $this->_getAttributeMapping($attrCode))) {
             $attrValue = $this->_manageAttributeMapping($attributeMapping, $item);
         }
@@ -606,6 +607,7 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
         else {
             $attrValue = $this->_getAttributeValue($item, $attrCode, $mapItem);
         }
+        Mage::app()->setCurrentStore(0);
         return $attrValue;
     }
 
