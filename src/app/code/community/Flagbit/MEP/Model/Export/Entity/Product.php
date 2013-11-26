@@ -315,6 +315,8 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
             /* @var $obj_profile Flagbit_MEP_Model_Profil */
             $obj_profile = $this->getProfile();
             $delimiter = $obj_profile->getDelimiter();
+            $settings = $obj_profile->getSettings();
+            $encoding = $settings['encoding'];
             $this->_configurable_delimiter = $obj_profile->getConfigurableValueDelimiter();
             $enclosure = $obj_profile->getEnclose();
 
@@ -324,6 +326,7 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
 
             $writer->setDelimiter($delimiter);
             $writer->setEnclosure($enclosure);
+            $writer->setEncoding($encoding);
 
             // add Twig Templates
             $writer->setTwigTemplate($obj_profile->getTwigHeaderTemplate(), 'header');

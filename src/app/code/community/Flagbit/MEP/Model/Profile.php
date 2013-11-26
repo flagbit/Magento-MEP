@@ -16,6 +16,16 @@ class Flagbit_MEP_Model_Profile extends Mage_Core_Model_Abstract
     }
 
     /**
+     * Processing object after loading
+     *
+     * @return Mage_Core_Model_Abstract
+     */
+    protected function  _afterLoad() {
+        $this->setSettings(unserialize($this->getSettings()));
+        return parent::_afterLoad();
+    }
+
+    /**
      * Processing object before save data
      *
      * @return Mage_Core_Model_Abstract
@@ -30,6 +40,7 @@ class Flagbit_MEP_Model_Profile extends Mage_Core_Model_Abstract
             $this->setTwigContentTemplate(
                 $this->_generateTemplate($this->getTwigContentTemplate(), self::TWIG_TEMPLATE_TYPE_CONTENT)
             );
+            $this->setSettings(serialize($this->getSettings()));
             if(!$this->getUseTwigTemplates()){
                 $this->setTwigFooterTemplate('');
             }
@@ -65,12 +76,12 @@ class Flagbit_MEP_Model_Profile extends Mage_Core_Model_Abstract
         /* @var $collection Flagbit_MEP_Model_Mysql4_Mapping_Collection */
         $collection = Mage::getModel('mep/mapping')->getCollection();
         $collection->addFieldToFilter('profile_id', array('eq' => $this->getId()))
-                   ->setOrder('position', 'ASC');
+            ->setOrder('position', 'ASC');
 
         foreach($collection as $mappingItem){
             $mappingItem->setId(null)
-                        ->setProfileId($newProfile->getId())
-                        ->save();
+                ->setProfileId($newProfile->getId())
+                ->save();
         }
 
         return $newProfile;
@@ -91,8 +102,8 @@ class Flagbit_MEP_Model_Profile extends Mage_Core_Model_Abstract
         /* @var $collection Flagbit_MEP_Model_Mysql4_Mapping_Collection */
         $collection = Mage::getModel('mep/mapping')->getCollection();
         $collection->addFieldToFilter('profile_id', array('eq' => $profileId))
-                   ->addAttributeSettings()
-                   ->setOrder('position', 'ASC');
+            ->addAttributeSettings()
+            ->setOrder('position', 'ASC');
 
 
         if($template && $this->getUseTwigTemplates()){
@@ -119,7 +130,7 @@ class Flagbit_MEP_Model_Profile extends Mage_Core_Model_Abstract
         if($template && count($twigTemplateArray) && $this->getUseTwigTemplates()){
             $template = $template.PHP_EOL.PHP_EOL.'{# -- '.Mage::helper('mep')->__('New fields which can not be automatically mapped').' -- '.PHP_EOL.implode($this->getDelimiter(), $twigTemplateArray).PHP_EOL.'#}';
 
-        // Template does not exists but there are new Fields
+            // Template does not exists but there are new Fields
         }elseif(!$template && count($twigTemplateArray)){
             $template = '{% spaceless %}'.PHP_EOL.implode($this->getDelimiter(), $twigTemplateArray).PHP_EOL.'{% endspaceless %}';
         }

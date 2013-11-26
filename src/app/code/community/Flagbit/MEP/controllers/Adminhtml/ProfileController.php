@@ -94,11 +94,15 @@ class Flagbit_MEP_Adminhtml_ProfileController extends Mage_Adminhtml_Controller_
             }
             if (isset($data['apply_to'])) {
                 $data['settings']['apply_to'] = $data['apply_to'];
-                $data['settings'] = serialize($data['settings']);
             }
             else {
                 $data['settings']['apply_to'] = null;
-                $data['settings'] = serialize($data['settings']);
+            }
+            if (!empty($data['encoding'])) {
+                $data['settings']['encoding'] = $data['encoding'];
+            }
+            else {
+                $data['settings']['encoding'] = null;
             }
             if (isset($data['rule'])) {
 
