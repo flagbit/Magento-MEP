@@ -118,6 +118,14 @@ class Flagbit_MEP_Block_Adminhtml_Profile_View_Edit_Tab_Format extends Mage_Admi
                 'options' => $this->_getShippingOptionsHash(),
             )
         );
+        $fieldset->addField(
+            'encoding',
+            'text',
+            array(
+                'label' => Mage::helper('mep')->__('Encoding'),
+                'name' => 'encoding',
+            )
+        );
         $fieldset->addType('apply', 'Mage_Adminhtml_Block_Catalog_Product_Helper_Form_Apply');
         $fieldset->addField('apply_to', 'apply', array(
             'name'        => 'apply_to[]',
@@ -133,10 +141,18 @@ class Flagbit_MEP_Block_Adminhtml_Profile_View_Edit_Tab_Format extends Mage_Admi
         $form->setValues(Mage::helper('mep')->getCurrentProfileData());
 
         $profilData = Mage::helper('mep')->getCurrentProfileData();
-        $settings = unserialize($profilData['settings']);
-        if ($settings && $product_type = $settings['apply_to']) {
-            $product_type = is_array($product_type) ? $product_type : explode(',', $product_type);
-            $form->getElement('apply_to')->setValue($product_type);
+        $settings = $profilData['settings'];
+        if ($settings) {
+            if (($product_type = $settings['apply_to'])) {
+                $product_type = is_array($product_type) ? $product_type : explode(',', $product_type);
+                $form->getElement('apply_to')->setValue($product_type);
+            }
+            else {
+                $form->getElement('apply_to')->addClass('no-display ignore-validate');
+            }
+            if (($encoding = $settings['encoding'])) {
+                $form->getElement('encoding')->setValue($encoding);
+            }
         } else {
             $form->getElement('apply_to')->addClass('no-display ignore-validate');
         }
