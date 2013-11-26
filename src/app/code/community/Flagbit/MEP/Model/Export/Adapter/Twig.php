@@ -222,10 +222,12 @@ class Flagbit_MEP_Model_Export_Adapter_Twig extends Mage_ImportExport_Model_Expo
      */
     public function cleanElement($element)
     {
-        $element = preg_replace('/\s\s+/', ' ', html_entity_decode(htmlentities($element, ENT_SUBSTITUTE, 'UTF-8', false)));
+        $element = Mage::helper('mep/encoding')->decodeEntities($element);
         $element = trim($element);
         $element = str_replace(array($this->_delimiter, $this->_enclosure), '', $element);
         $element = str_replace(array("\r\n", "\r", "\n"), '', $element);
+
+        //$element = iconv ( "UTF-8", "ISO-8859-1//IGNORE", $element );
 
         //$element = utf8_encode($element);
         return $element;
