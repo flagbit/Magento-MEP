@@ -7,45 +7,8 @@ class Flagbit_MEP_Helper_Encoding extends Mage_Core_Helper_Abstract {
 
     public function decodeEntities($text)
     {
-        $text= $this->htmlentities2utf8($text);
-        #$text = preg_replace_callback('/&#(\d+);/me', array($this, 'uniChrDecimal'), $text);
-        #$text = preg_replace_callback('/&#x([a-f0-9]+);/mei', array($this, 'uniChrHex'), $text);
+        $text = preg_replace('/\s\s+/', ' ', html_entity_decode(htmlentities($text, ENT_SUBSTITUTE, 'UTF-8', false)));
         $text = strtr($text, $this->_htmlEntities);
         return $text;
     }
-
-    /**
-     * because of the html_entity_decode() bug with UTF-8
-     *
-     * @param $string
-     * @return mixed
-     */
-    public function htmlentities2utf8 ($string)
-    {
-        $string = preg_replace_callback('~&(#(x?))?([^;]+);~', 'html_entity_replace', $string);
-        return $string;
-    }
-
-    /**
-     * Return unicode char by its code
-     *
-     * @param int $u
-     * @return char
-     */
-    public function uniChrDecimal($u)
-    {
-        return mb_convert_encoding('&#' . intval($u) . ';', 'UTF-8', 'HTML-ENTITIES');
-    }
-
-    /**
-     * Return unicode char by its code
-     *
-     * @param int $u
-     * @return char
-     */
-    public function uniChrHex($u)
-    {
-        return mb_convert_encoding('0x' . intval($u) . ';', 'UTF-8', 'HTML-ENTITIES');
-    }
-
 }
