@@ -44,6 +44,8 @@ class Flagbit_MEP_Model_Export_Adapter_Twig extends Mage_ImportExport_Model_Expo
 
     protected $_encoding;
 
+    private $_configurable_delimiter;
+
     /**
      * Object destructor.
      *
@@ -111,7 +113,8 @@ class Flagbit_MEP_Model_Export_Adapter_Twig extends Mage_ImportExport_Model_Expo
             'cache' => Mage::getBaseDir('cache'),
             'autoescape' => false,
         ));
-
+        $function = new Twig_SimpleFilter('number_format_array', array($this, 'number_format_array'));
+        $this->_twig->addFilter($function);
         // enable sandbox
         $_policy = Mage::getModel('mep/twig_sandbox_policy');
         $sandbox = new Twig_Extension_Sandbox($_policy, true);
@@ -123,6 +126,17 @@ class Flagbit_MEP_Model_Export_Adapter_Twig extends Mage_ImportExport_Model_Expo
             'policy' => $_policy
         ));
 
+    }
+
+    public function number_format_array($numbers , $decimals = 0 , $dec_point = '.' , $thousands_sep = ',') {
+        $numbersArray = explode($this->_configurable_delimiter, $numbers);
+        if (is_array($numbersArray)) {
+            foreach ($numbersArray as &$number) {
+                $number = number_format($number, $decimals, $dec_point, $thousands_sep);
+            }
+            $numbers = implode($this->_configurable_delimiter, $numbersArray);
+        }
+        return $numbers;
     }
 
     /**
@@ -142,6 +156,10 @@ class Flagbit_MEP_Model_Export_Adapter_Twig extends Mage_ImportExport_Model_Expo
     {
         $this->_delimiter = str_replace('\t', chr(9), $delimiter);
         return $this;
+    }
+
+    public function setConfigurableDelimiter($delimiter) {
+        $this->_configurable_delimiter = $delimiter;
     }
 
     /**

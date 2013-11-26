@@ -325,6 +325,7 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
 
 
             $writer->setDelimiter($delimiter);
+            $writer->setConfigurableDelimiter($this->_configurable_delimiter);
             $writer->setEnclosure($enclosure);
             $writer->setEncoding($encoding);
 
