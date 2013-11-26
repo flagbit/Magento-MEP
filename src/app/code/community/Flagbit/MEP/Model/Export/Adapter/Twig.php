@@ -1,209 +1,243 @@
 <?php
-class Flagbit_MEP_Block_Adminhtml_Profile_View_Edit_Tab_Format extends Mage_Adminhtml_Block_Widget_Form
+/**
+ * This file is part of the Flagbit MEP project.
+ *
+ * Flagbit MEP is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License version 3 as
+ * published by the Free Software Foundation.
+ *
+ * This script is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ *
+ * PHP version 5
+ *
+ * @category Flagbit_MEP
+ * @package Flagbit_MEP
+ * @author Damian Luszczymak <damian.luszczymak@flagbit.de>
+ * @author Karl Spies <karl.spies@flagbit.de>
+ * @copyright 2012 Flagbit GmbH & Co. KG (http://www.flagbit.de). All rights served.
+ * @license http://opensource.org/licenses/gpl-3.0 GNU General Public License, version 3 (GPLv3)
+ * @version 0.1.0
+ * @since 0.1.0
+ */
+class Flagbit_MEP_Model_Export_Adapter_Twig extends Mage_ImportExport_Model_Export_Adapter_Abstract
 {
     /**
-     * _prepareForm
+     * Field headerrow.
      *
-     * Prepares the edit form
-     *
-     * @see Mage_Adminhtml_Block_Widget_Form::_prepareForm()
-     *
-     * @return Flagbit_MEP_Block_Adminhtml_View_Edit_Tab_General Self.
+     * @var boolean
      */
-    protected function _prepareForm()
+    protected $_headerRow = true;
+
+    protected $_headerDisabled = false;
+
+    /**
+     * @var Varien_File_Csv
+     */
+    protected $_csvWriter;
+
+    /**
+     * @var Twig_Environment
+     */
+    protected $_twig;
+
+    protected $_encoding;
+
+    /**
+     * Object destructor.
+     *
+     * @return void
+     */
+    public function __destruct()
     {
-        $form = new Varien_Data_Form();
-        $this->setForm($form);
+        if (is_resource($this->_fileHandler)) {
+            fclose($this->_fileHandler);
+        }
+    }
 
-        $fieldset = $form->addFieldset(
-            'mep_data_format_form',
-            array(
-                'legend' => Mage::helper('mep')->__('Data Format')
-            )
-        );
 
-        $fieldset->addField(
-            'dataformat',
-            'select',
-            array(
-                'label' => Mage::helper('mep')->__('Type'),
-                'name' => 'dataformat',
-                'options' => $this->_getDataFormatOptionsHash(),
-                'note' => "only csv"
-            )
-        );
+    /**
+     * MIME-type for 'Content-Type' header.
+     *
+     * @return string
+     */
+    public function getContentType()
+    {
+        return 'text/csv';
+    }
 
-        $fieldset->addField(
-            'use_twig_templates',
-            'select',
-            array(
-                'label' => Mage::helper('mep')->__('Use Templates'),
-                'name' => 'use_twig_templates',
-                'options' => $this->_getYesNoOptionsHash(),
-                'note' => "only for experienced user"
-            )
-        );
+    /**
+     * Return file extension for downloading.
+     *
+     * @return string
+     */
+    public function getFileExtension()
+    {
+        return 'csv';
+    }
 
-        $fieldset->addField(
-            'delimiter',
-            'text',
-            array(
-                'label' => Mage::helper('mep')->__('Value delimiter'),
-                'class' => 'required-entry',
-                'required' => true,
-                'name' => 'delimiter',
-                'note' => 'Use \t to use TAB as delimiter.'
-            )
-        );
 
-        $fieldset->addField(
-            'enclose',
-            'text',
-            array(
-                'label' => Mage::helper('mep')->__('Enclose values in'),
-                'name' => 'enclose',
-            )
-        );
+    /**
+     * Get contents of export file.
+     *
+     * @return string
+     */
+    public function getContents()
+    {
+        $result = $this->_twig->render('footer', array_combine(array_keys($this->_headerCols), array_keys($this->_headerCols)));
+        fwrite($this->_fileHandler, trim($result).PHP_EOL);
+        return file_get_contents($this->_destination);
+    }
 
-        $fieldset->addField(
-            'originalrow',
-            'select',
-            array(
-                'label' => Mage::helper('mep')->__('Skip Header'),
-                'name' => 'originalrow',
-                'options' => $this->_getYesNoOptionsHash()
-            )
-        );
+    /**
+     * @param boolean $headerrow
+     * @return \Flagbit_MEP_Model_Export_Adapter_Csv
+     */
+    public function setHeaderRow($headerrow)
+    {
+        $this->_headerRow = $headerrow;
+        return $this;
+    }
 
-        $fieldset->addField('filename', 'text', array(
-            'label' => Mage::helper('mep')->__('Name of the file'),
-            'class' => 'required-entry',
-            'required' => true,
-            'name' => 'filename',
+    /**
+     * @return Mage_ImportExport_Model_Export_Adapter_Abstract|void
+     */
+    public function _init()
+    {
+        parent::_init();
+        $this->_fileHandler = fopen($this->_destination, 'a');
+        $this->_twig = new Twig_Environment($this->_getTwigLoader(), array(
+            'cache' => Mage::getBaseDir('cache'),
+            'autoescape' => false,
         ));
 
-        $fieldset->addField('filepath', 'text', array(
-            'label' => Mage::helper('mep')->__('Path to export'),
-            'class' => 'required-entry',
-            'required' => true,
-            'name' => 'filepath',
-            'note' => 'Path relative to document root'
+        // enable sandbox
+        $_policy = Mage::getModel('mep/twig_sandbox_policy');
+        $sandbox = new Twig_Extension_Sandbox($_policy, true);
+        $this->_twig->addExtension($sandbox);
+
+        // Event to offer the possibility to add Twig Modules
+        Mage::dispatchEvent('mep_export_adapter_twig_init', array(
+            'twig' => $this->_twig,
+            'policy' => $_policy
         ));
 
-        $fieldset->addField('category_delimiter', 'text', array(
-            'label' => Mage::helper('mep')->__('Separator between categories'),
-            'class' => 'required-entry',
-            'required' => true,
-            'name' => 'category_delimiter'
-        ));
+    }
 
-        $fieldset->addField('configurable_value_delimiter', 'text', array(
-            'label' => Mage::helper('mep')->__('Separator between configurable values'),
-            'class' => 'required-entry',
-            'required' => true,
-            'name' => 'configurable_value_delimiter'
-        ));
+    /**
+     * @return Flagbit_MEP_Model_Twig_Loader
+     */
+    protected function _getTwigLoader()
+    {
+        return Mage::getSingleton('mep/twig_loader');
+    }
 
-        $fieldset->addField('profile_locale', 'text', array(
-            'label' => Mage::helper('mep')->__('Change default locale'),
-            'name' => 'profile_locale'
-        ));
 
-        $fieldset->addField(
-            'shipping_id',
-            'select',
-            array(
-                'label' => Mage::helper('mep')->__('Shipping Profil'),
-                'name' => 'shipping_id',
-                'options' => $this->_getShippingOptionsHash(),
-            )
-        );
-        $fieldset->addField(
-            'encoding',
-            'text',
-            array(
-                'label' => Mage::helper('mep')->__('Encoding'),
-                'name' => 'encoding',
-            )
-        );
-        $fieldset->addType('apply', 'Mage_Adminhtml_Block_Catalog_Product_Helper_Form_Apply');
-        $fieldset->addField('apply_to', 'apply', array(
-            'name'        => 'apply_to[]',
-            'label'       => Mage::helper('catalog')->__('Apply To'),
-            'values'      => Mage_Catalog_Model_Product_Type::getOptions(),
-            'mode_labels' => array(
-                'all'     => Mage::helper('catalog')->__('All Product Types'),
-                'custom'  => Mage::helper('catalog')->__('Selected Product Types')
-            ),
-            'required'    => true
-        ), 'frontend_class');
+    /**
+     * @param string $delimiter
+     * @return \Flagbit_MEP_Model_Export_Adapter_Csv
+     */
+    public function setDelimiter($delimiter)
+    {
+        $this->_delimiter = str_replace('\t', chr(9), $delimiter);
+        return $this;
+    }
 
-        $form->setValues(Mage::helper('mep')->getCurrentProfileData());
+    /**
+     * @param string $template
+     * @param string $type
+     * @return \Flagbit_MEP_Model_Export_Adapter_Csv
+     */
+    public function setTwigTemplate($template, $type)
+    {
+        $template = str_replace('\t', chr(9), $template);
+        $this->_getTwigLoader()->setTemplate($type, $template);
+        return $this;
+    }
 
-        $profilData = Mage::helper('mep')->getCurrentProfileData();
-        $settings = $profilData['settings'];
-        if ($settings) {
-            if (($product_type = $settings['apply_to'])) {
-                $product_type = is_array($product_type) ? $product_type : explode(',', $product_type);
-                $form->getElement('apply_to')->setValue($product_type);
-            }
-            else {
-                $form->getElement('apply_to')->addClass('no-display ignore-validate');
-            }
-            if (($encoding = $settings['encoding'])) {
-                $form->getElement('encoding')->setValue($encoding);
-            }
-        } else {
-            $form->getElement('apply_to')->addClass('no-display ignore-validate');
+    public function setEncoding($encoding) {
+        $this->_encoding = $encoding;
+    }
+
+    /**
+     * @param string $enclosure
+     * @return \Flagbit_MEP_Model_Export_Adapter_Csv
+     */
+    public function setEnclosure($enclosure)
+    {
+        $this->_enclosure = $enclosure;
+        return $this;
+    }
+
+    public function setHeaderIsDisabled()
+    {
+        $this->_headerDisabled = true;
+        return $this;
+    }
+
+    /**
+     * Write row data to source file.
+     *
+     * @param array $rowData
+     * @throws Exception
+     * @return Mage_ImportExport_Model_Export_Adapter_Abstract
+     */
+    public function writeRow(array $rowData)
+    {
+        if ($this->_headerDisabled === false && null === $this->_headerCols) {
+            $this->setHeaderCols(array_keys($rowData));
         }
 
+        $twigDataRow = array_map(array($this, 'cleanElement'), $rowData);
+        $result = $this->_twig->render('content', $twigDataRow);
 
-        return parent::_prepareForm();
+        fwrite($this->_fileHandler, trim($result).PHP_EOL);
+        return $this;
     }
 
-
-    protected function _getStatusOptionsHash()
+    /**
+     * Set column names.
+     *
+     * @param array $headerCols
+     * @throws Exception
+     * @return Mage_ImportExport_Model_Export_Adapter_Abstract
+     */
+    public function setHeaderCols(array $headerCols)
     {
-        $options = array(
-            0 => Mage::helper('mep')->__('Disable'),
-            1 => Mage::helper('mep')->__('Enable'),
-        );
-        return $options;
-    }
 
-
-    protected function _getYesNoOptionsHash()
-    {
-        $options = array(
-            0 => Mage::helper('mep')->__('No'),
-            1 => Mage::helper('mep')->__('Yes'),
-        );
-        return $options;
-    }
-
-    protected function _getDataFormatOptionsHash()
-    {
-        $options = array(
-            0 => Mage::helper('mep')->__('CSV'),
-            //1 => Mage::helper('mep')->__('XML'),
-        );
-        return $options;
-    }
-
-    protected function _getShippingOptionsHash()
-    {
-        $options = array(
-            0 => Mage::helper('mep')->__('None'),
-        );
-
-        $collection = Mage::getModel('mep/shipping')->getCollection()->addFieldToFilter('status', 1);
-        foreach($collection as $item) {
-            $options[$item->getId()] = $item->getName();
+        if (null !== $this->_headerCols) {
+            Mage::throwException(Mage::helper('importexport')->__('Header column names already set'));
         }
-        return $options;
+        if ($headerCols) {
+            foreach ($headerCols as $colName) {
+                $this->_headerCols[$colName] = false;
+            }
+
+            $result = $this->_twig->render('header', array_combine(array_keys($this->_headerCols), array_keys($this->_headerCols)));
+            fwrite($this->_fileHandler, trim($result).PHP_EOL);
+        }
+        return $this;
     }
 
+    /**
+     * clean CSV Data Element
+     *
+     * @param $element
+     * @return string
+     */
+    public function cleanElement($element)
+    {
+        $element = Mage::helper('mep/encoding')->decodeEntities($element);
+        $element = trim($element);
+        $element = str_replace(array($this->_delimiter, $this->_enclosure), '', $element);
+        $element = str_replace(array("\r\n", "\r", "\n"), '', $element);
 
+        if (!empty($this->_encoding) && $this->_encoding != 'UTF-8') {
+            $element = iconv ( "UTF-8", $this->_encoding, $element );
+        }
 
-
+        //$element = utf8_encode($element);
+        return $element;
+    }
 }
