@@ -627,7 +627,8 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
             'url' => '_getProductUrl',
             'gross_price' => '_getGrossPrice',
             'qty' => '_getQuantity',
-            'image_url' => '_getImageUrl'
+            'image_url' => '_getImageUrl',
+            '_category' => '_getProductCategory'
         );
         $attrValue = $item->getData($attrCode);
         if (isset($attributeValueFilter[$attrCode])) {
@@ -717,6 +718,23 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
 
     protected function  _getImageUrl($item, $mapItem) {
         $attrValue = $item->getMediaConfig()->getMediaUrl($item->getData('image'));
+        return $attrValue;
+    }
+
+    protected function  _getProductCategory($item, $mapItem) {
+        $categoryIds = $item->getCategoryIds();
+        $categoryId = null;
+        $max = 0;
+        foreach ($categoryIds as $_categoryId) {
+            if(isset($this->_categoryIds[$_categoryId]) && count($this->_categoryIds[$_categoryId]) > $max){
+                $max = $this->_categoryIds[$_categoryId];
+                $categoryId = $_categoryId;
+            }
+        }
+        $attrValue = '';
+        if (isset($this->_categories[$categoryId])) {
+            $attrValue = $this->_categories[$categoryId];
+        }
         return $attrValue;
     }
 
