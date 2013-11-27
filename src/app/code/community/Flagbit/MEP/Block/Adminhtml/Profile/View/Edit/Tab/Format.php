@@ -143,14 +143,14 @@ class Flagbit_MEP_Block_Adminhtml_Profile_View_Edit_Tab_Format extends Mage_Admi
         $profilData = Mage::helper('mep')->getCurrentProfileData();
         $settings = $profilData['settings'];
         if ($settings) {
-            if (($product_type = $settings['apply_to'])) {
+            if (isset($settings['apply_to']) && ($product_type = $settings['apply_to'])) {
                 $product_type = is_array($product_type) ? $product_type : explode(',', $product_type);
                 $form->getElement('apply_to')->setValue($product_type);
             }
             else {
                 $form->getElement('apply_to')->addClass('no-display ignore-validate');
             }
-            if (($encoding = $settings['encoding'])) {
+            if (isset($settings['encoding']) && ($encoding = $settings['encoding'])) {
                 $form->getElement('encoding')->setValue($encoding);
             }
         } else {
