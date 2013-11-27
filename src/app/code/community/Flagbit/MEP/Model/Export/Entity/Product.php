@@ -316,7 +316,10 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
             $obj_profile = $this->getProfile();
             $delimiter = $obj_profile->getDelimiter();
             $settings = $obj_profile->getSettings();
-            $encoding = $settings['encoding'];
+            $encoding = null;
+            if (!empty($settings['encoding'])) {
+                $encoding = $settings['encoding'];
+            }
             $this->_configurable_delimiter = $obj_profile->getConfigurableValueDelimiter();
             $enclosure = $obj_profile->getEnclose();
 
