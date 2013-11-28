@@ -503,7 +503,12 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
             if($offsetProducts != 1) {
                 $writer->setHeaderIsDisabled();
             }
-            $writer->writeRow($currentRow);
+            try {
+                $writer->writeRow($currentRow);
+            }
+            catch (Exception $e) {
+                echo 'TWIG Exception: ' . $e->getMessage();
+            }
         }
         $collection->clear();
         if ($collection->getCurPage() < $offsetProducts) {
