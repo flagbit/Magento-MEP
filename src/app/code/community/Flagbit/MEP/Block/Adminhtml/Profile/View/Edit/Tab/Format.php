@@ -110,6 +110,15 @@ class Flagbit_MEP_Block_Adminhtml_Profile_View_Edit_Tab_Format extends Mage_Admi
         ));
 
         $fieldset->addField(
+            'encoding',
+            'text',
+            array(
+                'label' => Mage::helper('mep')->__('Encoding'),
+                'name' => 'settings[encoding]',
+            )
+        );
+
+        $fieldset->addField(
             'shipping_id',
             'select',
             array(
@@ -118,45 +127,14 @@ class Flagbit_MEP_Block_Adminhtml_Profile_View_Edit_Tab_Format extends Mage_Admi
                 'options' => $this->_getShippingOptionsHash(),
             )
         );
-        $fieldset->addField(
-            'encoding',
-            'text',
-            array(
-                'label' => Mage::helper('mep')->__('Encoding'),
-                'name' => 'encoding',
-            )
-        );
-        $fieldset->addType('apply', 'Mage_Adminhtml_Block_Catalog_Product_Helper_Form_Apply');
-        $fieldset->addField('apply_to', 'apply', array(
-            'name'        => 'apply_to[]',
-            'label'       => Mage::helper('catalog')->__('Apply To'),
-            'values'      => Mage_Catalog_Model_Product_Type::getOptions(),
-            'mode_labels' => array(
-                'all'     => Mage::helper('catalog')->__('All Product Types'),
-                'custom'  => Mage::helper('catalog')->__('Selected Product Types')
-            ),
-            'required'    => true
-        ), 'frontend_class');
 
         $form->setValues(Mage::helper('mep')->getCurrentProfileData());
 
         $profilData = Mage::helper('mep')->getCurrentProfileData();
         $settings = $profilData['settings'];
-        if ($settings) {
-            if (isset($settings['apply_to']) && ($product_type = $settings['apply_to'])) {
-                $product_type = is_array($product_type) ? $product_type : explode(',', $product_type);
-                $form->getElement('apply_to')->setValue($product_type);
-            }
-            else {
-                $form->getElement('apply_to')->addClass('no-display ignore-validate');
-            }
-            if (isset($settings['encoding']) && ($encoding = $settings['encoding'])) {
-                $form->getElement('encoding')->setValue($encoding);
-            }
-        } else {
-            $form->getElement('apply_to')->addClass('no-display ignore-validate');
+        if (isset($settings['encoding']) && ($value = $settings['encoding']) !== false) {
+            $form->getElement('encoding')->setValue($value);
         }
-
 
         return parent::_prepareForm();
     }

@@ -378,9 +378,8 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
                 $ruleObject->loadPost(array('conditions' => $rule));
                 $ruleObject->setWebsiteIds(array(Mage::app()->getStore($obj_profile->getStoreId())->getWebsiteId()));
                 $filteredProductIds = $ruleObject->getMatchingProductIds();
-
                 if(count($filteredProductIds) < 1){
-                    return;
+                    return 'No datas';
                 }
             }
             Mage::helper('mep/log')->debug('END Filter Rules', $this);
@@ -581,8 +580,36 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
      */
     protected function  _doInheritanceAndCache($parent, $items, $attrCode, $mapItem, $cacheType){
         $attrValues = array();
-        $collection = Mage::getModel('catalog/product')->getCollection();
+        $collection = Mage::getResourceModel('catalog/product_collection');
         $collection->addAttributeToSelect('*');
+        $settings = $this->getProfile()->getSettings();
+        if (!empty($settings['is_in_stock']) && $settings['is_in_stock'] == 2) {
+            $settings['is_in_stock'] = '';
+        }
+        if (isset($settings['is_in_stock']) && strlen($settings['is_in_stock'])) {
+            $collection->joinField(
+                'is_in_stock',
+                'cataloginventory/stock_item',
+                'is_in_stock',
+                'product_id=entity_id',
+                '{{table}}.stock_id=1',
+                'left'
+            )->addAttributeToFilter('is_in_stock', array('eq' => $settings['is_in_stock']));
+        }
+        if (!empty($settings['qty'])) {
+            if (isset($settings['qty']['threshold']) && strlen($settings['qty']['threshold'])) {
+                $operator = $settings['qty']['operator'];
+                $threshold = $settings['qty']['threshold'];
+                $collection->joinField(
+                    'qty',
+                    'cataloginventory/stock_item',
+                    'qty',
+                    'product_id=entity_id',
+                    '{{table}}.stock_id=1',
+                    'left'
+                )->addAttributeToFilter('qty', array(Mage::helper('mep/qtyFilter')->getOperatorForCollectionFilter($operator) => $threshold));
+            }
+        }
         $collection->addFieldToFilter("entity_id", array('in' => $items));
         $items = $collection->load();
         foreach ($items as $item) {
@@ -598,7 +625,7 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
      * Insert a new attribute value in the given array if the value is not empty and not already in the array
      */
     protected function  _addAttributeToArray($value, &$attrValues) {
-        if (!empty($value) && !in_array($value, $attrValues)) {
+        if (strlen($value) && !in_array($value, $attrValues)) {
             $attrValues[] = $value;
         }
     }

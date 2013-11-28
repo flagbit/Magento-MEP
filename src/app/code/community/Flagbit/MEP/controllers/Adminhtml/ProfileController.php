@@ -92,18 +92,6 @@ class Flagbit_MEP_Adminhtml_ProfileController extends Mage_Adminhtml_Controller_
             if ($id) {
                 $model->load($id);
             }
-            if (isset($data['apply_to'])) {
-                $data['settings']['apply_to'] = $data['apply_to'];
-            }
-            else {
-                $data['settings']['apply_to'] = null;
-            }
-            if (!empty($data['encoding'])) {
-                $data['settings']['encoding'] = $data['encoding'];
-            }
-            else {
-                $data['settings']['encoding'] = null;
-            }
             if (isset($data['rule'])) {
 
                 $data = $this->_filterDates($data, array('from_date', 'to_date'));
