@@ -118,7 +118,8 @@ class Flagbit_MEP_Block_Adminhtml_Category_Dynamic
             'name'  => 'settings[is_in_stock]',
             'label' => Mage::helper('catalog')->__('Stock Availability'),
             'values' =>  array_merge(Mage::getSingleton('cataloginventory/source_stock')->toOptionArray(), array('2' => '')),
-            'value' => $this->getProfilSettingsValueForKey('is_in_stock')
+            'value' => $this->getProfilSettingsValueForKey('is_in_stock'),
+            'note'  => $this->__('Will be used for mains and inheritors products'),
         ));
 
         $specialRules->addType('qty', 'Flagbit_MEP_Helper_QtyFilter');
@@ -129,6 +130,7 @@ class Flagbit_MEP_Block_Adminhtml_Category_Dynamic
             'dropdownValue' => $this->getQtyOperatorValue(),
             'label' => Mage::helper('catalog')->__('Qty'),
             'style' => 'width:50px',
+            'note'  => $this->__('Will be used for mains and inheritors products'),
             'required' => true
         ));
         $form->getElement('qty')->setValue($this->getQtyFilterValue($form));

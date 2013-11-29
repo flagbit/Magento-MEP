@@ -19,7 +19,7 @@ class Flagbit_MEP_Block_Adminhtml_Profile_View_Edit_Tab_Template extends Mage_Ad
         $fieldset = $form->addFieldset(
             'mep_data_xslt_form',
             array(
-                'legend' => Mage::helper('mep')->__('Template')
+                'legend' => Mage::helper('mep')->__('Template') . ' <small><i>' . Mage::helper('mep')->__('The template uses Twig') . '</i></small>'
             )
         );
 

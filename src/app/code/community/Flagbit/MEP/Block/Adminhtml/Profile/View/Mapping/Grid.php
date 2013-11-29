@@ -30,10 +30,10 @@ class Flagbit_MEP_Block_Adminhtml_Profile_View_Mapping_Grid extends Mage_Adminht
         $this->setChild('addfilter_button',
             $this->getLayout()->createBlock('adminhtml/widget_button')
                 ->setData(array(
-                'label' => Mage::helper('adminhtml')->__('Add Attribute'),
-                'onclick' => "mepAttributeSettingsDialog.openDialog('".$this->getUrl('*/profile/popup', array('profile_id' => $this->getProfileId()))."')",
-                'class' => 'add'
-            ))
+                    'label' => Mage::helper('adminhtml')->__('Add Attribute'),
+                    'onclick' => "mepAttributeSettingsDialog.openDialog('".$this->getUrl('*/profile/popup', array('profile_id' => $this->getProfileId()))."')",
+                    'class' => 'add'
+                ))
         );
         return $this;
     }
@@ -126,6 +126,13 @@ class Flagbit_MEP_Block_Adminhtml_Profile_View_Mapping_Grid extends Mage_Adminht
             'header' => Mage::helper('mep')->__('To Field'),
             'align' => 'left',
             'index' => 'to_field',
+            'sortable' => false
+        ));
+
+        $this->addColumn('inheritance_type', array(
+            'header' => Mage::helper('mep')->__('Inheritance type'),
+            'align' => 'left',
+            'index' => 'inheritance_type',
             'sortable' => false
         ));
 
