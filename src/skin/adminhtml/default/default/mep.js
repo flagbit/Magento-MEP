@@ -108,3 +108,15 @@ function toggleApplyVisibility(select) {
         }
     }
 }
+
+function    toggleQtyFilterVisibility(select) {
+    if ($(select).value == '') {
+        $(select).next('input').addClassName('no-display');
+        $(select).next('input').addClassName('ignore-validate');
+        $(select).next('input').value = '';
+    }
+    else {
+        $(select).next('input').removeClassName('no-display');
+        $(select).next('input').removeClassName('ignore-validate');
+    }
+}

@@ -109,6 +109,9 @@ class Flagbit_MEP_Model_Rule extends Mage_CatalogRule_Model_Rule
         if (!is_array($settings)) {
             $settings = unserialize($settings);
         }
+        if (!empty($settings['is_in_stock']) && $settings['is_in_stock'] == 2) {
+            $settings['is_in_stock'] = '';
+        }
         if (is_null($this->_productIds)) {
             $this->_productIds = array();
             $this->setCollectedAttributes(array());
@@ -119,12 +122,35 @@ class Flagbit_MEP_Model_Rule extends Mage_CatalogRule_Model_Rule
                 if (isset($settings['apply_to']) && !is_null($settings['apply_to'])) {
                     $productCollection->addAttributeToFilter('type_id', array('in' => $settings['apply_to']));
                 }
+                if (isset($settings['is_in_stock']) && strlen($settings['is_in_stock'])) {
+                    $productCollection->joinField(
+                        'is_in_stock',
+                        'cataloginventory/stock_item',
+                        'is_in_stock',
+                        'product_id=entity_id',
+                        '{{table}}.stock_id=1',
+                        'left'
+                    )->addAttributeToFilter('is_in_stock', array('eq' => $settings['is_in_stock']));
+                }
+                if (!empty($settings['qty'])) {
+                    if (isset($settings['qty']['threshold']) && strlen($settings['qty']['threshold'])) {
+                        $operator = $settings['qty']['operator'];
+                        $threshold = $settings['qty']['threshold'];
+                        $productCollection->joinField(
+                            'qty',
+                            'cataloginventory/stock_item',
+                            'qty',
+                            'product_id=entity_id',
+                            '{{table}}.stock_id=1',
+                            'left'
+                        )->addAttributeToFilter('qty', array(Mage::helper('mep/qtyFilter')->getOperatorForCollectionFilter($operator) => $threshold));
+                    }
+                }
                 $productCollection->addWebsiteFilter($this->getWebsiteIds());
                 if ($this->_productsFilter) {
                     $productCollection->addIdFilter($this->_productsFilter);
                 }
                 $this->getConditions()->collectValidatedAttributes($productCollection);
-
                 Mage::getSingleton('core/resource_iterator')->walk(
                     $productCollection->getSelect(),
                     array(array($this, 'callbackValidateProduct')),
