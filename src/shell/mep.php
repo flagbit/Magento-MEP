@@ -50,6 +50,13 @@ class Mage_Shell_Mep extends Mage_Shell_Abstract
         }
     }
 
+
+    /**
+     * Parse .htaccess file and apply php settings to shell script
+     * DISABLED
+     */
+    protected function _applyPhpVariables(){}
+
     /**
      * Retrieve Usage Help Message
      *
