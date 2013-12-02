@@ -464,6 +464,8 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
     }
 
     /**
+     * Main export function, call all needed function to manage inheritance and special attribute
+     *
      * @param $offsetProducts
      * @param $writer
      * @param $limitProducts
@@ -471,8 +473,6 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
      * @param $mapping
      * @param $shippingAttrCodes
      * @return bool
-     *
-     * Main export function, call all needed function to manage inheritance and special attribute
      */
     public function _exportThread($offsetProducts, $writer, $limitProducts, $filteredProductIds, $mapping, $shippingAttrCodes)
     {
