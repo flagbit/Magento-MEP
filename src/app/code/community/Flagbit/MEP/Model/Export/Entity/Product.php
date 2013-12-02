@@ -463,6 +463,17 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
         $this->_connection   = Mage::getSingleton('core/resource')->getConnection('write');
     }
 
+    /**
+     * @param $offsetProducts
+     * @param $writer
+     * @param $limitProducts
+     * @param $filteredProductIds
+     * @param $mapping
+     * @param $shippingAttrCodes
+     * @return bool
+     *
+     * Main export function, call all needed function to manage inheritance and special attribute
+     */
     public function _exportThread($offsetProducts, $writer, $limitProducts, $filteredProductIds, $mapping, $shippingAttrCodes)
     {
         $this->_shippingAttrCodes = $shippingAttrCodes;
