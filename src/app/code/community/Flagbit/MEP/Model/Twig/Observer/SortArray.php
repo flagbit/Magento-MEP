@@ -35,7 +35,7 @@ class Flagbit_MEP_Model_Twig_Observer_SortArray {
             elseif ($order == 'desc') {
                 rsort($valuesArray);
             }
-            if ($limit && $limit > 0) {
+            if ($limit > 0) {
                 $valuesArray = array_slice($valuesArray, 0, $limit);
             }
             $values = implode($delimiter, $valuesArray);
