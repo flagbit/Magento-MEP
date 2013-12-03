@@ -88,6 +88,20 @@
                 </twig>
             </export_file_formats>
         </mep>
+        <events>
+            <mep_export_adapter_twig_init>
+                <observers>
+                    <mep_twig_observer_numberFormatArray>
+                        <class>mep/twig_observer_numberFormatArray</class>
+                        <method>addNumberFormatArray</method>
+                    </mep_twig_observer_numberFormatArray>
+                    <mep_twig_observer_sortArray>
+                        <class>mep/twig_observer_sortArray</class>
+                        <method>addSortArray</method>
+                    </mep_twig_observer_sortArray>
+                </observers>
+            </mep_export_adapter_twig_init>
+        </events>
     </global>
 
 
@@ -121,18 +135,6 @@
                     </mep_adminhtml_catalog_category_tabs>
                 </observers>
             </adminhtml_catalog_category_tabs>
-            <mep_export_adapter_twig_init>
-                <observers>
-                    <mep_twig_observer_numberFormatArray>
-                        <class>mep/twig_observer_numberFormatArray</class>
-                        <method>addNumberFormatArray</method>
-                    </mep_twig_observer_numberFormatArray>
-                    <mep_twig_observer_sortArray>
-                        <class>mep/twig_observer_sortArray</class>
-                        <method>addSortArray</method>
-                    </mep_twig_observer_sortArray>
-                </observers>
-            </mep_export_adapter_twig_init>
         </events>
         <layout>
             <updates>
