@@ -25,7 +25,7 @@ class Flagbit_MEP_Model_Twig_Observer_SortArray {
      * @param string $order
      * @return string
      */
-    public function sortArray($values, $order) {
+    public function sortArray($values, $order, $limit = 0) {
         $delimiter = $this->_adapter->getConfigurableDelimiter();
         $valuesArray = explode($delimiter, $values);
         if (is_array($valuesArray)) {
@@ -34,6 +34,9 @@ class Flagbit_MEP_Model_Twig_Observer_SortArray {
             }
             elseif ($order == 'desc') {
                 rsort($valuesArray);
+            }
+            if ($limit && $limit > 0) {
+                $valuesArray = array_slice($valuesArray, 0, $limit);
             }
             $values = implode($delimiter, $valuesArray);
         }
