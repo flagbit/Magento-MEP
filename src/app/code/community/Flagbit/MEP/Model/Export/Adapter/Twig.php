@@ -202,6 +202,10 @@ class Flagbit_MEP_Model_Export_Adapter_Twig extends Mage_ImportExport_Model_Expo
         $twigDataRow = array_map(array($this, 'cleanElement'), $rowData);
         $result = $this->_twig->render('content', $twigDataRow);
 
+        if (!empty($this->_encoding) && $this->_encoding != 'UTF-8') {
+            $result = iconv ( "UTF-8", $this->_encoding, $result );
+        }
+
         fwrite($this->_fileHandler, trim($result).PHP_EOL);
         return $this;
     }
@@ -242,10 +246,6 @@ class Flagbit_MEP_Model_Export_Adapter_Twig extends Mage_ImportExport_Model_Expo
         $element = trim($element);
         $element = str_replace(array($this->_delimiter, $this->_enclosure), '', $element);
         $element = str_replace(array("\r\n", "\r", "\n"), '', $element);
-
-        if (!empty($this->_encoding) && $this->_encoding != 'UTF-8') {
-            $element = iconv ( "UTF-8", $this->_encoding, $element );
-        }
 
         //$element = utf8_encode($element);
         return $element;
