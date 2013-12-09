@@ -71,7 +71,7 @@ class Flagbit_MEP_Model_Rule extends Mage_CatalogRule_Model_Rule
         $arr = $this->_convertFlatToRecursive($rule);
         if (isset($arr['conditions'][1]['conditions']) && is_array($arr['conditions'][1]['conditions'])) {
             foreach ($arr['conditions'][1]['conditions'] as &$condition) {
-                if ($condition['type'] == 'catalogrule/rule_condition_product') {
+                if ($condition['type'] == 'catalogrule/rule_condition_product' && $condition['attribute'] != 'category_ids') {
                     $condition['type'] = 'mep/rule_condition_product';
                 }
             }
