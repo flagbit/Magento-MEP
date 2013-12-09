@@ -106,7 +106,8 @@ class Flagbit_MEP_Block_Adminhtml_Profile_View_Edit_Tab_Format extends Mage_Admi
 
         $fieldset->addField('profile_locale', 'text', array(
             'label' => Mage::helper('mep')->__('Change default locale'),
-            'name' => 'profile_locale'
+            'name' => 'profile_locale',
+            'note' => 'Ex: de_DE'
         ));
 
         $fieldset->addField(
@@ -115,6 +116,7 @@ class Flagbit_MEP_Block_Adminhtml_Profile_View_Edit_Tab_Format extends Mage_Admi
             array(
                 'label' => Mage::helper('mep')->__('Encoding'),
                 'name' => 'settings[encoding]',
+                'note' => 'ex: UTF-8'
             )
         );
 
@@ -125,6 +127,7 @@ class Flagbit_MEP_Block_Adminhtml_Profile_View_Edit_Tab_Format extends Mage_Admi
                 'label' => Mage::helper('mep')->__('Shipping Profil'),
                 'name' => 'shipping_id',
                 'options' => $this->_getShippingOptionsHash(),
+                'note' => $this->__('First you have to create a shipping profile')
             )
         );
 
