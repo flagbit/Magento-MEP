@@ -75,9 +75,10 @@ class Flagbit_MEP_Block_Adminhtml_Attribute_View_Edit_Form extends Mage_Adminhtm
                     'label' => Mage::helper('mep')->__('Mapping Type'),
                     'name' => 'category_type',
                     'options' => array(
-                                'single'    => Mage::helper('mep')->__('each single Category will be mapped'),
-                                'complete'  => Mage::helper('mep')->__('one Category contains the full Path'),
-                            )
+                        'single'    => Mage::helper('mep')->__('The full path will be mapped'),
+                        'complete'  => Mage::helper('mep')->__('The last category of the path will be mapped'),
+                    ),
+                    'note' => $this->__('Only use the first category path of the product')
                 )
             );
         }
