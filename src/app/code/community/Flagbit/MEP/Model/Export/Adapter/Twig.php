@@ -114,6 +114,7 @@ class Flagbit_MEP_Model_Export_Adapter_Twig extends Mage_ImportExport_Model_Expo
             'autoescape' => false,
         ));
         // enable sandbox
+
         $_policy = Mage::getModel('mep/twig_sandbox_policy');
         $sandbox = new Twig_Extension_Sandbox($_policy, true);
         $this->_twig->addExtension($sandbox);
@@ -202,6 +203,7 @@ class Flagbit_MEP_Model_Export_Adapter_Twig extends Mage_ImportExport_Model_Expo
         $twigDataRow = array_map(array($this, 'cleanElement'), $rowData);
         $result = $this->_twig->render('content', $twigDataRow);
 
+        $result = Mage::helper('mep/encoding')->fixUTF8($result);
         if (!empty($this->_encoding) && $this->_encoding != 'UTF-8') {
             $result = iconv ( "UTF-8", $this->_encoding, $result );
         }
