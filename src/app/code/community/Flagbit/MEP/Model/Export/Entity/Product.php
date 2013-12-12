@@ -1,5 +1,6 @@
 <?php
-
+ini_set('display_errors', '1');
+error_reporting(E_ALL);
 // Mage_ImportExport_Model_Export_Entity_Product
 class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Export_Entity_Product
 {
@@ -675,7 +676,8 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
             'gross_price' => '_getGrossPrice',
             'qty' => '_getQuantity',
             'image_url' => '_getImageUrl',
-            '_category' => '_getProductCategory'
+            '_category' => '_getProductCategory',
+            'base_price_reference_amount' => '_getBasePriceReferenceAmount'
         );
         $attrValue = $item->getData($attrCode);
         if (isset($attributeValueFilter[$attrCode])) {
@@ -711,6 +713,16 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
             $categoryId = array_shift($itemCategoriesIds);
             if (empty($categoryId)) {
                 return null;
+            }
+            $currentCount = 0;
+            foreach ($itemCategoriesIds as $itemCategoryId) {
+                if (isset($this->_categoryIds[$itemCategoryId]) && count($this->_categoryIds[$itemCategoryId]) > $currentCount) {
+                    $categoryId = $itemCategoryId;
+                }
+                else {
+                    break;
+                }
+                $currentCount = count($this->_categoryIds[$itemCategoryId]);
             }
             if ($attributeMapping->getCategoryType() == 'single') {
                 if (isset($this->_categoryIds[$categoryId])) {
@@ -782,6 +794,11 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
         if (isset($this->_categories[$categoryId])) {
             $attrValue = $this->_categories[$categoryId];
         }
+        return $attrValue;
+    }
+
+    protected function _getBasePriceReferenceAmount($item, $mapItem) {
+        $attrValue = Mage::helper('baseprice')->getBasePriceLabel($item, '{{baseprice}}');
         return $attrValue;
     }
 
