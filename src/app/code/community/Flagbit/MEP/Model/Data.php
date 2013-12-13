@@ -50,6 +50,17 @@ class Flagbit_MEP_Model_Data extends Mage_Catalog_Model_Convert_Parser_Product
         $specialAttributes['entity_id'] = 'entity_id';
         $attributes[$_helper->__('Special Attributes')] = $specialAttributes;
 
+        //Adding special attribute from DerModProd
+        if(Mage::helper('core')->isModuleEnabled('DerModPro_BasePrice')) {
+            $specialAttributes = array();
+            $specialAttributes['base_price_amount'] = 'base_price_amount';
+            $specialAttributes['base_price_unit'] = 'base_price_unit';
+            $specialAttributes['base_price_base_amount'] = 'base_price_base_amount';
+            $specialAttributes['base_price_base_unit'] = 'base_price_base_unit';
+            $specialAttributes['base_price_reference_amount'] = 'base_price_reference_amount';
+            $attributes[$_helper->__('DerModPro')] = $specialAttributes;
+        }
+
 
         // add attribute mapping attributes
         $attributeMappingCollection = Mage::getResourceModel('mep/attribute_mapping_collection')->load();
