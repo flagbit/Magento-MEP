@@ -491,7 +491,8 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
         $collection
             ->setStoreId($storeId)
             ->addStoreFilter($objProfile->getStoreId())
-            ->setPage($offsetProducts, $limitProducts);
+            ->setPage($offsetProducts, $limitProducts)
+            ->addAttributeToSelect('*');
         if (!empty($filteredProductIds)){
             $collection->addFieldToFilter("entity_id", array('in' => $filteredProductIds));
         }
@@ -799,6 +800,7 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
 
     protected function _getBasePriceReferenceAmount($item, $mapItem) {
         $attrValue = Mage::helper('baseprice')->getBasePriceLabel($item, '{{baseprice}}');
+		$attrValue = str_replace(array(' €'), '', strip_tags($attrValue));
         return $attrValue;
     }
 
