@@ -75,7 +75,6 @@ class Flagbit_MEP_Model_Rule extends Mage_CatalogRule_Model_Rule
                     $condition['type'] = 'mep/rule_condition_product';
                 }
             }
-            Mage::log($arr);
             $this->getConditions()->setConditions(array())->loadArray($arr['conditions'][1]);
         }
         if (isset($arr['actions'])) {
