@@ -21,6 +21,11 @@ class Flagbit_MEP_Model_Rule_Condition_Product
      */
     protected $_entityAttributeValues = null;
 
+    public function __construct() {
+        parent::__construct();
+        $this->setJsFormObject('mep_conditions_fieldset');
+    }
+
     /**
      * Retrieve attribute object
      *
