@@ -10,6 +10,7 @@ class Flagbit_MEP_Model_Rule_Condition_Combine
     public function __construct()
     {
         parent::__construct();
+        $this->setType('mep/rule_condition_combine');
     }
 
 
@@ -19,12 +20,7 @@ class Flagbit_MEP_Model_Rule_Condition_Combine
         $productAttributes = $productCondition->loadAttributeOptions()->getAttributeOption();
         $attributes = array();
         foreach ($productAttributes as $code=>$label) {
-            if ($code != 'category_ids') {
-                $attributes[] = array('value'=>'mep/rule_condition_product|'.$code, 'label'=>$label);
-            }
-            else {
-                $attributes[] = array('value'=>'catalogrule/rule_condition_product|'.$code, 'label'=>$label);
-            }
+            $attributes[] = array('value'=>'mep/rule_condition_product|'.$code, 'label'=>$label);
         }
         return $attributes;
     }
