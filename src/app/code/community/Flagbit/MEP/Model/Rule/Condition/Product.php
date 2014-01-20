@@ -1,7 +1,7 @@
 <?php
 
 class Flagbit_MEP_Model_Rule_Condition_Product
-    extends Mage_Rule_Model_Condition_Abstract
+    extends Mage_CatalogRule_Model_Rule_Condition_Product
 {
     /**
      * All attribute values as array in form:
