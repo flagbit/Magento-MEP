@@ -26,6 +26,9 @@ class Flagbit_MEP_Model_Mapping extends Mage_Core_Model_Abstract
             $this->setAttributeCode(implode(',', $this->getAttributeCode()));
         }
         $this->setInheritance(Mage::app()->getRequest()->getParam('inheritance', 0));
+        if ($this->getInheritance() == 0) {
+            $this->setInheritanceType('');
+        }
         return parent::_beforeSave();
     }
 
