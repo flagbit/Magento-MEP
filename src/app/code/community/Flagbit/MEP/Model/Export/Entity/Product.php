@@ -777,6 +777,7 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
     }
 
     protected function  _getImageUrl($item, $mapItem) {
+        $item->load('media_gallery');
         $attrValue = $item->getMediaConfig()->getMediaUrl($item->getData('image'));
         return $attrValue;
     }
