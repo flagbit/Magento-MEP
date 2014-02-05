@@ -26,6 +26,43 @@ class Flagbit_MEP_Model_Rule_Condition_Product
         $this->setJsFormObject('mep_conditions_fieldset');
     }
 
+    public function getValueParsed()
+    {
+        if (!$this->hasValueParsed()) {
+            $value = $this->getData('value');
+            if ($this->isArrayOperatorType() && is_string($value)) {
+                $value = preg_split('#\s*[,;]\s*#', $value, null, PREG_SPLIT_NO_EMPTY);
+            }
+            if ($this->getAttribute() == 'category_ids') {
+                $categories = array();
+                if (!is_array($value)) {
+                    $value = array($value);
+                }
+                $this->getAllChildrenCategories($value, $categories);
+                $value = $categories;
+            }
+            $this->setValueParsed($value);
+        }
+        return $this->getData('value_parsed');
+    }
+
+    protected function  getAllChildrenCategories($categoriesIds, &$categories) {
+        if (!is_array($categoriesIds)) {
+            $categoriesIds = explode(',', $categoriesIds);
+        }
+        foreach ($categoriesIds as $categoryId) {
+            if (!in_array($categoryId, $categories)) {
+                $categories[] = $categoryId;
+            }
+            $cat = Mage::getModel('catalog/category')->load($categoryId);
+            $childrenCats = $cat->getChildren();
+            if (!empty($childrenCats)) {
+                $childrenCats = explode(',', $childrenCats);
+                $this->getAllChildrenCategories($childrenCats, $categories);
+            }
+        }
+    }
+
     /**
      * Retrieve attribute object
      *
@@ -178,27 +215,6 @@ class Flagbit_MEP_Model_Rule_Condition_Product
     }
 
     /**
-     * Collect validated attributes
-     *
-     * @param Mage_Catalog_Model_Resource_Eav_Mysql4_Product_Collection $productCollection Collection
-     *
-     * @return Flagbit_MEP_Model_Rule_Condition_Product Self.
-     */
-    public function collectValidatedAttributes($productCollection)
-    {
-        $attribute = $this->getAttribute();
-        if ('category_ids' != $attribute) {
-            $attributes = $this->getRule()->getCollectedAttributes();
-            $attributes[$attribute] = true;
-            $this->getRule()->setCollectedAttributes($attributes);
-            $productCollection->addAttributeToSelect($attribute, 'left');
-            $this->_entityAttributeValues = $productCollection->getAllAttributeValues($attribute);
-        }
-
-        return $this;
-    }
-
-    /**
      * Retrieve input type
      *
      * @return string Input Type
@@ -337,5 +353,130 @@ class Flagbit_MEP_Model_Rule_Condition_Product
         return parent::loadArray($arr);
     }
 
+    /**
+     * Check if value should be array
+     *
+     * Depends on operator input type
+     *
+     * @return bool
+     */
+    public function isArrayOperatorType()
+    {
+        if ($this->getAttribute() == 'category_ids') {
+            return true;
+        }
+        $op = $this->getOperator();
+        return $op === '()' || $op === '!()' || in_array($this->getInputType(), $this->_arrayInputTypes);
+    }
 
+    /**
+     * Validate product attrbute value for condition
+     *
+     * @param   mixed $validatedValue product attribute value
+     * @return  bool
+     */
+    public function validateAttribute($validatedValue)
+    {
+        if (is_object($validatedValue)) {
+            return false;
+        }
+
+        /**
+         * Condition attribute value
+         */
+        $value = $this->getValueParsed();
+
+        /**
+         * Comparison operator
+         */
+        $op = $this->getOperatorForValidate();
+
+        // if operator requires array and it is not, or on opposite, return false
+        if ($this->isArrayOperatorType() xor is_array($value)) {
+            return false;
+        }
+
+        $result = false;
+
+        switch ($op) {
+            case '==': case '!=':
+            if (is_array($value)) {
+                if (is_array($validatedValue)) {
+                    $result = array_intersect($value, $validatedValue);
+                    $result = !empty($result);
+                } else {
+                    return false;
+                }
+            } else {
+                if (is_array($validatedValue) && $validatedValue == 1) {
+                    $result = array_shift($validatedValue) == $value;
+                } elseif (is_array($validatedValue) && $validatedValue > 1) {
+                    $result = in_array($value, $validatedValue);
+                } else {
+                    $result = $this->_compareValues($validatedValue, $value);
+                }
+            }
+            break;
+
+            case '<=': case '>':
+            if (!is_scalar($validatedValue)) {
+                return false;
+            } else {
+                $result = $validatedValue <= $value;
+            }
+            break;
+
+            case '>=': case '<':
+            if (!is_scalar($validatedValue)) {
+                return false;
+            } else {
+                $result = $validatedValue >= $value;
+            }
+            break;
+
+            case '{}': case '!{}':
+            if (is_scalar($validatedValue) && is_array($value)) {
+                foreach ($value as $item) {
+                    if (stripos($validatedValue,$item)!==false) {
+                        $result = true;
+                        break;
+                    }
+                }
+            } elseif (is_array($value)) {
+                if (is_array($validatedValue)) {
+                    $result = array_intersect($value, $validatedValue);
+                    $result = !empty($result);
+                } else {
+                    return false;
+                }
+            } else {
+                if (is_array($validatedValue)) {
+                    $result = in_array($value, $validatedValue);
+                } else {
+                    $result = $this->_compareValues($value, $validatedValue, false);
+                }
+            }
+            break;
+
+            case '()': case '!()':
+            if (is_array($validatedValue)) {
+                $result = count(array_intersect($validatedValue, (array)$value))>0;
+            } else {
+                $value = (array)$value;
+                foreach ($value as $item) {
+                    if ($this->_compareValues($validatedValue, $item)) {
+                        $result = true;
+                        break;
+                    }
+                }
+            }
+            break;
+        }
+
+        if ('!=' == $op || '>' == $op || '<' == $op || '!{}' == $op || '!()' == $op) {
+            $result = !$result;
+        }
+
+        return $result;
+    }
 }
