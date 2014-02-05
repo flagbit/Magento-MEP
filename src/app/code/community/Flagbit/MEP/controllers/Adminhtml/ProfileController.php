@@ -97,7 +97,6 @@ class Flagbit_MEP_Adminhtml_ProfileController extends Mage_Adminhtml_Controller_
                 $data = $this->_filterDates($data, array('from_date', 'to_date'));
 
                 if (isset($data['rule']['conditions'])) {
-                    //$model->setConditionsSerialized($data['rule']['conditions']);
                     $data['conditions_serialized'] = $data['rule']['conditions'];
                     unset($data['rule']);
                 }

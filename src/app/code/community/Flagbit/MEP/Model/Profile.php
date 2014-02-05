@@ -186,4 +186,45 @@ class Flagbit_MEP_Model_Profile extends Mage_Core_Model_Abstract
 
         return $_field;
     }
+
+    public function uploadToFtp() {
+        if ($this->getActivateFtp() == 1) {
+            $hostPort = explode(':', $this->getFtpHostPort());
+            if (empty($hostPort[0])) {
+                return ;
+            }
+            if (empty($hostPort[1])) {
+                $hostPort[1] = 21;
+            }
+            $args = array(
+                'host' => trim($hostPort[0]),
+                'port'  => trim($hostPort[1]),
+                'user'  => $this->getFtpUser(),
+                'password'  => $this->getFtpPassword(),
+                'passive'   => true,
+                'path'  => $this->getFtpPath(),
+                'timeout'   => 5
+            );
+            $exportFile = $this->_getExportPath($this) . DS . $this->getFilename();
+            try {
+                $ftp = new Varien_Io_Ftp();
+                $ftp->open($args);
+                $ftp->write($this->getFilename(), $exportFile);
+                $ftp->close();
+            } catch (Varien_Io_Exception $e) {
+                echo $e->getMessage();
+            }
+        }
+    }
+
+    protected function _getExportPath($profile)
+    {
+        $exportDir = Mage::getConfig()->getOptions()->getBaseDir() . DS . $profile->getFilepath();
+
+        if(Mage::getConfig()->getOptions()->createDirIfNotExists($exportDir) === FALSE){
+            Mage::throwException('Export Directory is not writable ('.$exportDir.')');
+        }
+
+        return $exportDir;
+    }
 }

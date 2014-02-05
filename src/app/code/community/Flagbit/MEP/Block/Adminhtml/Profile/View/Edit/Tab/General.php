@@ -21,6 +21,7 @@ class Flagbit_MEP_Block_Adminhtml_Profile_View_Edit_Tab_General extends Mage_Adm
                 'legend' => Mage::helper('mep')->__('Profil')
             )
         );
+
         $fieldset->addField(
             'id',
             'label',
@@ -62,6 +63,64 @@ class Flagbit_MEP_Block_Adminhtml_Profile_View_Edit_Tab_General extends Mage_Adm
                 'required'  => true,
                 'name'      => 'store_id',
                 'values'    => Mage::getSingleton('adminhtml/system_store')->getStoreValuesForForm(false, false),
+            )
+        );
+
+        $optionFieldset = $form->addFieldset(
+            'mep_profile_ftp_form',
+            array(
+                'legend' => Mage::helper('mep')->__('FTP Configuration') . ' <small><i>' . Mage::helper('mep')->__('To activate if you need to upload the export file to a FTP server') . '</i></small>'
+            )
+        );
+
+        $optionFieldset->addField(
+            'activate_ftp',
+            'select',
+            array(
+                'label' => Mage::helper('core')->__('Activate'),
+                'class' => 'required-entry',
+                'required'  => true,
+                'name'  => 'activate_ftp',
+                'values'    => Mage::getModel('adminhtml/system_config_source_yesno')->toArray()
+            )
+        );
+
+        $optionFieldset->addField(
+            'ftp_host_port',
+            'text',
+            array(
+                'label' => Mage::helper('mep')->__('FTP Host:Port'),
+                'name'  => 'ftp_host_port',
+                'value' => ':21',
+                'note'  => Mage::helper('mep')->__('If no port given, port 21 will be used')
+            )
+        );
+
+        $optionFieldset->addField(
+            'ftp_user',
+            'text',
+            array(
+                'label' => Mage::helper('mep')->__('FTP Username'),
+                'name'  => 'ftp_user'
+            )
+        );
+
+        $optionFieldset->addField(
+            'ftp_password',
+            'password',
+            array(
+                'label' => Mage::helper('mep')->__('FTP Password'),
+                'name'  => 'ftp_password'
+            )
+        );
+
+        $optionFieldset->addField(
+            'ftp_path',
+            'text',
+            array(
+                'label' => Mage::helper('mep')->__('Path on FTP server'),
+                'name'  => 'ftp_path',
+                'note'  => Mage::helper('mep')->__('If empty the root directory will be used')
             )
         );
 

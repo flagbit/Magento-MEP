@@ -429,6 +429,7 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
                     break;
                 }
             }
+            $obj_profile->uploadToFtp();
         }
 
         // wait for all the threads to finish
