@@ -29,6 +29,7 @@ class Flagbit_MEP_Model_Mapping extends Mage_Core_Model_Abstract
         if ($this->getInheritance() == 0) {
             $this->setInheritanceType('');
         }
+        $this->setOptions(serialize($this->getOptions()));
         return parent::_beforeSave();
     }
 
@@ -46,6 +47,7 @@ class Flagbit_MEP_Model_Mapping extends Mage_Core_Model_Abstract
         if(strpos($this->getAttributeCode(), ',') !== false){
             $this->setAttributeCode(explode(',', $this->getAttributeCode()));
         }
+        $this->setOptions(unserialize($this->getOptions()));
         return parent::_afterLoad();
     }
 
@@ -85,6 +87,14 @@ class Flagbit_MEP_Model_Mapping extends Mage_Core_Model_Abstract
             }
         }
         return $result;
+    }
+
+    public function getOption($key) {
+        $options = $this->getOptions();
+        if (isset($options[$key])) {
+            return $options[$key];
+        }
+        return null;
     }
 
 }

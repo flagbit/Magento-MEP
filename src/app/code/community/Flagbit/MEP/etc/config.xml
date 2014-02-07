@@ -2,7 +2,7 @@
 <config>
     <modules>
         <Flagbit_MEP>
-            <version>0.8.1</version>
+            <version>0.8.2</version>
         </Flagbit_MEP>
     </modules>
 
@@ -167,6 +167,11 @@
                 <from_child>From child</from_child>
                 <from_parent>From parent</from_parent>
             </inheritance_type>
+            <image_url_type>
+                <base>Base Image</base>
+                <small>Small Image</small>
+                <thumbnail>Thumbnail</thumbnail>
+            </image_url_type>
         </datas>
     </default>
 </config>

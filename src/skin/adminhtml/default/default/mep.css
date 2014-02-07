@@ -50,6 +50,7 @@
 .adminhtml-profile-edit #widget_window .magento_content {
     height: auto !important;
     min-height: 320px;
+    padding-bottom: 10px !important;
 }
 
 

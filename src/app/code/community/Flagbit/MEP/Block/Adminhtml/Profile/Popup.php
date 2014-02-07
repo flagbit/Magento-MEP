@@ -3,6 +3,7 @@
 class Flagbit_MEP_Block_Adminhtml_Profile_Popup
     extends Mage_Core_Block_Template
 {
+    protected $_mapping;
 
     protected $_selectAttributeCodes = array();
 
@@ -18,7 +19,10 @@ class Flagbit_MEP_Block_Adminhtml_Profile_Popup
 
     public function getMapping()
     {
-        return Mage::getModel('mep/mapping')->load($this->getRequest()->getParam('id'));
+        if (!$this->_mapping) {
+            $this->_mapping = Mage::getModel('mep/mapping')->load($this->getRequest()->getParam('id'));
+        }
+        return $this->_mapping;
     }
 
     public function getIsSelectedAttribute($attributeCode)
@@ -30,5 +34,12 @@ class Flagbit_MEP_Block_Adminhtml_Profile_Popup
             $result = true;
         }
         return $result;
+    }
+
+    public function getImageUrlType() {
+        if ($this->getMapping()->getAttributeCode() == 'image_url') {
+            return $this->getMapping()->getOption('image_url_type');
+        }
+        return null;
     }
 }
