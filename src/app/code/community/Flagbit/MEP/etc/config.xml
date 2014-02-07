@@ -168,8 +168,8 @@
                 <from_parent>From parent</from_parent>
             </inheritance_type>
             <image_url_type>
-                <base>Base Image</base>
-                <small>Small Image</small>
+                <image>Base Image</image>
+                <small_image>Small Image</small_image>
                 <thumbnail>Thumbnail</thumbnail>
             </image_url_type>
         </datas>
