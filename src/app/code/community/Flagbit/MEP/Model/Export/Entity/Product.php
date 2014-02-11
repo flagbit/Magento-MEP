@@ -768,6 +768,7 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
 
     protected function  _getGrossPrice($item, $mapItem) {
         $objProfile = $this->getProfile();
+        $attrValue = '';
         try {
             $attrValue = Mage::helper('tax')->getPrice($item, $item->getFinalPrice(), null, null, null, null, $objProfile->getStoreId(), null);
         }
