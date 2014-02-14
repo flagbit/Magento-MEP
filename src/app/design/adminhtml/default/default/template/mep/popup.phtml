@@ -44,7 +44,7 @@
                     <input type="checkbox" name="inheritance" value="1" <?php if ($this->getMapping()->getInheritance() == 1) echo 'checked="checked"'; ?> id="inheritance" class="input-checkbox">
                 </li>
                 <li id="inheritance_type_block" <?php if ($this->getMapping()->getInheritance() != 1) echo 'style="display: none;"'; ?>>
-                    <label for="inheritance_type"><?php echo $this->__('Inheritance type');?></label>
+                    <!--label for="inheritance_type"><?php echo $this->__('Inheritance type');?></label-->
                     <div class="input-box">
                         <select name="inheritance_type" id="inheritance_type" class="select">
                             <?php foreach (Mage::getStoreConfig('datas/inheritance_type') as $key => $value) : ?>

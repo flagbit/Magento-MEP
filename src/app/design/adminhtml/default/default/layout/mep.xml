@@ -28,12 +28,19 @@
             <action method="addCss">
                 <name>mep.css</name>
             </action>
+            <action method="addCss">
+                <name>tablekit.css</name>
+            </action>
             <action method="addJs">
                 <script>mage/adminhtml/wysiwyg/widget.js</script>
             </action>
             <action method="addItem">
                 <type>js</type>
                 <script>prototype/window.js</script>
+            </action>
+            <action method="addItem">
+                <type>js</type>
+                <script>tablekit/tablekit.js</script>
             </action>
             <action method="addItem">
                 <type>js_css</type>

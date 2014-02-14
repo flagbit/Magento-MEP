@@ -46,6 +46,10 @@ class Flagbit_MEP_Model_Export_Adapter_Twig extends Mage_ImportExport_Model_Expo
 
     private $_configurable_delimiter;
 
+    protected $_delimiter;
+
+    protected $_enclosure;
+
     /**
      * Object destructor.
      *
