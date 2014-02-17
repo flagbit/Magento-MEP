@@ -34,11 +34,13 @@ class Flagbit_MEP_Helper_Data extends Mage_Core_Helper_Abstract
         }elseif($idOnly){
             $data = isset($data[$idOnly]) ? $data[$idOnly] : '';
         }
-        if (empty($data['ftp_host_port'])) {
-            $data['ftp_host_port'] = ':21';
-        }
-        if (empty($data['ftp_path'])) {
-            $data['ftp_path'] = '/';
+        else {
+            if (empty($data['ftp_host_port'])) {
+                $data['ftp_host_port'] = ':21';
+            }
+            if (empty($data['ftp_path'])) {
+                $data['ftp_path'] = '/';
+            }
         }
         return $data;
     }
