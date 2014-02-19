@@ -683,6 +683,7 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
         //Callback method configuration for special attribute
         $attributeValueFilter = array(
             'url' => '_getProductUrl',
+            'price' => '_getPrice',
             'gross_price' => '_getGrossPrice',
             'qty' => '_getQuantity',
             'image_url' => '_getImageUrl',
