@@ -803,12 +803,14 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
 
         $objProfile = $this->getProfile();
 
-        $attrValue = '';
+        $price = 0;
         try {
-            $attrValue = Mage::helper('tax')->getPrice($item, $item->getFinalPrice(), null, null, null, null, $objProfile->getStoreId(), null);
+            $price = Mage::helper('tax')->getPrice($item, $item->getPrice(), true, null, null, null, $objProfile->getStoreId());
         }
-        catch (Mage_Core_Exception $e) {}
-        return $attrValue;
+        catch (Mage_Core_Exception $e) {
+            $price = $item->getPrice();
+        }
+        return $price;
     }
 
     protected function  _getQuantity($item, $mapItem) {
