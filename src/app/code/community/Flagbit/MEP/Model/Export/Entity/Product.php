@@ -135,6 +135,13 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
     protected $_shippingAttrCodes;
 
     /**
+     * Tax config object
+     *
+     * @var array
+     */
+    protected $_taxConfig = null;
+
+    /**
      * Constructor.
      *
      * @return void
@@ -298,7 +305,8 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
             ->_initAttributes()
             ->_initAttributeSets()
             ->_initWebsites()
-            ->_initCategories();
+            ->_initCategories()
+            ->_initTaxConfig();
 
         //Execution time may be very long
         set_time_limit(0);
@@ -766,8 +774,34 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
         return $attrValue;
     }
 
-    protected function  _getGrossPrice($item, $mapItem) {
+    protected function _getPrice($item, $mapItem)
+    {
         $objProfile = $this->getProfile();
+
+        if($item->getTypeId() == 'bundle')
+        {
+            $includeTax = null;
+
+            $displayConfig = $this->_taxConfig->getPriceDisplayType($objProfile->getStoreId());
+            if($displayConfig == Mage_Tax_Model_Config::DISPLAY_TYPE_BOTH) {
+                $includeTax = true;
+            }
+
+            return Mage::getModel('bundle/product_price')->getTotalPrices($item, 'min', $includeTax);
+        }
+
+        return $item->getPrice();
+    }
+
+    protected function  _getGrossPrice($item, $mapItem)
+    {
+        if($item->getTypeId() == 'bundle')
+        {
+            return Mage::getModel('bundle/product_price')->getTotalPrices($item, 'min', true);
+        }
+
+        $objProfile = $this->getProfile();
+
         $attrValue = '';
         try {
             $attrValue = Mage::helper('tax')->getPrice($item, $item->getFinalPrice(), null, null, null, null, $objProfile->getStoreId(), null);
@@ -877,6 +911,19 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
             $this->_attributeModels[$attribute->getAttributeCode()] = $attribute;
         }
         return $this;
+    }
+
+    /**
+     * Init tax config
+     *
+     * @return Mage_Tax_Model_Config
+     */
+    protected function _initTaxConfig()
+    {
+        if(is_null($this->_taxConfig)) {
+            $this->_taxConfig = Mage::getSingleton('tax/config');
+        }
+        return $this->_taxConfig;
     }
 
     /**
