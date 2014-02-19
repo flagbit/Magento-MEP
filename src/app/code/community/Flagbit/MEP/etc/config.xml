@@ -2,7 +2,7 @@
 <config>
     <modules>
         <Flagbit_MEP>
-            <version>0.8.2</version>
+            <version>0.8.3</version>
         </Flagbit_MEP>
     </modules>
 
@@ -33,6 +33,9 @@
                     <mapping>
                         <table>mep_profile_attribute</table>
                     </mapping>
+                    <cron>
+                        <table>mep_cron</table>
+                    </cron>
                     <attribute_mapping>
                         <table>mep_attribute_mapping</table>
                     </attribute_mapping>
@@ -144,7 +147,7 @@
             </updates>
         </layout>
     </adminhtml>
-    <crontab>
+    <!--<crontab>
         <jobs>
             <mep_profiles_enabled>
                 <schedule>
@@ -160,7 +163,7 @@
                 </run>
             </mep_run_profile>
         </jobs>
-    </crontab>
+    </crontab>-->
     <default>
         <datas>
             <inheritance_type>

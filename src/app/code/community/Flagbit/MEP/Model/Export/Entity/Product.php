@@ -409,6 +409,7 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
             $maxThreads = 5;
             while(true){
                 $index++;
+                echo 'Thread n: ' . $index . "\n";
                 $this->_threads[$index] = new Flagbit_MEP_Model_Thread( array($this, '_exportThread') );
                 $this->_threads[$index]->start($index, $writer, $limitProducts, $filteredProductIds, $mapping, $shippingAttrCodes);
 
@@ -445,6 +446,7 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
     {
         foreach( $this->_threads as $index => $thread ) {
             if( ! $thread->isAlive() ) {
+                echo 'Clean Thread n: ' . $index . "\n";
                 unset( $this->_threads[$index] );
             }
         }
@@ -525,6 +527,7 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
             }
         }
         $collection->clear();
+        Mage::helper('mep/log')->debug('END Thread: ' . $offsetProducts, $this);
         if ($collection->getCurPage() < $offsetProducts) {
             return false;
         }
