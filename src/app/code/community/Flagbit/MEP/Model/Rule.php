@@ -150,9 +150,14 @@ class Flagbit_MEP_Model_Rule extends Mage_CatalogRule_Model_Rule
                 if ($this->_productsFilter) {
                     $productCollection->addIdFilter($this->_productsFilter);
                 }
+                $select = $productCollection->getSelect();
+                if ($limit = $this->getData('limit')) {
+                    $productCollection->setPageSize($limit);
+                    $select->limit($limit);
+                }
                 $this->getConditions()->collectValidatedAttributes($productCollection);
                 Mage::getSingleton('core/resource_iterator')->walk(
-                    $productCollection->getSelect(),
+                    $select,
                     array(array($this, 'callbackValidateProduct')),
                     array(
                         'attributes' => $this->getCollectedAttributes(),

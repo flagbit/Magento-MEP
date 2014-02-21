@@ -5,45 +5,11 @@ error_reporting(E_ALL);
 class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Export_Entity_Product
 {
 
-    const CONFIG_KEY_PRODUCT_TYPES = 'global/importexport/export_product_types';
-
-    /**
-     * Value that means all entities (e.g. websites, groups etc.)
-     */
-    const VALUE_ALL = 'all';
-
-    /**
-     * Permanent column names.
-     *
-     * Names that begins with underscore is not an attribute. This name convention is for
-     * to avoid interference with same attribute name.
-     */
-    const COL_STORE = '_store';
-    const COL_ATTR_SET = '_attribute_set';
-    const COL_TYPE = '_type';
-    const COL_CATEGORY = '_category';
-    const COL_ROOT_CATEGORY = '_root_category';
-    const COL_SKU = 'sku';
-
     protected $_configurable_delimiter = '|';
-
-    /**
-     * Pairs of attribute set ID-to-name.
-     *
-     * @var array
-     */
-    protected $_attrSetIdToName = array();
 
     protected $_attributeMapping = null;
 
     protected $_threads = array();
-
-    /**
-     * Categories ID to text-path hash.
-     *
-     * @var array
-     */
-    protected $_categories = array();
 
     protected $_categoryIds = array();
 
@@ -53,61 +19,6 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
      * @var null
      */
     protected $_limit = null;
-
-    /**
-     * Root category names for each category
-     *
-     * @var array
-     */
-    protected $_rootCategories = array();
-
-    /**
-     * Attributes with index (not label) value.
-     *
-     * @var array
-     */
-    protected $_indexValueAttributes = array(
-        'status',
-        'tax_class_id',
-        'visibility',
-        'enable_googlecheckout',
-        'gift_message_available',
-        'custom_design'
-    );
-
-    /**
-     * Permanent entity columns.
-     *
-     * @var array
-     */
-    protected $_permanentAttributes = array(self::COL_SKU);
-
-    /**
-     * Array of supported product types as keys with appropriate model object as value.
-     *
-     * @var array
-     */
-    protected $_productTypeModels = array();
-
-    /**
-     * Array of pairs store ID to its code.
-     *
-     * @var array
-     */
-    protected $_storeIdToCode = array();
-
-    /**
-     * Website ID-to-code.
-     *
-     * @var array
-     */
-    protected $_websiteIdToCode = array();
-
-    /**
-     * Attribute types
-     * @var array
-     */
-    protected $_attributeTypes = array();
 
     /**
      * Attribute Models
@@ -141,33 +52,10 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
      */
     protected $_taxConfig = null;
 
-    /**
-     * Constructor.
-     *
-     * @return void
-     */
-    public function __construct()
-    {
-        $entityCode = 'catalog_product';
-        $this->_entityTypeId = Mage::getSingleton('eav/config')->getEntityType($entityCode)->getEntityTypeId();
-        $this->_connection = Mage::getSingleton('core/resource')->getConnection('write');
+    public function __construct() {
+        $this->_parameters['id'] = Mage::app()->getRequest()->getParam('id');
+        parent::__construct();
     }
-
-    /**
-     * Initialize attribute sets code-to-id pairs.
-     *
-     * @return Mage_ImportExport_Model_Export_Entity_Product
-     */
-    protected function _initAttributeSets()
-    {
-        $productTypeId = Mage::getModel('catalog/product')->getResource()->getTypeId();
-        foreach (Mage::getResourceModel('eav/entity_attribute_set_collection')
-                     ->setEntityTypeFilter($productTypeId) as $attributeSet) {
-            $this->_attrSetIdToName[$attributeSet->getId()] = $attributeSet->getAttributeSetName();
-        }
-        return $this;
-    }
-
     /**
      * Initialize categories ID to text-path hash.
      *
@@ -197,40 +85,6 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
             }
 
         }
-        return $this;
-    }
-
-    /**
-     * Initialize product type models.
-     *
-     * @throws Exception
-     * @return Mage_ImportExport_Model_Export_Entity_Product
-     */
-    protected function _initTypeModels()
-    {
-        $config = Mage::getConfig()->getNode(self::CONFIG_KEY_PRODUCT_TYPES)->asCanonicalArray();
-        foreach ($config as $type => $typeModel) {
-            if (!($model = Mage::getModel($typeModel, array($this, $type)))) {
-                Mage::throwException("Entity type model '{$typeModel}' is not found");
-            }
-            if (!$model instanceof Mage_ImportExport_Model_Export_Entity_Product_Type_Abstract) {
-                Mage::throwException(
-                    Mage::helper('importexport')->__('Entity type model must be an instance of Mage_ImportExport_Model_Export_Entity_Product_Type_Abstract')
-                );
-            }
-            if ($model->isSuitable()) {
-                $this->_productTypeModels[$type] = $model;
-                $this->_disabledAttrs = array_merge($this->_disabledAttrs, $model->getDisabledAttrs());
-                $this->_indexValueAttributes = array_merge(
-                    $this->_indexValueAttributes, $model->getIndexValueAttributes()
-                );
-            }
-        }
-        if (!$this->_productTypeModels) {
-            Mage::throwException(Mage::helper('importexport')->__('There are no product types available for export'));
-        }
-        $this->_disabledAttrs = array_unique($this->_disabledAttrs);
-
         return $this;
     }
 
@@ -301,12 +155,7 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
     public function export()
     {
 
-        $this->_initTypeModels()
-            ->_initAttributes()
-            ->_initAttributeSets()
-            ->_initWebsites()
-            ->_initCategories()
-            ->_initTaxConfig();
+        $this->_initTaxConfig();
 
         //Execution time may be very long
         set_time_limit(0);
@@ -386,6 +235,10 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
                 $ruleObject->setProfile($obj_profile);
                 $ruleObject->loadPost(array('conditions' => $rule));
                 $ruleObject->setWebsiteIds(array(Mage::app()->getStore($obj_profile->getStoreId())->getWebsiteId()));
+                Mage::helper('mep/log')->debug('Get matching product', $this);
+                if ($this->_limit) {
+                    $ruleObject->setLimit($this->_limit);
+                }
                 $filteredProductIds = $ruleObject->getMatchingProductIds();
                 if(count($filteredProductIds) < 1){
                     return 'No datas';
