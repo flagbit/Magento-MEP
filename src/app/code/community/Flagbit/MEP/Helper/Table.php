@@ -10,6 +10,9 @@ class Flagbit_MEP_Helper_Table extends Mage_Core_Helper_Abstract {
 
     public function toHtmlTable($csv, $profileId) {
         $this->_delimiter = $this->_getProfile($profileId)->getDelimiter();
+        if ($this->_delimiter == '\t') {
+            $this->_delimiter = chr(9);
+        }
         $this->_enclosure = $this->_getProfile($profileId)->getEnclose();
         $rows = explode("\n", $csv);
         $content = '<table class="sortable resizable" id="preview-table">';
