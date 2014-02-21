@@ -956,4 +956,38 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
         return (int)$this->_parameters['id'];
     }
 
+    /**
+     * Returns attributes all values in label-value or value-value pairs form. Labels are lower-cased.
+     *
+     * @param Mage_Eav_Model_Entity_Attribute_Abstract $attribute
+     * @return array
+     */
+    public function getAttributeOptions(Mage_Eav_Model_Entity_Attribute_Abstract $attribute)
+    {
+        $options = array();
+
+        if ($attribute->usesSource()) {
+            // should attribute has index (option value) instead of a label?
+            $index = in_array($attribute->getAttributeCode(), $this->_indexValueAttributes) ? 'value' : 'label';
+
+            /* MEP changed admin store to current profile store id */
+            $attribute->setStoreId(
+                $this->getProfile()->getStoreId()
+            );
+
+            try {
+                foreach ($attribute->getSource()->getAllOptions(false) as $option) {
+                    foreach (is_array($option['value']) ? $option['value'] : array($option) as $innerOption) {
+                        if (strlen($innerOption['value'])) { // skip ' -- Please Select -- ' option
+                            $options[$innerOption['value']] = $innerOption[$index];
+                        }
+                    }
+                }
+            } catch (Exception $e) {
+                // ignore exceptions connected with source models
+            }
+        }
+        return $options;
+    }
+
 }
