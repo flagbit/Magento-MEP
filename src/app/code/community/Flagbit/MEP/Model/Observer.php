@@ -17,9 +17,8 @@ class Flagbit_MEP_Model_Observer extends Varien_Object
      *
      * @param $schedule
      */
-    public function runProfile($schedule)
+    public function runProfile($profileId)
     {
-        $profileId = (int) $schedule->getMessages();
         $profile = Mage::getModel('mep/profile')->load($profileId);
         if($profile->getId()){
             $this->exportProfile($profile);
@@ -97,7 +96,7 @@ class Flagbit_MEP_Model_Observer extends Varien_Object
             /** @var $appEmulation Mage_Core_Model_App_Emulation */
             $appEmulation = Mage::getSingleton('core/app_emulation');
             //Start environment emulation of the specified store
-            $initialEnvironmentInfo = $appEmulation->startEnvironmentEmulation($profile->getStoreId());
+            $initialEnvironmentInfo = $appEmulation->startEnvironmentEmulation($profile->getStoreId(), Mage_Core_Model_App_Area::AREA_ADMINHTML);
 
             // destination File
             $exportFile = $this->_getExportPath($profile) . DS . $profile->getFilename();
