@@ -142,6 +142,13 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
     protected $_taxConfig = null;
 
     /**
+     * Temporary Stock Items
+     *
+     * @var array
+     */
+    protected $_stockItems = array();
+
+    /**
      * Constructor.
      *
      * @return void
@@ -686,6 +693,7 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
             'price' => '_getPrice',
             'gross_price' => '_getGrossPrice',
             'qty' => '_getQuantity',
+            'is_in_stock' => '_getIsInStock',
             'image_url' => '_getImageUrl',
             '_category' => '_getProductCategory',
             'base_price_reference_amount' => '_getBasePriceReferenceAmount'
@@ -813,9 +821,14 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
         return $price;
     }
 
-    protected function  _getQuantity($item, $mapItem) {
-        $attrValue = intval(Mage::getModel('cataloginventory/stock_item')->loadByProduct($item)->getQty());
-        return $attrValue;
+    protected function _getQuantity($item, $mapItem)
+    {
+        return intval($this->_getStockItem($item)->getQty());
+    }
+
+    protected function _getIsInStock($item, $mapItem)
+    {
+        return intval($this->_getStockItem($item)->getIsInStock());
     }
 
     protected function  _getImageUrl($item, $mapItem) {
@@ -927,6 +940,15 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
             $this->_taxConfig = Mage::getSingleton('tax/config');
         }
         return $this->_taxConfig;
+    }
+
+    protected function _getStockItem(Mage_Catalog_Model_Product $product)
+    {
+        if(!isset($this->_stockItems[$product->getId()])) {
+            $this->_stockItems[$product->getId()] = Mage::getModel('cataloginventory/stock_item')->loadByProduct($product);
+        }
+
+        return $this->_stockItems[$product->getId()];
     }
 
     /**
