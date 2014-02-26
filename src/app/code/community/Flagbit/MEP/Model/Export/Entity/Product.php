@@ -293,6 +293,50 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
         return $this;
     }
 
+    protected function  _getMatchingProductIdsWithoutRules() {
+        $objProfile = $this->getProfile();
+        $settings = $objProfile->getSettings();
+        if (!empty($settings['is_in_stock']) && $settings['is_in_stock'] == 2) {
+            $settings['is_in_stock'] = '';
+        }
+        $productCollection = Mage::getResourceModel('catalog/product_collection');
+        if (isset($settings['apply_to']) && !is_null($settings['apply_to'])) {
+            $productCollection->addAttributeToFilter('type_id', array('in' => $settings['apply_to']));
+        }
+        if (isset($settings['is_in_stock']) && strlen($settings['is_in_stock'])) {
+            $productCollection->joinField(
+                'is_in_stock',
+                'cataloginventory/stock_item',
+                'is_in_stock',
+                'product_id=entity_id',
+                '{{table}}.stock_id=1',
+                'left'
+            )->addAttributeToFilter('is_in_stock', array('eq' => $settings['is_in_stock']));
+        }
+        if (!empty($settings['qty'])) {
+            if (isset($settings['qty']['threshold']) && strlen($settings['qty']['threshold'])) {
+                $operator = $settings['qty']['operator'];
+                $threshold = $settings['qty']['threshold'];
+                $productCollection->joinField(
+                    'qty',
+                    'cataloginventory/stock_item',
+                    'qty',
+                    'product_id=entity_id',
+                    '{{table}}.stock_id=1',
+                    'left'
+                )->addAttributeToFilter('qty', array(Mage::helper('mep/qtyFilter')->getOperatorForCollectionFilter($operator) => $threshold));
+            }
+        }
+        if ($this->_limit) {
+            $productCollection->setPageSize($this->_limit);
+        }
+        $ids = array();
+        foreach ($productCollection as $product) {
+            $ids[] = $product->getId();
+        }
+        return $ids;
+    }
+
     /**
      * Export process.
      *
@@ -390,6 +434,10 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
                 if(count($filteredProductIds) < 1){
                     return 'No datas';
                 }
+            }
+            else
+            {
+                $filteredProductIds = $this->_getMatchingProductIdsWithoutRules();
             }
             Mage::helper('mep/log')->debug('END Filter Rules', $this);
 
