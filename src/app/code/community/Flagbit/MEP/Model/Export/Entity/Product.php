@@ -52,10 +52,19 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
      */
     protected $_taxConfig = null;
 
-    public function __construct() {
-        $this->_parameters['id'] = Mage::app()->getRequest()->getParam('id');
+    public function __construct()
+    {
+        if (Mage::app()->getRequest()->getParam('id'))
+        {
+            $this->_parameters['id'] = Mage::app()->getRequest()->getParam('id');
+        }
+        else
+        {
+            $this->_parameters['id'] = Mage::registry('current_exporting_mep_profile');
+        }
         parent::__construct();
     }
+
     /**
      * Initialize categories ID to text-path hash.
      *
@@ -255,7 +264,6 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
             $maxThreads = 5;
             while(true){
                 $index++;
-                echo 'Thread n: ' . $index . "\n";
                 $this->_threads[$index] = new Flagbit_MEP_Model_Thread( array($this, '_exportThread') );
                 $this->_threads[$index]->start($index, $writer, $limitProducts, $filteredProductIds, $mapping, $shippingAttrCodes);
 
@@ -283,6 +291,14 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
         while( !empty( $this->_threads ) ) {
             $this->_cleanUpThreads();
         }
+
+        /**
+         * IMPORTANT TO PREVENT MySql to go away
+         */
+        $core_read = Mage::getSingleton('core/resource')->getConnection('core_read');
+        /** @var Varien_Db_Adapter_Pdo_Mysql $core_read */
+        $core_read->closeConnection();
+        $core_read->getConnection();
     }
 
     /**
@@ -292,7 +308,6 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
     {
         foreach( $this->_threads as $index => $thread ) {
             if( ! $thread->isAlive() ) {
-                echo 'Clean Thread n: ' . $index . "\n";
                 unset( $this->_threads[$index] );
             }
         }
@@ -336,7 +351,8 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
         $storeId = $objProfile->getStoreId();
         Mage::app()->setCurrentStore($storeId);
 
-        $collection = $this->_prepareEntityCollection(Mage::getResourceModel('catalog/product_collection'));
+        $resource = Mage::getResourceModel('catalog/product_collection');
+        $collection = $this->_prepareEntityCollection($resource);
         $collection
             ->setStoreId($storeId)
             ->addStoreFilter($objProfile->getStoreId())

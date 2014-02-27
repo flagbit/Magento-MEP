@@ -13,12 +13,14 @@ class   Flagbit_MEP_Model_Cron_Execute {
             $now = time();
             if ($time <= $now) {
                 if (!in_array($schedule->getProfileId(), $ran)) {
-                    $schedule->setStatus(Mage_Cron_Model_Schedule::STATUS_RUNNING);
-                    $schedule->save();
+                    Mage::register('current_exporting_mep_profile', $schedule->getProfileId());
+//                    $schedule->setStatus(Mage_Cron_Model_Schedule::STATUS_RUNNING);
+//                    $schedule->save();
                     $observer->runProfile($schedule->getProfileId());
                     $schedule->setFinishedAt(strftime('%Y-%m-%d %H:%M:%S', time()));
-                    $schedule->setStatus(Mage_Cron_Model_Schedule::STATUS_SUCCESS);
-                    $schedule->save();
+//                    $schedule->setStatus(Mage_Cron_Model_Schedule::STATUS_SUCCESS);
+//                    $schedule->save();
+                    Mage::unregister('current_exporting_mep_profile');
                 }
                 else {
                     $schedule->setStatus(Mage_Cron_Model_Schedule::STATUS_MISSED);
