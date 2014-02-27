@@ -89,20 +89,6 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
     }
 
     /**
-     * Initialize website values.
-     *
-     * @return Mage_ImportExport_Model_Export_Entity_Product
-     */
-    protected function _initWebsites()
-    {
-        /** @var $website Mage_Core_Model_Website */
-        foreach (Mage::app()->getWebsites() as $website) {
-            $this->_websiteIdToCode[$website->getId()] = $website->getCode();
-        }
-        return $this;
-    }
-
-    /**
      * get Attribute Mapping
      *
      * @param bool $attributeCode
@@ -154,11 +140,10 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
      */
     public function export()
     {
-
-        $this->_initTaxConfig();
-
         //Execution time may be very long
         set_time_limit(0);
+
+        $this->_initTaxConfig();
 
         Mage::app()->setCurrentStore(0);
 
@@ -706,54 +691,6 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
         $attrValue = Mage::helper('baseprice')->getBasePriceLabel($item, '{{baseprice}}');
 		$attrValue = str_replace(array(' €'), '', strip_tags($attrValue));
         return $attrValue;
-    }
-
-
-    /**
-     * Clean up already loaded attribute collection.
-     *
-     * @param Mage_Eav_Model_Resource_Entity_Attribute_Collection $collection
-     * @return Mage_Eav_Model_Resource_Entity_Attribute_Collection
-     */
-    public function filterAttributeCollection(Mage_Eav_Model_Resource_Entity_Attribute_Collection $collection)
-    {
-        $validTypes = array_keys($this->_productTypeModels);
-
-        foreach (parent::filterAttributeCollection($collection) as $attribute) {
-            $attrApplyTo = $attribute->getApplyTo();
-            $attrApplyTo = $attrApplyTo ? array_intersect($attrApplyTo, $validTypes) : $validTypes;
-
-            if ($attrApplyTo) {
-                foreach ($attrApplyTo as $productType) { // override attributes by its product type model
-                    if ($this->_productTypeModels[$productType]->overrideAttribute($attribute)) {
-                        break;
-                    }
-                }
-            } else { // remove attributes of not-supported product types
-                $collection->removeItemByKey($attribute->getId());
-            }
-        }
-        return $collection;
-    }
-
-    /**
-     * Entity attributes collection getter.
-     *
-     * @return Mage_Catalog_Model_Resource_Eav_Mysql4_Product_Attribute_Collection
-     */
-    public function getAttributeCollection()
-    {
-        return Mage::getResourceModel('catalog/product_attribute_collection');
-    }
-
-    /**
-     * EAV entity type code getter.
-     *
-     * @return string
-     */
-    public function getEntityTypeCode()
-    {
-        return 'catalog_product';
     }
 
     /**
