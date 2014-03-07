@@ -124,6 +124,42 @@ class Flagbit_MEP_Block_Adminhtml_Profile_View_Edit_Tab_General extends Mage_Adm
             )
         );
 
+        $cronSetting = $form->addFieldset(
+            'mep_cron_setting_form',
+            array(
+                'legend' => 'Cron configuration'
+            )
+        );
+
+        $cronSetting->addField(
+            'cron_activated',
+            'select',
+            array(
+                'label' => Mage::helper('mep')->__('Activate cron'),
+                'name' => 'cron_activated',
+                'values' => Mage::getModel('adminhtml/system_config_source_yesno')->toOptionArray()
+            )
+        );
+
+        $cronSetting->addField(
+            'mep_cron_start_time',
+            'time',
+            array(
+                'label' => Mage::helper('mep')->__('Start Time'),
+                'name' => 'mep_cron_start_time',
+            )
+        );
+
+        $cronSetting->addField(
+            'mep_cron_frequency',
+            'select',
+            array(
+                'label' => Mage::helper('mep')->__('Frequency'),
+                'name' => 'mep_cron_frequency',
+                'values' => Mage::getModel('adminhtml/system_config_source_cron_frequency')->toOptionArray()
+            )
+        );
+
         $form->setValues(Mage::helper('mep')->getCurrentProfileData());
         return parent::_prepareForm();
     }

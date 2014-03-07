@@ -36,4 +36,12 @@ CREATE TABLE `mep_cron` (
   PRIMARY KEY (`cron_id`));
 ");
 
+$installer->run(
+    "ALTER TABLE `{$this->getTable('mep/profile')}` ADD COLUMN `cron_activated` int;"
+);
+
+$installer->run(
+    "ALTER TABLE `{$this->getTable('mep/profile')}` ADD COLUMN `cron_expression` text;"
+);
+
 $installer->endSetup();
