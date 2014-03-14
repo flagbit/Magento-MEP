@@ -10,3 +10,4 @@ src/skin/adminhtml/default/default/chosen skin/adminhtml/default/default/chosen
 src/skin/adminhtml/default/default/images/* skin/adminhtml/default/default/images
 src/shell/* shell
 src/lib/* lib
+src/mep-cron.php mep-cron.php
