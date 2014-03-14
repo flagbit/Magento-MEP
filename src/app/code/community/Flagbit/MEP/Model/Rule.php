@@ -123,6 +123,13 @@ class Flagbit_MEP_Model_Rule extends Mage_CatalogRule_Model_Rule
                     $productCollection->addAttributeToFilter('type_id', array('in' => $settings['apply_to']));
                 }
                 if (isset($settings['is_in_stock']) && strlen($settings['is_in_stock'])) {
+                    $filteredAttribute = array(
+                        array('attribute' => 'is_in_stock', 'eq' => $settings['is_in_stock']),
+                    );
+                    if ($settings['is_in_stock'] == 1)
+                    {
+                        $filteredAttribute[] = array('attribute' => 'manage_stock', 'eq' => 0);
+                    }
                     $productCollection->joinField(
                         'is_in_stock',
                         'cataloginventory/stock_item',
@@ -130,7 +137,14 @@ class Flagbit_MEP_Model_Rule extends Mage_CatalogRule_Model_Rule
                         'product_id=entity_id',
                         '{{table}}.stock_id=1',
                         'left'
-                    )->addAttributeToFilter('is_in_stock', array('eq' => $settings['is_in_stock']));
+                    )->joinField(
+                            'manage_stock',
+                            'cataloginventory/stock_item',
+                            'manage_stock',
+                            'product_id=entity_id',
+                            '{{table}}.stock_id=1',
+                            'left'
+                        )->addAttributeToFilter($filteredAttribute);
                 }
                 if (!empty($settings['qty'])) {
                     if (isset($settings['qty']['threshold']) && strlen($settings['qty']['threshold'])) {
@@ -143,7 +157,19 @@ class Flagbit_MEP_Model_Rule extends Mage_CatalogRule_Model_Rule
                             'product_id=entity_id',
                             '{{table}}.stock_id=1',
                             'left'
-                        )->addAttributeToFilter('qty', array(Mage::helper('mep/qtyFilter')->getOperatorForCollectionFilter($operator) => $threshold));
+                        )->joinField(
+                                'manage_stock',
+                                'cataloginventory/stock_item',
+                                'manage_stock',
+                                'product_id=entity_id',
+                                '{{table}}.stock_id=1',
+                                'left'
+                            )->addAttributeToFilter(
+                                array(
+                                    array('attribute' => 'qty', Mage::helper('mep/qtyFilter')->getOperatorForCollectionFilter($operator) => $threshold),
+                                    array('attribute' => 'manage_stock', 'eq' => 0)
+                                )
+                            );
                     }
                 }
                 $productCollection->addWebsiteFilter($this->getWebsiteIds());
