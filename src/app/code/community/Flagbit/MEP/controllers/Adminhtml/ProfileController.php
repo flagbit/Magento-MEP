@@ -218,64 +218,6 @@ class Flagbit_MEP_Adminhtml_ProfileController extends Mage_Adminhtml_Controller_
         $this->_redirect('*/*/edit', array('id' => $this->getRequest()->getParam('id')));
     }
 
-//    public function runAction()
-//    {
-//        try {
-//            $id = (int) $this->getRequest()->getParam('id');
-//
-//            $scheduleAheadFor = Mage::getStoreConfig(Mage_Cron_Model_Observer::XML_PATH_SCHEDULE_AHEAD_FOR)*60;
-//            $schedule = Mage::getModel('cron/schedule');
-//            $jobCode = 'mep_run_profile';
-//            $now = time()+60;
-//            $timeAhead = $now + $scheduleAheadFor;
-//
-//
-//            $schedules = Mage::getModel('cron/schedule')->getCollection()
-//                ->addFieldToFilter('status', Mage_Cron_Model_Schedule::STATUS_PENDING)
-//                ->load();
-//
-//            $exists = array();
-//            foreach ($schedules->getIterator() as $schedule) {
-//                $exists[$schedule->getJobCode()] = 1;
-//            }
-//
-//            $schedule->setJobCode($jobCode)
-//                ->setCronExpr('* * * * *')
-//                ->setStatus(Mage_Cron_Model_Schedule::STATUS_PENDING)
-//                ->setMessages($id);
-//
-//            $_errorMsg = null;
-//            for ($time = $now; $time < $timeAhead; $time += 60) {
-//                if (!empty($exists[$jobCode])) {
-//                    $_errorMsg = Mage::helper('mep')->__('There is already a Export scheduled, please try again later.');
-//                    continue;
-//                }
-//                if (!$schedule->trySchedule($time)) {
-//                    // time does not match cron expression
-//                    $_errorMsg = Mage::helper('mep')->__('Something went wrong, please try again later.');
-//                    continue;
-//                }
-//                $_errorMsg = null;
-//                $schedule->unsScheduleId()->save();
-//                break;
-//            }
-//            if($_errorMsg !== NULL){
-//                $this->_getSession()->addError($_errorMsg);
-//            }else{
-//                $this->_getSession()->addSuccess(
-//                    Mage::helper('mep')->__('Export is scheduled and will run in %s seconds.', $now - time())
-//                );
-//            }
-//
-//        } catch (Mage_Core_Exception $e) {
-//            $this->_getSession()->addError($e->getMessage());
-//        } catch (Exception $e) {
-//            $this->_getSession()->addException($e, Mage::helper('mep')->__('Cannot initialize the export process.'));
-//        }
-//        $this->_redirect('*/*/edit', array('id' => $id));
-//
-//    }
-
     public function runAction()
     {
         try {
