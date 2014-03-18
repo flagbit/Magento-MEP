@@ -52,10 +52,19 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
      */
     protected $_taxConfig = null;
 
-    public function __construct() {
-        $this->_parameters['id'] = Mage::app()->getRequest()->getParam('id');
+    public function __construct()
+    {
+        if (Mage::app()->getRequest()->getParam('id'))
+        {
+            $this->_parameters['id'] = Mage::app()->getRequest()->getParam('id');
+        }
+        else
+        {
+            $this->_parameters['id'] = Mage::registry('current_exporting_mep_profile');
+        }
         parent::__construct();
     }
+
     /**
      * Initialize categories ID to text-path hash.
      *
@@ -255,7 +264,6 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
             $maxThreads = 5;
             while(true){
                 $index++;
-                echo 'Thread n: ' . $index . "\n";
                 $this->_threads[$index] = new Flagbit_MEP_Model_Thread( array($this, '_exportThread') );
                 $this->_threads[$index]->start($index, $writer, $limitProducts, $filteredProductIds, $mapping, $shippingAttrCodes);
 
@@ -283,6 +291,14 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
         while( !empty( $this->_threads ) ) {
             $this->_cleanUpThreads();
         }
+
+        /**
+         * IMPORTANT TO PREVENT MySql to go away
+         */
+        $core_read = Mage::getSingleton('core/resource')->getConnection('core_read');
+        /** @var Varien_Db_Adapter_Pdo_Mysql $core_read */
+        $core_read->closeConnection();
+        $core_read->getConnection();
     }
 
     /**
@@ -292,7 +308,6 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
     {
         foreach( $this->_threads as $index => $thread ) {
             if( ! $thread->isAlive() ) {
-                echo 'Clean Thread n: ' . $index . "\n";
                 unset( $this->_threads[$index] );
             }
         }
@@ -336,7 +351,8 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
         $storeId = $objProfile->getStoreId();
         Mage::app()->setCurrentStore($storeId);
 
-        $collection = $this->_prepareEntityCollection(Mage::getResourceModel('catalog/product_collection'));
+        $resource = Mage::getResourceModel('catalog/product_collection');
+        $collection = $this->_prepareEntityCollection($resource);
         $collection
             ->setStoreId($storeId)
             ->addStoreFilter($objProfile->getStoreId())
@@ -455,6 +471,13 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
             $settings['is_in_stock'] = '';
         }
         if (isset($settings['is_in_stock']) && strlen($settings['is_in_stock'])) {
+            $filteredAttribute = array(
+                array('attribute' => 'is_in_stock', 'eq' => $settings['is_in_stock']),
+            );
+            if ($settings['is_in_stock'] == 1)
+            {
+                $filteredAttribute[] = array('attribute' => 'manage_stock', 'eq' => 0);
+            }
             $collection->joinField(
                 'is_in_stock',
                 'cataloginventory/stock_item',
@@ -462,7 +485,14 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
                 'product_id=entity_id',
                 '{{table}}.stock_id=1',
                 'left'
-            )->addAttributeToFilter('is_in_stock', array('eq' => $settings['is_in_stock']));
+            )->joinField(
+                    'manage_stock',
+                    'cataloginventory/stock_item',
+                    'manage_stock',
+                    'product_id=entity_id',
+                    '{{table}}.stock_id=1',
+                    'left'
+                )->addAttributeToFilter($filteredAttribute);
         }
         if (!empty($settings['qty'])) {
             if (isset($settings['qty']['threshold']) && strlen($settings['qty']['threshold'])) {
@@ -475,7 +505,19 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
                     'product_id=entity_id',
                     '{{table}}.stock_id=1',
                     'left'
-                )->addAttributeToFilter('qty', array(Mage::helper('mep/qtyFilter')->getOperatorForCollectionFilter($operator) => $threshold));
+                )->joinField(
+                        'manage_stock',
+                        'cataloginventory/stock_item',
+                        'manage_stock',
+                        'product_id=entity_id',
+                        '{{table}}.stock_id=1',
+                        'left'
+                    )->addAttributeToFilter(
+                        array(
+                            array('attribute' => 'qty', Mage::helper('mep/qtyFilter')->getOperatorForCollectionFilter($operator) => $threshold),
+                            array('attribute' => 'manage_stock', 'eq' => 0)
+                        )
+                    );
             }
         }
         $collection->addFieldToFilter("entity_id", array('in' => $items));

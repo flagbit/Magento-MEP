@@ -13,12 +13,14 @@ class   Flagbit_MEP_Model_Cron_Execute {
             $now = time();
             if ($time <= $now) {
                 if (!in_array($schedule->getProfileId(), $ran)) {
+                    Mage::register('current_exporting_mep_profile', $schedule->getProfileId());
                     $schedule->setStatus(Mage_Cron_Model_Schedule::STATUS_RUNNING);
                     $schedule->save();
                     $observer->runProfile($schedule->getProfileId());
                     $schedule->setFinishedAt(strftime('%Y-%m-%d %H:%M:%S', time()));
                     $schedule->setStatus(Mage_Cron_Model_Schedule::STATUS_SUCCESS);
                     $schedule->save();
+                    Mage::unregister('current_exporting_mep_profile');
                 }
                 else {
                     $schedule->setStatus(Mage_Cron_Model_Schedule::STATUS_MISSED);
@@ -26,6 +28,7 @@ class   Flagbit_MEP_Model_Cron_Execute {
                 }
             }
         }
+        $this->_scheduleCron();
     }
 
     protected function  _loadSchedulesCron() {
@@ -37,5 +40,40 @@ class   Flagbit_MEP_Model_Cron_Execute {
                 ->load();
         }
         return $this->_pendingSchedules;
+    }
+
+    protected function  _scheduleCron()
+    {
+        $profiles = Mage::getModel('mep/profile')
+            ->getCollection()
+            ->addFieldToFilter('status', array('eq' => '0'))
+            ->addFieldToFilter('cron_activated', '1')
+            ->load();
+        foreach ($profiles as $profile)
+        {
+            $id = $profile->getId();
+            $scheduleAheadFor = Mage::getStoreConfig(Mage_Cron_Model_Observer::XML_PATH_SCHEDULE_AHEAD_FOR) * 60;
+            $schedule = Mage::getModel('mep/cron');
+            $now = time() + 60;
+            $timeAhead = $now + $scheduleAheadFor;
+
+            $schedule->setCronExpr($profile->getCronExpression())
+                ->setStatus(Mage_Cron_Model_Schedule::STATUS_PENDING)
+                ->setProfileId($id)
+                ->setIgnoreProfileStatus(0)
+            ;
+
+            $_errorMsg = null;
+            for ($time = $now; $time < $timeAhead; $time += 60) {
+                print_r(getdate(Mage::getSingleton('core/date')->timestamp($time)));
+                if (!$schedule->trySchedule($time)) {
+                    // time does not match cron expression
+                    continue;
+                }
+                $_errorMsg = null;
+                $schedule->unsScheduleId()->save();
+                break;
+            }
+        }
     }
 }
