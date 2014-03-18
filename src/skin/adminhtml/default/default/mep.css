@@ -150,3 +150,10 @@
 .adminhtml-profile-edit #widget_window.attr-popup-window #widget_window_content.magento_content {
     overflow: hidden;
 }
+
+.mep_category_list_item {
+    background-color: #eeeeee;
+    border: 1px solid #CCCCCC;
+    padding: 3px;
+    margin: 2px 0px;
+}
