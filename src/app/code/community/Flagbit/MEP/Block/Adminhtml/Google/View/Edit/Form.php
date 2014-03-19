@@ -37,6 +37,7 @@ class Flagbit_MEP_Block_Adminhtml_Google_View_Edit_Form extends Mage_Adminhtml_B
             <script type="text/javascript">
                 $(document).observe("dom:loaded", function() {
                     var googleMapping = new GoogleMapping(\'' . Mage::helper('adminhtml')->getUrl('/google/loadcategories') . '\');
+                    googleMapping.load();
                 });
             </script>
         ');
