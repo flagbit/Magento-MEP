@@ -46,7 +46,7 @@ class   Flagbit_MEP_Model_Cron_Execute {
     {
         $profiles = Mage::getModel('mep/profile')
             ->getCollection()
-            ->addFieldToFilter('status', array('eq' => '0'))
+            ->addFieldToFilter('status', array('eq' => '1'))
             ->addFieldToFilter('cron_activated', '1')
             ->load();
         foreach ($profiles as $profile)
@@ -65,7 +65,6 @@ class   Flagbit_MEP_Model_Cron_Execute {
 
             $_errorMsg = null;
             for ($time = $now; $time < $timeAhead; $time += 60) {
-                print_r(getdate(Mage::getSingleton('core/date')->timestamp($time)));
                 if (!$schedule->trySchedule($time)) {
                     // time does not match cron expression
                     continue;
