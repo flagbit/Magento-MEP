@@ -23,20 +23,15 @@ class Flagbit_MEP_Block_Adminhtml_Google_View_Edit_Form extends Mage_Adminhtml_B
 
         $categories = $form->addFieldset('categories', array(
             'legend' => Mage::helper('mep')->__('Categories mapping'),
-            'after_element_html' => '
-                <script type="text/javascript">
-                    $(document).observe("dom:loaded", function() {
-                        var googleMapping = new GoogleMapping();
-                    });
-                </script>
-            ',
         ));
 
         $categories->setHtmlContent('
             <div id="categories_list"></div>
             <script type="text/javascript">
                 $(document).observe("dom:loaded", function() {
-                    var googleMapping = new GoogleMapping(\'' . Mage::helper('adminhtml')->getUrl('/google/loadcategories') . '\');
+                    var googleMapping = new GoogleMapping();
+                    googleMapping.options.requestUrl.loadcategories = \'' . Mage::helper('adminhtml')->getUrl('/google/loadcategories') . '\';
+                    googleMapping.options.requestUrl.loadtaxonomies = \'' . Mage::helper('adminhtml')->getUrl('/google/loadtaxonomies') . '\';
                     googleMapping.load();
                 });
             </script>
