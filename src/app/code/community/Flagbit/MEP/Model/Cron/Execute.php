@@ -69,10 +69,27 @@ class   Flagbit_MEP_Model_Cron_Execute {
                     // time does not match cron expression
                     continue;
                 }
+                if ($this->_alreadyScheduled($schedule))
+                {
+                    continue ;
+                }
                 $_errorMsg = null;
                 $schedule->unsScheduleId()->save();
                 break;
             }
         }
+    }
+
+    protected function  _alreadyScheduled($toSchedule)
+    {
+        $pending = $this->_loadSchedulesCron();
+        foreach ($pending as $schedule)
+        {
+            if ($toSchedule->getProfileId() == $schedule->getProfileId() && $toSchedule->getScheduledAt() == $schedule->getScheduledAt())
+            {
+                return true;
+            }
+        }
+        return false;
     }
 }
