@@ -47,6 +47,7 @@ class Flagbit_MEP_Model_Data extends Mage_Catalog_Model_Convert_Parser_Product
         $specialAttributes['special_price_from'] = 'special_price_from';
         $specialAttributes['special_price_to'] = 'special_price_to';
         $specialAttributes['fixed_value_format'] = 'fixed_value_format';
+        $specialAttributes['is_salable'] = 'is_salable';
         $specialAttributes['entity_id'] = 'entity_id';
         $attributes[$_helper->__('Special Attributes')] = $specialAttributes;
 
