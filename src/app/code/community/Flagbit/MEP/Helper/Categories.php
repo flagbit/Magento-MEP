@@ -15,8 +15,9 @@ class   Flagbit_MEP_Helper_Categories extends Mage_Core_Helper_Abstract
         foreach ($categoryCollection as $category)
         {
             /** @var Varien_Data_Tree_Node $category */
-            $categoryId = 'category-' . $category->getId();
-            $html .= '<div id="' . $categoryId . '" class="mep_category_list_item" style="margin-left: ' . $margin . 'px">' . $category->getName() . ' ' . $this->getSelectForTaxonomy(0, $categoryId) . '</div>';
+            $categoryId = $category->getId();
+
+            $html .= '<div id="category-' . $categoryId . '" class="mep_category_list_item" style="margin-left: ' . $margin . 'px">' . $category->getName() . ' ' . $this->getMappingForTaxonomy(0, $categoryId) . '</div>';
             if ($category->hasChildren())
             {
                 $this->loadCategoryHtmlTree($category->getChildren(), $recursive + 1, $html);
@@ -24,9 +25,37 @@ class   Flagbit_MEP_Helper_Categories extends Mage_Core_Helper_Abstract
         }
     }
 
-    public function getSelectForTaxonomy($taxonomyId, $categoryId = null)
+    public function getMappingForTaxonomy($taxonomyId, $categoryId)
     {
-        $html = '<select class="taxonomy-select ' . $categoryId . '"><option value=""></option>' . $this->getOptionsForTaxonomy($taxonomyId) . '</select>';
+        $level = 1;
+        $mapping = Mage::getModel('mep/googleMapping');
+        $mapping->load($categoryId, 'category_id');
+        $googleMappingIds = $mapping->getGoogleMappingIds();
+        if (empty($googleMappingIds))
+        {
+            $html = $this->getSelectForTaxonomy(0, $level, $categoryId);
+            return $html;
+        }
+        $html = $this->getSelectForTaxonomy(0, $level, $categoryId);
+        $taxonomies = explode('|', $googleMappingIds);
+        foreach ($taxonomies as $taxonomy)
+        {
+            $jsSelect = $this->getJavascriptToSelect($taxonomy, $level, $categoryId);
+            $level++;
+            $html .= $this->getSelectForTaxonomy($taxonomy, $level, $categoryId);
+            $html .= $jsSelect;
+        }
+        return $html;
+    }
+
+    public function getSelectForTaxonomy($taxonomyId, $level, $categoryId)
+    {
+        $options = $this->getOptionsForTaxonomy($taxonomyId);
+        $html = '';
+        if (!empty($options))
+        {
+            $html = '<select name="google-mapping[' . $categoryId . '][' . $level . ']" class="taxonomy-select level-' . $level . ' category-' . $categoryId . '"><option value=""></option>' . $options . '</select>';
+        }
         return $html;
     }
 
@@ -61,5 +90,31 @@ class   Flagbit_MEP_Helper_Categories extends Mage_Core_Helper_Abstract
             $this->_selects[$taxonomyId]['array'] = $array;
         }
         return $this->_selects[$taxonomyId];
+    }
+
+    public function    prepareMappingForSave($data)
+    {
+        $mappings = array();
+        if (!empty($data))
+        {
+            foreach ($data as $key => $values)
+            {
+                $values = array_filter($values);
+                if (!empty($values))
+                {
+                    $mappings[] = array(
+                        'category_id' => $key,
+                        'google_mapping_ids' => implode('|', $values),
+                    );
+                }
+            }
+        }
+        return $mappings;
+    }
+
+    public function getJavascriptToSelect($taxonomyId, $level, $categoryId)
+    {
+        $js = '<script type="text/javascript">$$(\'.category-' . $categoryId . '.level-' . $level . '\').first().value = ' . $taxonomyId . ';</script>';
+        return $js;
     }
 }
