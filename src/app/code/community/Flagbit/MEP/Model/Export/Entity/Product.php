@@ -403,6 +403,7 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
             $cpt++;
         }
         $collection->clear();
+        Mage::log('Thread ended: ' . $offsetProducts, null, $logFile);
         Mage::helper('mep/log')->debug('END Thread: ' . $offsetProducts, $this);
         if ($collection->getCurPage() < $offsetProducts) {
             return false;
