@@ -261,6 +261,7 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
             // run just a small export for the preview function
             if($this->_limit){
                 $this->_exportThread(1, $writer, $this->_limit, $filteredProductIds, $mapping, $shippingAttrCodes);
+                Mage::log('Export done', null, $logFile);
                 return $writer->getContents();
             }
 
