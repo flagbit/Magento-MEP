@@ -371,6 +371,7 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
             $collection->addFieldToFilter("entity_id", array('in' => $filteredProductIds));
         }
         $collection->load();
+        $cpt = 1;
         foreach ($collection as $item) {
             $currentRow = array();
             foreach ($mapping->getItems() as $mapItem) {
@@ -388,6 +389,7 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
                 }
             }
             if($offsetProducts != 1) {
+                Mage::log('Row ' . $cpt . ' written', null, $logFile);
                 $writer->setHeaderIsDisabled();
             }
             try {
@@ -397,6 +399,7 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
                 Mage::log('Twig exception: ' . $e->getMessage(), null, $logFile);
                 echo 'TWIG Exception: ' . $e->getMessage();
             }
+            $cpt++;
         }
         $collection->clear();
         Mage::helper('mep/log')->debug('END Thread: ' . $offsetProducts, $this);
