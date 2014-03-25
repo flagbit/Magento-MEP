@@ -360,7 +360,7 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
         }
         $storeId = $objProfile->getStoreId();
         Mage::app()->setCurrentStore($storeId);
-
+        Mage::log('Setting store id: ' . $storeId, null, $logFile);
         $resource = Mage::getResourceModel('catalog/product_collection');
         $collection = $this->_prepareEntityCollection($resource);
         $collection
@@ -373,6 +373,7 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
         }
         $collection->load();
         $cpt = 1;
+        Mage::log('Looping on products', null, $logFile);
         foreach ($collection as $item) {
             $currentRow = array();
             foreach ($mapping->getItems() as $mapItem) {
