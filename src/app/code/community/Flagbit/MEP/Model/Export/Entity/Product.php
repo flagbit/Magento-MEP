@@ -164,6 +164,8 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
 
 
         if ($this->hasProfileId()) {
+            $logFile = 'mep-' . $this->getProfileId() . '.log';
+            Mage::log('Starting export', null, $logFile);
             /* @var $obj_profile Flagbit_MEP_Model_Profil */
             $obj_profile = $this->getProfile();
             $delimiter = $obj_profile->getDelimiter();
@@ -220,6 +222,7 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
             $offsetProducts = 0;
 
             Mage::helper('mep/log')->debug('START Filter Rules', $this);
+            Mage::log('Start filter rules', null, $logFile);
             // LOAD FILTER RULES
             /* @var $ruleObject Flagbit_MEP_Model_Rule */
             $ruleObject = Mage::getModel('mep/rule');
@@ -235,9 +238,11 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
                 }
                 $filteredProductIds = $ruleObject->getMatchingProductIds();
                 if(count($filteredProductIds) < 1){
+                    Mage::log('Nothing to export ' . $this->getProfileId(), null, $logFile);
                     return 'No datas';
                 }
             }
+            Mage::log('End filter rules', null, $logFile);
             Mage::helper('mep/log')->debug('END Filter Rules', $this);
 
             /* @var $collection Mage_Catalog_Model_Resource_Product_Collection */
@@ -249,6 +254,7 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
             }
 
             $size = $collection->getSize();
+            Mage::log($size . ' products to export', null, $logFile);
 
             Mage::helper('mep/log')->debug('EXPORT '.$size.' Products', $this);
 
@@ -284,6 +290,7 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
                     break;
                 }
             }
+            Mage::log('Export done', null, $logFile);
             $obj_profile->uploadToFtp();
         }
 
@@ -341,6 +348,7 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
      */
     public function _exportThread($offsetProducts, $writer, $limitProducts, $filteredProductIds, $mapping, $shippingAttrCodes)
     {
+        $logFile = 'mep-' . $this->getProfileId() . '.log';
         $this->_shippingAttrCodes = $shippingAttrCodes;
         $this->_cleanUpProcess();
         Mage::helper('mep/log')->debug('START Thread: ' . $offsetProducts, $this);
@@ -385,6 +393,7 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
                 $writer->writeRow($currentRow);
             }
             catch (Exception $e) {
+                Mage::log('Twig exception: ' . $e->getMessage(), null, $logFile);
                 echo 'TWIG Exception: ' . $e->getMessage();
             }
         }
