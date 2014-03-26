@@ -229,14 +229,4 @@
         </reference>
     </adminhtml_google_index>
 
-    <adminhtml_google_loadcategories>
-        <reference name="root">
-            <action method="setArea"><area>frontend</area></action>
-            <action method="setTemplate"><template>page/empty.phtml</template></action>
-        </reference>
-        <reference name="content">
-            <block type="mep/adminhtml_google_view_edit_categoriesList" template="mep/google/categorieslist.phtml" name="categories_list"/>
-        </reference>
-    </adminhtml_google_loadcategories>
-
 </layout>

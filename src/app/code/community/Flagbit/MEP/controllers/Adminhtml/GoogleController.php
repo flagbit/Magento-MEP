@@ -15,8 +15,11 @@ class   Flagbit_MEP_Adminhtml_GoogleController extends Mage_Adminhtml_Controller
         {
             Mage::register('category_store_id', $storeId);
         }
-        $this->loadLayout();
-        $this->renderLayout();
+        $categoriesTree = Mage::helper('mep/categories')->getCategoriesTree();
+        $array = array();
+        Mage::helper('mep/categories')->loadCategoryTree($categoriesTree, 1, $array);
+        $this->getResponse()->clearHeaders()->setHeader('Content-Type', 'application/json');
+        $this->getResponse()->setBody(json_encode($array));
     }
 
     public function loadtaxonomiesAction()

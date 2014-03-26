@@ -9,6 +9,19 @@ class   Flagbit_MEP_Helper_Categories extends Mage_Core_Helper_Abstract
         $this->_selects = array();
     }
 
+    public function getCategoriesTree()
+    {
+        $storeId = Mage::registry('category_store_id');
+        if ($storeId && empty($this->_tree))
+        {
+            $parent = Mage::app()->getStore($storeId)->getRootCategoryId();
+            $this->_rootCategory = Mage::getModel('catalog/category')->load($parent);
+            $recursionLevel  = max(0, (int) Mage::app()->getStore($storeId)->getConfig('catalog/navigation/max_depth'));
+            $this->_tree = Mage::getModel('catalog/category')->getCategories($parent, $recursionLevel);
+        }
+        return $this->_tree;
+    }
+
     public function loadCategoryHtmlTree(Varien_Data_Tree_Node_Collection $categoryCollection, $recursive, &$html)
     {
         $margin = $recursive * 15;
@@ -21,6 +34,28 @@ class   Flagbit_MEP_Helper_Categories extends Mage_Core_Helper_Abstract
             if ($category->hasChildren())
             {
                 $this->loadCategoryHtmlTree($category->getChildren(), $recursive + 1, $html);
+            }
+        }
+    }
+
+    public function loadCategoryTree(Varien_Data_Tree_Node_Collection $categoryCollection, $recursive, &$array)
+    {
+        $margin = $recursive * 15;
+        foreach ($categoryCollection as $category)
+        {
+            /** @var Varien_Data_Tree_Node $category */
+            $categoryId = $category->getId();
+
+            $node = array(
+                'id' => $categoryId,
+                'margin' => $margin,
+                'name' => $category->getName(),
+                'mapping' => $this->getMappingArrayForTaxonomy(0, $categoryId)
+            );
+            $array[] = $node;
+            if ($category->hasChildren())
+            {
+                $this->loadCategoryTree($category->getChildren(), $recursive + 1, $array);
             }
         }
     }
@@ -46,6 +81,43 @@ class   Flagbit_MEP_Helper_Categories extends Mage_Core_Helper_Abstract
             $html .= $jsSelect;
         }
         return $html;
+    }
+
+    public function getMappingArrayForTaxonomy($taxonomyId, $categoryId)
+    {
+        $level = 1;
+        $mapping = Mage::getModel('mep/googleMapping');
+        $mapping->load($categoryId, 'category_id');
+        $googleMappingIds = $mapping->getGoogleMappingIds();
+        $array = array();
+        $node = array(
+            'level' => $level,
+            'options' => $this->getArrayForTaxonomy(0),
+            'taxonomyId' => 0
+        );
+        if (empty($googleMappingIds))
+        {
+            $array[] = $node;
+            return $array;
+        }
+        $taxonomies = explode('|', $googleMappingIds);
+        $node['value'] = $taxonomies[0];
+        $array[] = $node;
+        foreach ($taxonomies as $taxonomy)
+        {
+            $level++;
+            $node = array(
+                'level' => $level,
+                'options' => $this->getArrayForTaxonomy($taxonomy),
+                'taxonomyId' => $taxonomy
+            );
+            if (isset($taxonomies[$level - 1]))
+            {
+                $node['value'] = $taxonomies[$level - 1];
+            }
+            $array[] = $node;
+        }
+        return $array;
     }
 
     public function getSelectForTaxonomy($taxonomyId, $level, $categoryId)

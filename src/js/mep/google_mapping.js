@@ -26,10 +26,31 @@ GoogleMapping.prototype = {
                 evalJS: true
             },
             onSuccess: function(transport) {
-                instance.options.categoriesBlock.update(transport.responseText);
+                instance.parseJson(transport.responseText);
                 instance.bindSelect();
             }
         });
+    },
+    parseJson : function(text) {
+        var json = eval(text);
+        for (var i = 0; i < json.length; i++) {
+            var current = json[i];
+            var div = new Element('div', {id: 'category-' + current.id, class: 'mep_category_list_item', style: 'margin-left:' + current.margin + 'px'}).update(current.name);
+            this.options.categoriesBlock.insert({
+                bottom: div
+            });
+            this.currentCategory = 'category-' + current.id;
+            for (var y = 0; y < current.mapping.length; y++)
+            {
+                this.currentTaxonomy = current.mapping[y].taxonomyId;
+                this.currentLevel = parseInt(current.mapping[y].level) - 1;
+                this.loadedSelect[current.mapping[y].taxonomyId] = current.mapping[y].options;
+                this.getSelectForTaxonomy();
+                if ($$('.' + this.currentCategory + '.level-' + current.mapping[y].level).length > 0) {
+                    $$('.' + this.currentCategory + '.level-' + current.mapping[y].level).first().value = current.mapping[y].value;
+                }
+            }
+        }
     },
     loadTaxonomy : function() {
         var instance = this;
@@ -73,7 +94,6 @@ GoogleMapping.prototype = {
             var categoryId = this.currentCategory.match(/[0-9]+/);
             var currentLevel = this.currentLevel + 1;
             var selectName = 'google-mapping[' + categoryId + '][' + currentLevel + ']';
-            console.log(selectName);
             var select = new Element('select', {name: selectName, class: 'taxonomy-select level-' + currentLevel + ' ' + this.currentCategory});
             select.insert(new Element('option'));
             for (var i = 0; i < this.loadedSelect[this.currentTaxonomy].length; i++) {
