@@ -52,6 +52,13 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
      */
     protected $_taxConfig = null;
 
+    /**
+     * Google Mapping
+     *
+     * @var array
+     */
+    protected $_googleMapping = null;
+
     public function __construct()
     {
         if (Mage::app()->getRequest()->getParam('id'))
@@ -153,6 +160,8 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
         set_time_limit(0);
 
         $this->_initTaxConfig();
+
+        $this->_initGoogleMapping();
 
         Mage::app()->setCurrentStore(0);
 
@@ -572,7 +581,8 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
             'image_url' => '_getImageUrl',
             '_category' => '_getProductCategory',
             'base_price_reference_amount' => '_getBasePriceReferenceAmount',
-            'is_salable' => '_getIsSalable'
+            'is_salable' => '_getIsSalable',
+            'google_mapping' => '_getGoogleMapping'
         );
         $attrValue = $item->getData($attrCode);
         if (isset($attributeValueFilter[$attrCode])) {
@@ -741,6 +751,45 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
         return $attrValue;
     }
 
+    protected function  _getGoogleMapping($item, $mapItem) {
+        $categoryIds = $item->getCategoryIds();
+        $categoryId = null;
+        $max = 0;
+        foreach ($categoryIds as $_categoryId) {
+            if(isset($this->_categoryIds[$_categoryId]) && count($this->_categoryIds[$_categoryId]) > $max){
+                $max = count($this->_categoryIds[$_categoryId]);
+                $categoryId = $_categoryId;
+            }
+        }
+        $attrValue = '';
+        if (isset($this->_categoryIds[$categoryId])) {
+            $options = unserialize($mapItem->getOptions());
+            $mappingType = $options['google_mapping_type'];
+            $mappingSeparator = $options['google_mapping_separator'];
+            if (empty($mappingType)) {
+                return $attrValue;
+            }
+            $categories = $this->_categoryIds[$categoryId];
+            $mapped = array();
+            foreach ($categories as $category) {
+                if (!empty($this->_googleMapping[$category])) {
+                    if ($mappingType == 'last') {
+                        $element = array_slice($this->_googleMapping[$category], -1);
+                        $mapped[] = $element[0];
+                    }
+                    elseif ($mappingType == 'complete') {
+                        $mapped[] = implode($this->getProfile()->getCategoryDelimiter(), $this->_googleMapping[$category]);
+                    }
+                }
+            }
+            if (empty($mappingSeparator)) {
+                $mappingSeparator = ',';
+            }
+            $attrValue = implode($mappingSeparator, $mapped);
+        }
+        return $attrValue;
+    }
+
     /**
      * Initialize attribute option values and types.
      *
@@ -768,6 +817,24 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
             $this->_taxConfig = Mage::getSingleton('tax/config');
         }
         return $this->_taxConfig;
+    }
+
+    /**
+     * Init google mapping
+     *
+     * @return array
+     */
+    protected function  _initGoogleMapping() {
+        $model = Mage::getModel('mep/googleMapping')->getCollection();
+        foreach ($model as $mapping) {
+            $mappingIds = explode('|', $mapping->getGoogleMappingIds());
+            $currentMapping = array();
+            foreach ($mappingIds as $mappingId) {
+                $current = Mage::getModel('mep/googleTaxonomies')->load($mappingId);
+                $currentMapping[] = $current->getName();
+            }
+            $this->_googleMapping[$mapping->getCategoryId()] = $currentMapping;
+        }
     }
 
     /**

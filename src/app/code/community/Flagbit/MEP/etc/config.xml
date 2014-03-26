@@ -181,6 +181,10 @@
                 <small_image>Small Image</small_image>
                 <thumbnail>Thumbnail</thumbnail>
             </image_url_type>
+            <google_mapping_type>
+                <last>Only last mapping value</last>
+                <complete>Complete path</complete>
+            </google_mapping_type>
         </datas>
     </default>
 </config>

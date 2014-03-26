@@ -44,7 +44,6 @@
                     <input type="checkbox" name="inheritance" value="1" <?php if ($this->getMapping()->getInheritance() == 1) echo 'checked="checked"'; ?> id="inheritance" class="input-checkbox">
                 </li>
                 <li id="inheritance_type_block" <?php if ($this->getMapping()->getInheritance() != 1) echo 'style="display: none;"'; ?>>
-                    <!--label for="inheritance_type"><?php echo $this->__('Inheritance type');?></label-->
                     <div class="input-box">
                         <select name="inheritance_type" id="inheritance_type" class="select">
                             <?php foreach (Mage::getStoreConfig('datas/inheritance_type') as $key => $value) : ?>
@@ -54,7 +53,7 @@
                     </div>
                 </li>
                 <li id="image_url_type_block" <?php if ($this->getMapping()->getAttributeCode() != 'image_url') echo 'style="display: none;"'; ?>>
-                    <label for="inheritance_type"><?php echo $this->__('Image type');?></label>
+                    <label for="image_url_type"><?php echo $this->__('Image type');?></label>
                     <div class="input-box">
                         <select name="options[image_url_type]" id="image_url_type" class="select">
                             <option value=""></option>
@@ -62,6 +61,21 @@
                                 <option value="<?php echo $key; ?>" <?php if ($this->getMapping()->getOption('image_url_type') == $key) echo 'selected="selected"'; ?>><?php echo $value; ?></option>
                             <?php endforeach; ?>
                         </select>
+                    </div>
+                </li>
+                <li id="google_mapping_type_block" <?php if ($this->getMapping()->getAttributeCode() != 'google_mapping') echo 'style="display: none;"'; ?>>
+                    <label for="google_mapping_type"><?php echo $this->__('Mapping type');?></label>
+                    <div class="input-box">
+                        <select name="options[google_mapping_type]" id="google_mapping_type" class="select">
+                            <option value=""></option>
+                            <?php foreach (Mage::getStoreConfig('datas/google_mapping_type') as $key => $value) : ?>
+                                <option value="<?php echo $key; ?>" <?php if ($this->getMapping()->getOption('google_mapping_type') == $key) echo 'selected="selected"'; ?>><?php echo $value; ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                    <label for="google_mapping_separator"><?php echo $this->__('Mapping separator');?></label>
+                    <div class="input-box">
+                        <input type="text" name="options[google_mapping_separator]" id="google_mapping_separator" class="input-text"/>
                     </div>
                 </li>
                 <li>
@@ -132,7 +146,10 @@
      * Add extra field to the form for specific attribute
      */
 
-    var attributesCallback = new Array({attr: 'image_url', callbackSelect: imageUrlOptions, callbackRemove: imageUrlOptionsHide});
+    var attributesCallback = new Array(
+        {attr: 'image_url', callbackSelect: imageUrlOptions, callbackRemove: imageUrlOptionsHide},
+        {attr: 'google_mapping', callbackSelect: googleMappingOptions, callbackRemove: googleMappingOptionsHide}
+    );
 
     $$('.active-result').invoke('observe', 'click', function() {
         var position = $(this).id.substr($(this).id.lastIndexOf("_") + 1);
@@ -164,6 +181,14 @@
 
     function    imageUrlOptionsHide() {
         $('image_url_type_block').hide();
+    }
+
+    function    googleMappingOptions() {
+        $('google_mapping_type_block').show();
+    }
+
+    function    googleMappingOptionsHide() {
+        $('google_mapping_type_block').hide();
     }
     /**
      *

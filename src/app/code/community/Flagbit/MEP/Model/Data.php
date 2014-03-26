@@ -41,6 +41,7 @@ class Flagbit_MEP_Model_Data extends Mage_Catalog_Model_Convert_Parser_Product
         $specialAttributes = array();
         $specialAttributes['url'] = 'url';
         $specialAttributes['_category'] = 'category';
+        $specialAttributes['google_mapping'] = 'google_mapping';
         $specialAttributes['image_url'] = 'image_url';
         $specialAttributes['gross_price'] = 'gross_price';
         $specialAttributes['special_price'] = 'special_price';
