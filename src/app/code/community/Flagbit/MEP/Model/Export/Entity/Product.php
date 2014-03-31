@@ -749,6 +749,7 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
 
     protected function  _getProductCategoryId($item, $mapItem) {
         $categoryIds = $item->getCategoryIds();
+        $categoryId = null;
         $max = 0;
         foreach ($categoryIds as $_categoryId) {
             if(isset($this->_categoryIds[$_categoryId]) && count($this->_categoryIds[$_categoryId]) > $max){
