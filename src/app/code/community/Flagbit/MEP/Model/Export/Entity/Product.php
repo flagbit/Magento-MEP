@@ -587,6 +587,7 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
             'qty' => '_getQuantity',
             'image_url' => '_getImageUrl',
             '_category' => '_getProductCategory',
+            '_category_id' => '_getProductCategoryId',
             'base_price_reference_amount' => '_getBasePriceReferenceAmount',
             'is_salable' => '_getIsSalable'
         );
@@ -735,7 +736,7 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
         $max = 0;
         foreach ($categoryIds as $_categoryId) {
             if(isset($this->_categoryIds[$_categoryId]) && count($this->_categoryIds[$_categoryId]) > $max){
-                $max = $this->_categoryIds[$_categoryId];
+                $max = count($this->_categoryIds[$_categoryId]);
                 $categoryId = $_categoryId;
             }
         }
@@ -744,6 +745,22 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
             $attrValue = $this->_categories[$categoryId];
         }
         return $attrValue;
+    }
+
+    protected function  _getProductCategoryId($item, $mapItem) {
+        $categoryIds = $item->getCategoryIds();
+        $max = 0;
+        foreach ($categoryIds as $_categoryId) {
+            if(isset($this->_categoryIds[$_categoryId]) && count($this->_categoryIds[$_categoryId]) > $max){
+                $max = count($this->_categoryIds[$_categoryId]);
+                $categoryId = $_categoryId;
+            }
+        }
+        $attrValue = '';
+        if (isset($this->_categoryIds[$categoryId])) {
+            $attrValue = array_slice($this->_categoryIds[$categoryId], -1, 1);
+        }
+        return $attrValue[0];
     }
 
     protected function _getBasePriceReferenceAmount($item, $mapItem) {
