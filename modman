@@ -2,7 +2,7 @@ src/app/code/community/Flagbit/MEP app/code/community/Flagbit/MEP
 src/app/design/adminhtml/default/default/layout/* app/design/adminhtml/default/default/layout
 src/app/design/adminhtml/default/default/template/* app/design/adminhtml/default/default/template
 src/app/etc/modules/* app/etc/modules
-src/js/* js/*
+src/js/tablekit/tablekit.js js/tablekit/tablekit.js
 src/skin/adminhtml/default/default/mep.css skin/adminhtml/default/default
 src/skin/adminhtml/default/default/mep.js skin/adminhtml/default/default
 src/skin/adminhtml/default/default/tablekit.css skin/adminhtml/default/default
