@@ -23,7 +23,7 @@ class Mage_Shell_Mep extends Mage_Shell_Abstract
         }elseif ($this->getArg('runAll')) {
             foreach($runner->getProfileCollection() as $profile){
                 if($profile->hasData()){
-                    Mage::register('current_exporting_mep_profile', $profile->getProfileId());
+                    Mage::register('current_exporting_mep_profile', $profile->getId());
                     $file = $runner->exportProfile($profile);
                     if($file){
                         Mage::helper('mep/log')->info('Profile "'.$profile->getName().'" successfully exported to: '.$file, $this);
@@ -38,7 +38,7 @@ class Mage_Shell_Mep extends Mage_Shell_Abstract
         }elseif($this->getArg('runProfile')){
             $profile = Mage::getModel('mep/profile')->load($this->getArg('runProfile'));
             if($profile->hasData()){
-                Mage::register('current_exporting_mep_profile', $profile->getProfileId());
+                Mage::register('current_exporting_mep_profile', $profile->getId());
                 $file = $runner->exportProfile($profile);
                 if($file){
                     Mage::helper('mep/log')->info('Profile "'.$profile->getName().'" successfully exported to: '.$file, $this);
