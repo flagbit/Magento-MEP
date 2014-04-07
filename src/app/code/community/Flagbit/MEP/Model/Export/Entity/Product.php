@@ -352,7 +352,6 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
         $logFile = 'mep-' . $this->getProfileId() . '.log';
         Mage::log('Start thread: ' . $offsetProducts, null, $logFile);
         $this->_shippingAttrCodes = $shippingAttrCodes;
-        $this->_cleanUpProcess();
         Mage::helper('mep/log')->debug('START Thread: ' . $offsetProducts, $this);
         $objProfile = $this->getProfile();
         if($this->_limit !== null &&  $offsetProducts > 1){
