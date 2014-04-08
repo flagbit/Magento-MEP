@@ -74,6 +74,18 @@ class Flagbit_MEP_Block_Adminhtml_Profile_View_Grid extends Mage_Adminhtml_Block
                     )
         ));
 
+        $this->addColumn('Execution Time', array(
+            'header'    => Mage::helper('cms')->__('Execution Time'),
+            'index'     => 'mep_cron_start_time',
+            'renderer'  => 'mep/adminhtml_profile_view_grid_cron_renderer'
+        ));
+
+        $this->addColumn('Execution Frequency', array(
+            'header'    => Mage::helper('cms')->__('Execution Frequency'),
+            'index'     => 'mep_cron_frequency',
+            'renderer'  => 'mep/adminhtml_profile_view_grid_cron_renderer'
+        ));
+
         $this->addColumn('action', array(
             'header' => Mage::helper('adminhtml')->__('Action'),
             'width' => '100px',
