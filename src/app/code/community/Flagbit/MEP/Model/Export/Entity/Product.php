@@ -505,29 +505,17 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
         if (!empty($settings['is_in_stock']) && $settings['is_in_stock'] == 2) {
             $settings['is_in_stock'] = '';
         }
-        if (isset($settings['is_in_stock']) && strlen($settings['is_in_stock'])) {
-            $filteredAttribute = array(
-                array('attribute' => 'is_in_stock', 'eq' => $settings['is_in_stock']),
+        if (isset($settings['is_in_stock']) && strlen($settings['is_in_stock']))
+        {
+            /* @var $stockStatus Mage_CatalogInventory_Model_Stock_Status */
+            $stockStatus = Mage::getModel('cataloginventory/stock_status');
+
+            $stockStatus->addStockStatusToSelect(
+                $collection->getSelect(),
+                Mage::getModel('core/store')->load($this->getProfile()->getStoreId())->getWebsite()
             );
-            if ($settings['is_in_stock'] == 1)
-            {
-                $filteredAttribute[] = array('attribute' => 'manage_stock', 'eq' => 0);
-            }
-            $collection->joinField(
-                'is_in_stock',
-                'cataloginventory/stock_item',
-                'is_in_stock',
-                'product_id=entity_id',
-                '{{table}}.stock_id=1',
-                'left'
-            )->joinField(
-                    'manage_stock',
-                    'cataloginventory/stock_item',
-                    'manage_stock',
-                    'product_id=entity_id',
-                    '{{table}}.stock_id=1',
-                    'left'
-                )->addAttributeToFilter($filteredAttribute);
+
+            $collection->getSelect()->where('stock_status.stock_status = ?', $settings['is_in_stock']);
         }
         if (!empty($settings['qty'])) {
             if (isset($settings['qty']['threshold']) && strlen($settings['qty']['threshold'])) {

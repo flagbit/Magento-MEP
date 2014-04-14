@@ -93,16 +93,8 @@ class Flagbit_MEP_Model_Rule extends Mage_CatalogRule_Model_Rule
     {
         $product = clone $args['product'];
         $product->setData($args['row']);
-        if ($this->getConditions()->validate($product) && $this->_validateSpecialFilter($product)) {
+        if ($this->getConditions()->validate($product)) {
             $this->_productIds[] = $product->getId();
-        }
-    }
-
-    protected function  _validateSpecialFilter($product)
-    {
-        $settings = $this->_profile->getSettings();
-        if (!is_array($settings)) {
-            $settings = unserialize($settings);
         }
     }
 
