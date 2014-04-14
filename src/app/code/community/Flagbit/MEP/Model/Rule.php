@@ -93,8 +93,16 @@ class Flagbit_MEP_Model_Rule extends Mage_CatalogRule_Model_Rule
     {
         $product = clone $args['product'];
         $product->setData($args['row']);
-        if ($this->getConditions()->validate($product)) {
+        if ($this->getConditions()->validate($product) && $this->_validateSpecialFilter($product)) {
             $this->_productIds[] = $product->getId();
+        }
+    }
+
+    protected function  _validateSpecialFilter($product)
+    {
+        $settings = $this->_profile->getSettings();
+        if (!is_array($settings)) {
+            $settings = unserialize($settings);
         }
     }
 
@@ -122,29 +130,17 @@ class Flagbit_MEP_Model_Rule extends Mage_CatalogRule_Model_Rule
                 if (isset($settings['apply_to']) && !is_null($settings['apply_to'])) {
                     $productCollection->addAttributeToFilter('type_id', array('in' => $settings['apply_to']));
                 }
-                if (isset($settings['is_in_stock']) && strlen($settings['is_in_stock'])) {
-                    $filteredAttribute = array(
-                        array('attribute' => 'is_in_stock', 'eq' => $settings['is_in_stock']),
+                if (isset($settings['is_in_stock']) && strlen($settings['is_in_stock']))
+                {
+                    /* @var $stockStatus Mage_CatalogInventory_Model_Stock_Status */
+                    $stockStatus = Mage::getModel('cataloginventory/stock_status');
+
+                    $stockStatus->addStockStatusToSelect(
+                        $productCollection->getSelect(),
+                        Mage::getModel('core/store')->load($this->_profile->getStoreId())->getWebsite()
                     );
-                    if ($settings['is_in_stock'] == 1)
-                    {
-                        $filteredAttribute[] = array('attribute' => 'manage_stock', 'eq' => 0);
-                    }
-                    $productCollection->joinField(
-                        'is_in_stock',
-                        'cataloginventory/stock_item',
-                        'is_in_stock',
-                        'product_id=entity_id',
-                        '{{table}}.stock_id=1',
-                        'left'
-                    )->joinField(
-                            'manage_stock',
-                            'cataloginventory/stock_item',
-                            'manage_stock',
-                            'product_id=entity_id',
-                            '{{table}}.stock_id=1',
-                            'left'
-                        )->addAttributeToFilter($filteredAttribute);
+
+                    $productCollection->getSelect()->where('stock_status.stock_status = ?', $settings['is_in_stock']);
                 }
                 if (!empty($settings['qty'])) {
                     if (isset($settings['qty']['threshold']) && strlen($settings['qty']['threshold'])) {

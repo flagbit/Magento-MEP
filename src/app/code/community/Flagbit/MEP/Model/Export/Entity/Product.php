@@ -361,6 +361,14 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
      */
     public function _exportThread($offsetProducts, $writer, $limitProducts, $filteredProductIds, $mapping, $shippingAttrCodes)
     {
+        /**
+         * IMPORTANT TO PREVENT MySql to go away
+         */
+        $core_read = Mage::getSingleton('core/resource')->getConnection('core_read');
+        /** @var Varien_Db_Adapter_Pdo_Mysql $core_read */
+        $core_read->closeConnection();
+        $core_read->getConnection();
+
         $logFile = 'mep-' . $this->getProfileId() . '.log';
         Mage::log('Start thread: ' . $offsetProducts, null, $logFile);
         $this->_shippingAttrCodes = $shippingAttrCodes;
