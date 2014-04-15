@@ -5,41 +5,66 @@ class Flagbit_MEP_Block_Adminhtml_Google_View_Edit_Form extends Mage_Adminhtml_B
 
     protected function  _prepareForm()
     {
-        $form = new Varien_Data_Form(array(
-            'id' => 'edit_form',
-            'action' => $this->getUrl('*/*/save'),
-            'method' => 'post',
-        ));
-
-        $storeSelection = $form->addFieldset('store_selection',
-            array(
-                'legend' => Mage::helper('mep')->__('Select a store')
+        if (!Mage::helper('mep/categories')->googleCategoriesAreInitialized())
+        {
+            $form = new Varien_Data_Form(array(
+                'id' => 'edit_form',
+                'action' => $this->getUrl('*/*/uploadgc'),
+                'method' => 'post',
+                'enctype' => 'multipart/form-data'
             ));
 
-        $storeSelection->addField('store_selection_select', 'select',
-            array(
-                'label' => Mage::helper('mep')->__('Store'),
-                'class' => 'required-entry',
-                'required' => true,
-                'name' => 'store_selection_select',
-                'values'    => Mage::getSingleton('adminhtml/system_store')->getStoreValuesForForm(false, false),
+            $formUpload = $form->addFieldset('file_selection',
+                array(
+                    'legend' => Mage::helper('mep')->__('Google Categories CSV')
+                ));
+
+            $formUpload->addField('csv_file', 'file',
+                array(
+                    'label' => Mage::helper('mep')->__('File'),
+                    'class' => 'required-entry',
+                    'required' => true,
+                    'name' => 'csv_file',
+                ));
+        }
+        else
+        {
+            $form = new Varien_Data_Form(array(
+                'id' => 'edit_form',
+                'action' => $this->getUrl('*/*/save'),
+                'method' => 'post',
             ));
 
-        $categories = $form->addFieldset('categories', array(
-            'legend' => Mage::helper('mep')->__('Categories mapping'),
-        ));
+            $storeSelection = $form->addFieldset('store_selection',
+                array(
+                    'legend' => Mage::helper('mep')->__('Select a store')
+                ));
 
-        $categories->setHtmlContent('
-            <div id="categories_list"></div>
-            <script type="text/javascript">
-                $(document).observe("dom:loaded", function() {
-                    var googleMapping = new GoogleMapping();
-                    googleMapping.options.requestUrl.loadcategories = \'' . Mage::helper('adminhtml')->getUrl('/google/loadcategories') . '\';
-                    googleMapping.options.requestUrl.loadtaxonomies = \'' . Mage::helper('adminhtml')->getUrl('/google/loadtaxonomies') . '\';
-                    googleMapping.load();
-                });
-            </script>
-        ');
+            $storeSelection->addField('store_selection_select', 'select',
+                array(
+                    'label' => Mage::helper('mep')->__('Store'),
+                    'class' => 'required-entry',
+                    'required' => true,
+                    'name' => 'store_selection_select',
+                    'values'    => Mage::getSingleton('adminhtml/system_store')->getStoreValuesForForm(false, false),
+                ));
+
+            $categories = $form->addFieldset('categories', array(
+                'legend' => Mage::helper('mep')->__('Categories mapping'),
+            ));
+
+            $categories->setHtmlContent('
+                <div id="categories_list"></div>
+                <script type="text/javascript">
+                    $(document).observe("dom:loaded", function() {
+                        var googleMapping = new GoogleMapping();
+                        googleMapping.options.requestUrl.loadcategories = \'' . Mage::helper('adminhtml')->getUrl('/google/loadcategories') . '\';
+                        googleMapping.options.requestUrl.loadtaxonomies = \'' . Mage::helper('adminhtml')->getUrl('/google/loadtaxonomies') . '\';
+                        googleMapping.load();
+                    });
+                </script>
+            ');
+        }
 
         $form->setUseContainer(true);
         $this->setForm($form);

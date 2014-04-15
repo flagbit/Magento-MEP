@@ -56,4 +56,12 @@ class   Flagbit_MEP_Adminhtml_GoogleController extends Mage_Adminhtml_Controller
             $this->_redirect('*/*/');
         }
     }
+
+    public function uploadgcAction()
+    {
+        if ($data = $this->getRequest()->getPost())
+        {
+            var_dump($_FILES);
+        }
+    }
 }

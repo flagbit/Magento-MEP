@@ -157,3 +157,8 @@
     padding: 3px;
     margin: 2px 0px;
 }
+
+.mep_category_list_item select
+{
+    margin-left: 5px;
+}

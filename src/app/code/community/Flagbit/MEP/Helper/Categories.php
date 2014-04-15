@@ -189,4 +189,9 @@ class   Flagbit_MEP_Helper_Categories extends Mage_Core_Helper_Abstract
         $js = '<script type="text/javascript">$$(\'.category-' . $categoryId . '.level-' . $level . '\').first().value = ' . $taxonomyId . ';</script>';
         return $js;
     }
+
+    public function googleCategoriesAreInitialized()
+    {
+        return true;
+    }
 }
