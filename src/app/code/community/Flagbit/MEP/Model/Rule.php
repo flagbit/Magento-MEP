@@ -122,29 +122,17 @@ class Flagbit_MEP_Model_Rule extends Mage_CatalogRule_Model_Rule
                 if (isset($settings['apply_to']) && !is_null($settings['apply_to'])) {
                     $productCollection->addAttributeToFilter('type_id', array('in' => $settings['apply_to']));
                 }
-                if (isset($settings['is_in_stock']) && strlen($settings['is_in_stock'])) {
-                    $filteredAttribute = array(
-                        array('attribute' => 'is_in_stock', 'eq' => $settings['is_in_stock']),
+                if (isset($settings['is_in_stock']) && strlen($settings['is_in_stock']))
+                {
+                    /* @var $stockStatus Mage_CatalogInventory_Model_Stock_Status */
+                    $stockStatus = Mage::getModel('cataloginventory/stock_status');
+
+                    $stockStatus->addStockStatusToSelect(
+                        $productCollection->getSelect(),
+                        Mage::getModel('core/store')->load($this->_profile->getStoreId())->getWebsite()
                     );
-                    if ($settings['is_in_stock'] == 1)
-                    {
-                        $filteredAttribute[] = array('attribute' => 'manage_stock', 'eq' => 0);
-                    }
-                    $productCollection->joinField(
-                        'is_in_stock',
-                        'cataloginventory/stock_item',
-                        'is_in_stock',
-                        'product_id=entity_id',
-                        '{{table}}.stock_id=1',
-                        'left'
-                    )->joinField(
-                            'manage_stock',
-                            'cataloginventory/stock_item',
-                            'manage_stock',
-                            'product_id=entity_id',
-                            '{{table}}.stock_id=1',
-                            'left'
-                        )->addAttributeToFilter($filteredAttribute);
+
+                    $productCollection->getSelect()->where('stock_status.stock_status = ?', $settings['is_in_stock']);
                 }
                 if (!empty($settings['qty'])) {
                     if (isset($settings['qty']['threshold']) && strlen($settings['qty']['threshold'])) {
@@ -177,12 +165,8 @@ class Flagbit_MEP_Model_Rule extends Mage_CatalogRule_Model_Rule
                     $productCollection->addIdFilter($this->_productsFilter);
                 }
                 $select = $productCollection->getSelect();
-                if ($limit = $this->getData('limit')) {
-                    $productCollection->setPageSize($limit);
-                    $select->limit($limit);
-                }
                 $this->getConditions()->collectValidatedAttributes($productCollection);
-                Mage::getSingleton('core/resource_iterator')->walk(
+                $this->_walk(
                     $select,
                     array(array($this, 'callbackValidateProduct')),
                     array(
@@ -194,6 +178,50 @@ class Flagbit_MEP_Model_Rule extends Mage_CatalogRule_Model_Rule
         }
 
         return $this->_productIds;
+    }
+
+    protected function _walk($query, array $callbacks, array $args=array(), $adapter = null)
+    {
+        $stmt = $this->_getStatement($query, $adapter);
+        $args['idx'] = 0;
+        while ($row = $stmt->fetch()) {
+            $args['row'] = $row;
+            foreach ($callbacks as $callback) {
+                $result = call_user_func($callback, $args);
+                if (!empty($result)) {
+                    $args = array_merge($args, $result);
+                }
+            }
+            $args['idx']++;
+            if ($limit = $this->getData('limit')) {
+                if (!is_null($this->_productIds) && count($this->_productIds) == $limit)
+                {
+                    break ;
+                }
+            }
+        }
+
+        return $this;
+    }
+
+    protected function _getStatement($query, $conn = null)
+    {
+        if ($query instanceof Zend_Db_Statement_Interface) {
+            return $query;
+        }
+
+        if ($query instanceof Zend_Db_Select) {
+            return $query->query();
+        }
+
+        if (is_string($query)) {
+            if (!$conn instanceof Zend_Db_Adapter_Abstract) {
+                Mage::throwException(Mage::helper('core')->__('Invalid connection'));
+            }
+            return $conn->query($query);
+        }
+
+        Mage::throwException(Mage::helper('core')->__('Invalid query'));
     }
 
 }

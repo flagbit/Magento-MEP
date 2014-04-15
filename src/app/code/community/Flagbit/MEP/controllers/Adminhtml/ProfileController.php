@@ -208,6 +208,9 @@ class Flagbit_MEP_Adminhtml_ProfileController extends Mage_Adminhtml_Controller_
 
         } catch (Mage_Core_Exception $e) {
             $this->_getSession()->addError($e->getMessage());
+            Mage::logException($e);
+            echo 'FALSE';
+            die();
         } catch (Exception $e) {
             Mage::logException($e);
             $this->_getSession()->addError($this->__('No valid data sent'));

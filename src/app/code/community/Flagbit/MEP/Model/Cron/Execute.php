@@ -21,6 +21,7 @@ class   Flagbit_MEP_Model_Cron_Execute {
                     $schedule->setStatus(Mage_Cron_Model_Schedule::STATUS_SUCCESS);
                     $schedule->save();
                     Mage::unregister('current_exporting_mep_profile');
+                    $ran[] = $schedule->getProfileId(); //Important to prevent duplicated process
                 }
                 else {
                     $schedule->setStatus(Mage_Cron_Model_Schedule::STATUS_MISSED);

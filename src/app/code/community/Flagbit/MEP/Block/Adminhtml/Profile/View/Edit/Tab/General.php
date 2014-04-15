@@ -62,7 +62,7 @@ class Flagbit_MEP_Block_Adminhtml_Profile_View_Edit_Tab_General extends Mage_Adm
                 'class'     => 'required-entry',
                 'required'  => true,
                 'name'      => 'store_id',
-                'values'    => Mage::getSingleton('adminhtml/system_store')->getStoreValuesForForm(false, false),
+                'values'    => Mage::getSingleton('adminhtml/system_store')->getStoreValuesForForm(false, true),
             )
         );
 
