@@ -90,4 +90,29 @@ class Flagbit_MEP_Helper_Data extends Mage_Core_Helper_Abstract
 
         return strtr($string, $table);
     }
+
+    public function getProductsCollection()
+    {
+        $collection = Mage::getModel('catalog/product')->getCollection()
+            ->addAttributeToSelect('sku')
+            ->addAttributeToSelect('name')
+            ->addAttributeToSelect('attribute_set_id')
+            ->addAttributeToSelect('type_id');
+
+        if (Mage::helper('catalog')->isModuleEnabled('Mage_CatalogInventory')) {
+            $collection->joinField('qty',
+                'cataloginventory/stock_item',
+                'qty',
+                'product_id=entity_id',
+                '{{table}}.stock_id=1',
+                'left');
+            $collection->joinField('is_in_stock',
+                'cataloginventory/stock_item',
+                'is_in_stock',
+                'product_id=entity_id',
+                '{{table}}.stock_id=1',
+                'left');
+        }
+        return $collection;
+    }
 }

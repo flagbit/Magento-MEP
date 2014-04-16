@@ -166,7 +166,7 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
 
         $this->_initTaxConfig();
 
-        Mage::app()->setCurrentStore(0);
+        //Mage::app()->setCurrentStore(0);
 
 
         /** @var $collection Mage_Catalog_Model_Resource_Eav_Mysql4_Product_Collection */
@@ -180,6 +180,7 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
             Mage::log('Starting export', null, $logFile);
             /* @var $obj_profile Flagbit_MEP_Model_Profil */
             $obj_profile = $this->getProfile();
+            Mage::app()->setCurrentStore($obj_profile->getStoreId());
             $delimiter = $obj_profile->getDelimiter();
             $settings = $obj_profile->getSettings();
             $encoding = null;
@@ -567,7 +568,7 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
      * Manage attribute value for a given item
      */
     protected function  _manageAttributeForItem($item, $attrCode, $mapItem) {
-        Mage::app()->setCurrentStore($this->getProfile()->getStoreId());
+        //Mage::app()->setCurrentStore($this->getProfile()->getStoreId());
         if (($attributeMapping = $this->_getAttributeMapping($attrCode))) {
             $attrValue = $this->_manageAttributeMapping($attributeMapping, $item);
         }
@@ -577,7 +578,7 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
         else {
             $attrValue = $this->_getAttributeValue($item, $attrCode, $mapItem);
         }
-        Mage::app()->setCurrentStore(0);
+        //Mage::app()->setCurrentStore(0);
         return $attrValue;
     }
 
