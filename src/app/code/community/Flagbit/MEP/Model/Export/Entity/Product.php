@@ -724,12 +724,14 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
 
     protected function _getQuantity($item, $mapItem)
     {
-        return intval($this->_getStockItem($item)->getQty());
+        $qty = $this->_getStockItem($item);
+        return intval($qty['qty']);
     }
 
     protected function _getIsInStock($item, $mapItem)
     {
-        return intval($this->_getStockItem($item)->getIsInStock());
+        $status = $this->_getStockItem($item);
+        return intval($status['stock_status']);
     }
 
     protected function  _getImageUrl($item, $mapItem) {
@@ -820,7 +822,8 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
     protected function _getStockItem(Mage_Catalog_Model_Product $product)
     {
         if(!isset($this->_stockItems[$product->getId()])) {
-            $this->_stockItems[$product->getId()] = Mage::getModel('cataloginventory/stock_item')->loadByProduct($product);
+            $stockInfos = Mage::getModel('cataloginventory/stock_status')->getProductData($product->getId(), Mage::getModel('core/store')->load($this->getProfile()->getStoreId())->getWebsite());
+            $this->_stockItems[$product->getId()] = $stockInfos[$product->getId()];
         }
 
         return $this->_stockItems[$product->getId()];
