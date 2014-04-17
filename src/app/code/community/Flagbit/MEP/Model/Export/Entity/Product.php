@@ -27,7 +27,7 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
     protected $_attributeModels = array();
 
     /**
-     * @var Flagbit_MEP_Model_Profil
+     * @var Flagbit_MEP_Model_Profile
      */
     protected $_profile = null;
 
@@ -166,7 +166,7 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
 
         $this->_initTaxConfig();
 
-        //Mage::app()->setCurrentStore(0);
+        Mage::app()->setCurrentStore(0);
 
 
         /** @var $collection Mage_Catalog_Model_Resource_Eav_Mysql4_Product_Collection */
@@ -178,9 +178,9 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
         if ($this->hasProfileId()) {
             $logFile = 'mep-' . $this->getProfileId() . '.log';
             Mage::log('Starting export', null, $logFile);
-            /* @var $obj_profile Flagbit_MEP_Model_Profil */
+            /* @var $obj_profile Flagbit_MEP_Model_Profile */
             $obj_profile = $this->getProfile();
-            Mage::app()->setCurrentStore($obj_profile->getStoreId());
+            //Mage::app()->setCurrentStore($obj_profile->getStoreId());
             $delimiter = $obj_profile->getDelimiter();
             $settings = $obj_profile->getSettings();
             $encoding = null;
@@ -379,7 +379,6 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
             return false;
         }
         $storeId = $objProfile->getStoreId();
-        Mage::app()->setCurrentStore($storeId);
         Mage::log('Setting store id: ' . $storeId, null, $logFile);
         $resource = Mage::getResourceModel('catalog/product_collection');
         $collection = $this->_prepareEntityCollection($resource);
@@ -495,12 +494,20 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
         return $attrValues;
     }
 
-    /*
+    /**
+     * @param Mage_Catalog_Model_Product $parent
+     * @param array $items
+     * @param string $attrCode
+     * @param Flagbit_MEP_Model_Mapping $mapItem
+     * @param string $cacheType
+     * @return array
+     *
      * Parse each inherited product to get attribute value and cache them
      */
     protected function  _doInheritanceAndCache($parent, $items, $attrCode, $mapItem, $cacheType){
         $attrValues = array();
-        $collection = Mage::getResourceModel('catalog/product_collection');
+        /** @var Mage_Catalog_Model_Resource_Product_Collection $collection */
+        $collection = Mage::helper('mep')->getProductsCollection();
         $collection->addAttributeToSelect('*');
         $settings = $this->getProfile()->getSettings();
         if (!empty($settings['is_in_stock']) && $settings['is_in_stock'] == 2) {
@@ -508,45 +515,19 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
         }
         if (isset($settings['is_in_stock']) && strlen($settings['is_in_stock']))
         {
-            /* @var $stockStatus Mage_CatalogInventory_Model_Stock_Status */
-            $stockStatus = Mage::getModel('cataloginventory/stock_status');
-
-            $stockStatus->addStockStatusToSelect(
-                $collection->getSelect(),
-                Mage::getModel('core/store')->load($this->getProfile()->getStoreId())->getWebsite()
-            );
-
-            $collection->getSelect()->where('stock_status.stock_status = ?', $settings['is_in_stock']);
+            $collection->getSelect()->where('is_in_stock = ?', intval($settings['is_in_stock']));
         }
         if (!empty($settings['qty'])) {
             if (isset($settings['qty']['threshold']) && strlen($settings['qty']['threshold'])) {
-                $operator = $settings['qty']['operator'];
+                $operator = Mage::helper('mep/qtyFilter')->getOperatorForSqlFilter($settings['qty']['operator']);
                 $threshold = $settings['qty']['threshold'];
-                $collection->joinField(
-                    'qty',
-                    'cataloginventory/stock_item',
-                    'qty',
-                    'product_id=entity_id',
-                    '{{table}}.stock_id=1',
-                    'left'
-                )->joinField(
-                        'manage_stock',
-                        'cataloginventory/stock_item',
-                        'manage_stock',
-                        'product_id=entity_id',
-                        '{{table}}.stock_id=1',
-                        'left'
-                    )->addAttributeToFilter(
-                        array(
-                            array('attribute' => 'qty', Mage::helper('mep/qtyFilter')->getOperatorForCollectionFilter($operator) => $threshold),
-                            array('attribute' => 'manage_stock', 'eq' => 0)
-                        )
-                    );
+                $collection->getSelect()->where('qty ' . $operator . ' ?', $threshold);
             }
         }
         $collection->addFieldToFilter("entity_id", array('in' => $items));
         $items = $collection->load();
         foreach ($items as $item) {
+            /** @var Mage_Catalog_Model_Product $item */
             $itemId = $item->getId();
             $currentValue = $this->_manageAttributeForItem($item, $attrCode, $mapItem);
             $this->_addAttributeToArray($currentValue, $attrValues);
@@ -593,7 +574,7 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
             'price' => '_getPrice',
             'gross_price' => '_getGrossPrice',
             'qty' => '_getQuantity',
-            'is_in_stock' => '_getIsInStock',
+            //'is_in_stock' => '_getIsInStock',
             'image_url' => '_getImageUrl',
             '_category' => '_getProductCategory',
             '_category_id' => '_getProductCategoryId',
@@ -726,13 +707,13 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
     protected function _getQuantity($item, $mapItem)
     {
         $qty = $this->_getStockItem($item);
-        return intval($qty['qty']);
+        return intval($qty->getData('qty'));
     }
 
     protected function _getIsInStock($item, $mapItem)
     {
         $status = $this->_getStockItem($item);
-        return intval($status['stock_status']);
+        return intval($status->getData('is_in_stock'));
     }
 
     protected function  _getImageUrl($item, $mapItem) {
@@ -822,12 +803,7 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
 
     protected function _getStockItem(Mage_Catalog_Model_Product $product)
     {
-        if(!isset($this->_stockItems[$product->getId()])) {
-            $stockInfos = Mage::getModel('cataloginventory/stock_status')->getProductData($product->getId(), Mage::getModel('core/store')->load($this->getProfile()->getStoreId())->getWebsite());
-            $this->_stockItems[$product->getId()] = $stockInfos[$product->getId()];
-        }
-
-        return $this->_stockItems[$product->getId()];
+        return $product->getData('stock_item');
     }
 
     /**

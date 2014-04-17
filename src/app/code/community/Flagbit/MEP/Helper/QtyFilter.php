@@ -59,4 +59,16 @@ class Flagbit_MEP_Helper_QtyFilter extends Varien_Data_Form_Element_Text
         return $operators[$operator];
     }
 
+    public function  getOperatorForSqlFilter($operator) {
+        $operators = array(
+            '==' => '=',
+            '!=' => '!=',
+            '>=' => '>=',
+            '<=' => '<=',
+            '>' => '>',
+            '<' => '<'
+        );
+        return $operators[$operator];
+    }
+
 }

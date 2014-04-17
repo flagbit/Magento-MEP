@@ -100,18 +100,11 @@ class Flagbit_MEP_Helper_Data extends Mage_Core_Helper_Abstract
             ->addAttributeToSelect('type_id');
 
         if (Mage::helper('catalog')->isModuleEnabled('Mage_CatalogInventory')) {
-            $collection->joinField('qty',
-                'cataloginventory/stock_item',
-                'qty',
-                'product_id=entity_id',
-                '{{table}}.stock_id=1',
-                'left');
-            $collection->joinField('is_in_stock',
-                'cataloginventory/stock_item',
-                'is_in_stock',
-                'product_id=entity_id',
-                '{{table}}.stock_id=1',
-                'left');
+            $collection->getSelect()->joinLeft(
+                array('_inventory_table' => $collection->getTable('cataloginventory/stock_item')),
+                '_inventory_table.product_id = e.entity_id',
+                array('qty', 'is_in_stock')
+            );
         }
         return $collection;
     }

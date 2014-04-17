@@ -124,13 +124,13 @@ class Flagbit_MEP_Model_Rule extends Mage_CatalogRule_Model_Rule
                 }
                 if (isset($settings['is_in_stock']) && strlen($settings['is_in_stock']))
                 {
-                    $productCollection->addFieldToFilter('is_in_stock', array('eq' => $settings['is_in_stock']));
+                    $productCollection->getSelect()->where('is_in_stock = ?', intval($settings['is_in_stock']));
                 }
                 if (!empty($settings['qty'])) {
                     if (isset($settings['qty']['threshold']) && strlen($settings['qty']['threshold'])) {
-                        $operator = $settings['qty']['operator'];
+                        $operator = Mage::helper('mep/qtyFilter')->getOperatorForSqlFilter($settings['qty']['operator']);
                         $threshold = $settings['qty']['threshold'];
-                        $productCollection->addFieldToFilter('qty', array(Mage::helper('mep/qtyFilter')->getOperatorForCollectionFilter($operator) => $threshold));
+                        $productCollection->getSelect()->where('qty ' . $operator . ' ?', $threshold);
                     }
                 }
                 if ($this->_profile->getStoreId() != 0)
@@ -141,8 +141,8 @@ class Flagbit_MEP_Model_Rule extends Mage_CatalogRule_Model_Rule
                 {
                     $productCollection->addIdFilter($this->_productsFilter);
                 }
-                Mage::log($productCollection->getSize(), null, 'mep-1.log');
                 $select = $productCollection->getSelect();
+                Mage::log($select->assemble(), null, 'mep-1.log');
                 $this->getConditions()->collectValidatedAttributes($productCollection);
                 $this->_walk(
                     $select,
