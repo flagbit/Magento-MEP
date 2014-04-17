@@ -574,7 +574,7 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
             'price' => '_getPrice',
             'gross_price' => '_getGrossPrice',
             'qty' => '_getQuantity',
-            //'is_in_stock' => '_getIsInStock',
+            'is_in_stock' => '_getIsInStock',
             'image_url' => '_getImageUrl',
             '_category' => '_getProductCategory',
             '_category_id' => '_getProductCategoryId',
