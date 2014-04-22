@@ -13,7 +13,7 @@
 
 class Flagbit_MEP_Helper_Data extends Mage_Core_Helper_Abstract
 {
-
+    const CONFIG_KEY_FORMATS  = 'global/mep/export_file_formats';
     /**
      * get current Profile Data
      *
@@ -107,5 +107,32 @@ class Flagbit_MEP_Helper_Data extends Mage_Core_Helper_Abstract
             );
         }
         return $collection;
+    }
+
+    public function getNewWriteInstance($destinationFile, $fileFormat)
+    {
+        $validWriters = Mage_ImportExport_Model_Config::getModels(self::CONFIG_KEY_FORMATS);
+
+        if (isset($validWriters[$fileFormat])) {
+            try {
+                if(file_exists($destinationFile)){
+                    unlink($destinationFile);
+                }
+                $writer = Mage::getModel($validWriters[$fileFormat]['model'], $destinationFile);
+            } catch (Exception $e) {
+                Mage::logException($e);
+                Mage::throwException(
+                    Mage::helper('importexport')->__('Invalid entity model')
+                );
+            }
+            if (! $writer instanceof Mage_ImportExport_Model_Export_Adapter_Abstract) {
+                Mage::throwException(
+                    Mage::helper('importexport')->__('Adapter object must be an instance of %s', 'Mage_ImportExport_Model_Export_Adapter_Abstract')
+                );
+            }
+        } else {
+            Mage::throwException(Mage::helper('importexport')->__('Invalid file format'));
+        }
+        return $writer;
     }
 }

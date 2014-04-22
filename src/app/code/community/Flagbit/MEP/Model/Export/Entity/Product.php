@@ -109,6 +109,33 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
         return $this;
     }
 
+    protected function  _initWriter(&$writer)
+    {
+        $obj_profile = $this->getProfile();
+
+        $settings = $obj_profile->getSettings();
+        $encoding = null;
+        if (!empty($settings['encoding'])) {
+            $encoding = $settings['encoding'];
+        }
+
+        $writer->setDelimiter($obj_profile->getDelimiter());
+        $writer->setConfigurableDelimiter($this->_configurable_delimiter);
+        $writer->setEnclosure($obj_profile->getEnclose());
+        $writer->setEncoding($encoding);
+
+        // add Twig Templates
+        $writer->setTwigTemplate($obj_profile->getTwigHeaderTemplate(), 'header');
+        $writer->setTwigTemplate($obj_profile->getTwigContentTemplate(), 'content');
+        $writer->setTwigTemplate($obj_profile->getTwigFooterTemplate(), 'footer');
+
+        if ($obj_profile->getOriginalrow() == 1) {
+            $writer->setHeaderRow(true);
+        } else {
+            $writer->setHeaderRow(false);
+        }
+    }
+
     /**
      * get Attribute Mapping
      *
@@ -181,34 +208,13 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
             /* @var $obj_profile Flagbit_MEP_Model_Profile */
             $obj_profile = $this->getProfile();
             //Mage::app()->setCurrentStore($obj_profile->getStoreId());
-            $delimiter = $obj_profile->getDelimiter();
-            $settings = $obj_profile->getSettings();
-            $encoding = null;
-            if (!empty($settings['encoding'])) {
-                $encoding = $settings['encoding'];
-            }
+
             $this->_configurable_delimiter = $obj_profile->getConfigurableValueDelimiter();
-            $enclosure = $obj_profile->getEnclose();
 
             $this->_storeIdToCode[0] = 'admin';
             $this->_storeIdToCode[$obj_profile->getStoreId()] = Mage::app()->getStore($obj_profile->getStoreId())->getCode();
 
-
-            $writer->setDelimiter($delimiter);
-            $writer->setConfigurableDelimiter($this->_configurable_delimiter);
-            $writer->setEnclosure($enclosure);
-            $writer->setEncoding($encoding);
-
-            // add Twig Templates
-            $writer->setTwigTemplate($obj_profile->getTwigHeaderTemplate(), 'header');
-            $writer->setTwigTemplate($obj_profile->getTwigContentTemplate(), 'content');
-            $writer->setTwigTemplate($obj_profile->getTwigFooterTemplate(), 'footer');
-
-            if ($obj_profile->getOriginalrow() == 1) {
-                $writer->setHeaderRow(true);
-            } else {
-                $writer->setHeaderRow(false);
-            }
+            $this->_initWriter($writer);
 
             // Get Shipping Mapping
             $shipping_id = $obj_profile->getShippingId();
@@ -285,7 +291,7 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
             while(true){
                 $index++;
                 $this->_threads[$index] = new Flagbit_MEP_Model_Thread( array($this, '_exportThread') );
-                $this->_threads[$index]->start($index, $writer, $limitProducts, $filteredProductIds, $mapping, $shippingAttrCodes);
+                $this->_threads[$index]->start($index, null, $limitProducts, $filteredProductIds, $mapping, $shippingAttrCodes);
 
                 // let the first fork go to ensure that the headline is correct set
                 if($index == 1){
@@ -304,13 +310,12 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
                     break;
                 }
             }
-            Mage::log('Export done', null, $logFile);
+            // wait for all the threads to finish
+            while( !empty( $this->_threads ) ) {
+                $this->_cleanUpThreads();
+            }
             $obj_profile->uploadToFtp();
-        }
-
-        // wait for all the threads to finish
-        while( !empty( $this->_threads ) ) {
-            $this->_cleanUpThreads();
+            Mage::log('Export done', null, $logFile);
         }
 
         /**
@@ -329,6 +334,10 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
     {
         foreach( $this->_threads as $index => $thread ) {
             if( ! $thread->isAlive() ) {
+                $fileName = Mage::getConfig()->getOptions()->getBaseDir() . DS . $this->getProfile()->getFilepath() . DS . $this->getProfile()->getFilename();
+                $threadContent = file_get_contents($fileName . '.' . $index . '.tmp');
+                file_put_contents($fileName, $threadContent, FILE_APPEND);
+                unlink($fileName . '.' . $index . '.tmp');
                 unset( $this->_threads[$index] );
             }
         }
@@ -362,6 +371,12 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
      */
     public function _exportThread($offsetProducts, $writer, $limitProducts, $filteredProductIds, $mapping, $shippingAttrCodes)
     {
+        if (is_null($writer))
+        {
+            $destinationFile = Mage::getConfig()->getOptions()->getBaseDir() . DS . $this->getProfile()->getFilepath() . DS . $this->getProfile()->getFilename() . '.' . $offsetProducts . '.tmp';
+            $writer = Mage::helper('mep')->getNewWriteInstance($destinationFile, 'twig');
+            $this->_initWriter($writer);
+        }
         /**
          * IMPORTANT TO PREVENT MySql to go away
          */
@@ -410,7 +425,6 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
                 }
             }
             if($offsetProducts != 1) {
-                Mage::log('Row ' . $cpt . ' written', null, $logFile);
                 $writer->setHeaderIsDisabled();
             }
             try {
@@ -757,8 +771,9 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
         $attrValue = '';
         if (isset($this->_categoryIds[$categoryId])) {
             $attrValue = array_slice($this->_categoryIds[$categoryId], -1, 1);
+            $attrValue = $attrValue[0];
         }
-        return $attrValue[0];
+        return $attrValue;
     }
 
     protected function _getBasePriceReferenceAmount($item, $mapItem) {
