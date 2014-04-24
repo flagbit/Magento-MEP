@@ -119,25 +119,7 @@ class Flagbit_MEP_Model_Export extends Mage_ImportExport_Model_Abstract
     protected function _getWriter()
     {
         if (!$this->_writer) {
-            $validWriters = Mage_ImportExport_Model_Config::getModels(self::CONFIG_KEY_FORMATS);
-
-            if (isset($validWriters[$this->getFileFormat()])) {
-                try {
-                    $this->_writer = Mage::getModel($validWriters[$this->getFileFormat()]['model'], $this->_destination);
-                } catch (Exception $e) {
-                    Mage::logException($e);
-                    Mage::throwException(
-                        Mage::helper('importexport')->__('Invalid entity model')
-                    );
-                }
-                if (! $this->_writer instanceof Mage_ImportExport_Model_Export_Adapter_Abstract) {
-                    Mage::throwException(
-                        Mage::helper('importexport')->__('Adapter object must be an instance of %s', 'Mage_ImportExport_Model_Export_Adapter_Abstract')
-                    );
-                }
-            } else {
-                Mage::throwException(Mage::helper('importexport')->__('Invalid file format'));
-            }
+            $this->_writer = Mage::helper('mep')->getNewWriteInstance($this->_destination, $this->getFileFormat());
         }
         return $this->_writer;
     }

@@ -93,7 +93,7 @@ class Flagbit_MEP_Model_Rule extends Mage_CatalogRule_Model_Rule
     {
         $product = clone $args['product'];
         $product->setData($args['row']);
-        if ($this->getConditions()->validate($product)) {
+        if ($this->getConditions() && $this->getConditions()->validate($product)) {
             $this->_productIds[] = $product->getId();
         }
     }
@@ -118,53 +118,31 @@ class Flagbit_MEP_Model_Rule extends Mage_CatalogRule_Model_Rule
 
             if ($this->getWebsiteIds()) {
                 /** @var $productCollection Mage_Catalog_Model_Resource_Eav_Mysql4_Product_Collection */
-                $productCollection = Mage::getResourceModel('catalog/product_collection');
+                $productCollection = Mage::helper('mep')->getProductsCollection();
                 if (isset($settings['apply_to']) && !is_null($settings['apply_to'])) {
                     $productCollection->addAttributeToFilter('type_id', array('in' => $settings['apply_to']));
                 }
                 if (isset($settings['is_in_stock']) && strlen($settings['is_in_stock']))
                 {
-                    /* @var $stockStatus Mage_CatalogInventory_Model_Stock_Status */
-                    $stockStatus = Mage::getModel('cataloginventory/stock_status');
-
-                    $stockStatus->addStockStatusToSelect(
-                        $productCollection->getSelect(),
-                        Mage::getModel('core/store')->load($this->_profile->getStoreId())->getWebsite()
-                    );
-
-                    $productCollection->getSelect()->where('stock_status.stock_status = ?', $settings['is_in_stock']);
+                    $productCollection->getSelect()->where('is_in_stock = ?', intval($settings['is_in_stock']));
                 }
                 if (!empty($settings['qty'])) {
                     if (isset($settings['qty']['threshold']) && strlen($settings['qty']['threshold'])) {
-                        $operator = $settings['qty']['operator'];
+                        $operator = Mage::helper('mep/qtyFilter')->getOperatorForSqlFilter($settings['qty']['operator']);
                         $threshold = $settings['qty']['threshold'];
-                        $productCollection->joinField(
-                            'qty',
-                            'cataloginventory/stock_item',
-                            'qty',
-                            'product_id=entity_id',
-                            '{{table}}.stock_id=1',
-                            'left'
-                        )->joinField(
-                                'manage_stock',
-                                'cataloginventory/stock_item',
-                                'manage_stock',
-                                'product_id=entity_id',
-                                '{{table}}.stock_id=1',
-                                'left'
-                            )->addAttributeToFilter(
-                                array(
-                                    array('attribute' => 'qty', Mage::helper('mep/qtyFilter')->getOperatorForCollectionFilter($operator) => $threshold),
-                                    array('attribute' => 'manage_stock', 'eq' => 0)
-                                )
-                            );
+                        $productCollection->getSelect()->where('qty ' . $operator . ' ?', $threshold);
                     }
                 }
-                $productCollection->addWebsiteFilter($this->getWebsiteIds());
-                if ($this->_productsFilter) {
+                if ($this->_profile->getStoreId() != 0)
+                {
+                    $productCollection->addWebsiteFilter($this->getWebsiteIds());
+                }
+                if ($this->_productsFilter)
+                {
                     $productCollection->addIdFilter($this->_productsFilter);
                 }
                 $select = $productCollection->getSelect();
+                Mage::log($select->assemble(), null, 'mep-1.log');
                 $this->getConditions()->collectValidatedAttributes($productCollection);
                 $this->_walk(
                     $select,

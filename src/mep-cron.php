@@ -37,27 +37,8 @@ $_SERVER['SCRIPT_NAME'] = str_replace(basename(__FILE__), 'index.php', $_SERVER[
 $_SERVER['SCRIPT_FILENAME'] = str_replace(basename(__FILE__), 'index.php', $_SERVER['SCRIPT_FILENAME']);
 
 Mage::app('admin')->setUseSessionInUrl(false);
-Mage::setIsDeveloperMode(true);
-ini_set('display_errors', '1');
 umask(0);
 
-class Flagbit_Db_Profiler extends Zend_Db_Profiler {
-
-    public function queryStart($queryText, $queryType = null)
-    {
-        Mage::log($queryText, null, 'query.log');
-        return parent::queryStart($queryText, $queryType);
-    }
-
-}
-
-// Start Profiler
-$profiler = Mage::getSingleton('core/resource')->getConnection('core_read')->setProfiler(new Flagbit_Db_Profiler());
-$profiler = Mage::getSingleton('core/resource')->getConnection('core_write')->setProfiler(new Flagbit_Db_Profiler());
-
-// Stop Profiler
-//$profiler = Mage::getSingleton('core/resource')->getConnection('core_read')->setProfiler(null);
-//$profiler = Mage::getSingleton('core/resource')->getConnection('core_write')->setProfiler(null);
 
 try {
     $mepCron = Mage::getModel('mep/cron_execute');
