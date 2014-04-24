@@ -246,20 +246,17 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
             /* @var $ruleObject Flagbit_MEP_Model_Rule */
             $ruleObject = Mage::getModel('mep/rule');
             $rule = unserialize($obj_profile->getConditionsSerialized());
-            $filteredProductIds = array();
-            if (!empty($rule) && count($rule) > 1) {
-                $ruleObject->setProfile($obj_profile);
-                $ruleObject->loadPost(array('conditions' => $rule));
-                $ruleObject->setWebsiteIds(array(Mage::app()->getStore($obj_profile->getStoreId())->getWebsiteId()));
-                Mage::helper('mep/log')->debug('Get matching product', $this);
-                if ($this->_limit) {
-                    $ruleObject->setLimit($this->_limit);
-                }
-                $filteredProductIds = $ruleObject->getMatchingProductIds();
-                if(count($filteredProductIds) < 1){
-                    Mage::log('Nothing to export ' . $this->getProfileId(), null, $logFile);
-                    return 'No datas';
-                }
+            $ruleObject->setProfile($obj_profile);
+            $ruleObject->loadPost(array('conditions' => $rule));
+            $ruleObject->setWebsiteIds(array(Mage::app()->getStore($obj_profile->getStoreId())->getWebsiteId()));
+            Mage::helper('mep/log')->debug('Get matching product', $this);
+            if ($this->_limit) {
+                $ruleObject->setLimit($this->_limit);
+            }
+            $filteredProductIds = $ruleObject->getMatchingProductIds();
+            if(count($filteredProductIds) < 1){
+                Mage::log('Nothing to export ' . $this->getProfileId(), null, $logFile);
+                return 'No datas';
             }
             Mage::log('End filter rules', null, $logFile);
             Mage::helper('mep/log')->debug('END Filter Rules', $this);

@@ -93,7 +93,7 @@ class Flagbit_MEP_Model_Rule extends Mage_CatalogRule_Model_Rule
     {
         $product = clone $args['product'];
         $product->setData($args['row']);
-        if ($this->getConditions()->validate($product)) {
+        if ($this->getConditions() && $this->getConditions()->validate($product)) {
             $this->_productIds[] = $product->getId();
         }
     }
