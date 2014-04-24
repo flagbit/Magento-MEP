@@ -226,7 +226,7 @@ class Flagbit_MEP_Helper_Shipping extends Mage_Core_Helper_Abstract
                  if ($rate == false) return false;
                  return $rate->getPrice();
              } catch (Exception $e) {
-                 Mage::log("Order save error...".$e->getMessage());
+                 Mage::logException($e);
              }
          }
      }
