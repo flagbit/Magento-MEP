@@ -223,6 +223,10 @@
                 <type>js</type>
                 <name>mep/google_mapping.js</name>
             </action>
+            <action method="addItem">
+                <type>js</type>
+                <name>mep/google_categories_import.js</name>
+            </action>
         </reference>
         <reference name="content">
             <block type="mep/adminhtml_google_view" name="mep.attribute"/>

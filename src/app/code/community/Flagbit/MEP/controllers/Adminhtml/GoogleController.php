@@ -57,11 +57,20 @@ class   Flagbit_MEP_Adminhtml_GoogleController extends Mage_Adminhtml_Controller
         }
     }
 
-    public function uploadgcAction()
+    public function importcategoriesAction()
     {
-        if ($data = $this->getRequest()->getPost())
+        $url = Mage::helper('mep/categories')->getGoogleCategoriesFileUrl();
+        /** @var Flagbit_MEP_Model_GoogleMapping_Import $importModel */
+        $importModel = Mage::getSingleton('mep/googleMapping_import');
+        try
         {
-            var_dump($_FILES);
+            $importModel->runImportWithUrl($url);
+        }
+        catch (Exception $e)
+        {
+            Mage::getSingleton('adminhtml/session')->addError($e->getMessage());
+            $this->getResponse()->setHeader('Content-Type', 'application/json');
+            $this->getResponse()->setBody(json_encode(array('error' => $e->getMessage())));
         }
     }
 }

@@ -153,23 +153,6 @@
             </updates>
         </layout>
     </adminhtml>
-    <!--<crontab>
-        <jobs>
-            <mep_profiles_enabled>
-                <schedule>
-                    <cron_expr>*/15 * * * *</cron_expr>
-                </schedule>
-                <run>
-                    <model>mep/observer::exportEnabledProfiles</model>
-                </run>
-            </mep_profiles_enabled>
-            <mep_run_profile>
-                <run>
-                    <model>mep/observer::runProfile</model>
-                </run>
-            </mep_run_profile>
-        </jobs>
-    </crontab>-->
     <default>
         <datas>
             <inheritance_type>

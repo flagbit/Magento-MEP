@@ -192,6 +192,23 @@ class   Flagbit_MEP_Helper_Categories extends Mage_Core_Helper_Abstract
 
     public function googleCategoriesAreInitialized()
     {
-        return true;
+        $collectionSize = Mage::getModel('mep/googleTaxonomies')->getCollection()->getSize();
+        if ($collectionSize > 0)
+        {
+            return true;
+        }
+        return false;
+    }
+
+    public function getGoogleCategoriesFileUrl()
+    {
+        $locale = $this->getLocale();
+        $url = 'http://www.google.com/basepages/producttype/taxonomy.' . $locale . '.txt';
+        return $url;
+    }
+
+    public  function  getLocale()
+    {
+        return 'de-DE';
     }
 }

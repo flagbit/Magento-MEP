@@ -7,24 +7,20 @@ class Flagbit_MEP_Block_Adminhtml_Google_View_Edit_Form extends Mage_Adminhtml_B
     {
         if (!Mage::helper('mep/categories')->googleCategoriesAreInitialized())
         {
-            $form = new Varien_Data_Form(array(
-                'id' => 'edit_form',
-                'action' => $this->getUrl('*/*/uploadgc'),
-                'method' => 'post',
-                'enctype' => 'multipart/form-data'
-            ));
+            $form = new Varien_Data_Form(array());
 
             $formUpload = $form->addFieldset('file_selection',
                 array(
                     'legend' => Mage::helper('mep')->__('Google Categories CSV')
                 ));
 
-            $formUpload->addField('csv_file', 'file',
+            $formUpload->addField('launch', 'button',
                 array(
-                    'label' => Mage::helper('mep')->__('File'),
-                    'class' => 'required-entry',
-                    'required' => true,
-                    'name' => 'csv_file',
+                    'label' => Mage::helper('mep')->__('Google categories initialisation'),
+                    'value' => Mage::helper('mep')->__('Start'),
+                    'name' => 'launch',
+                    'class' => 'form-button',
+                    'onclick' => 'startGoogleCategoriesImport(\'' . Mage::helper('adminhtml')->getUrl('/google/importcategories') . '\');',
                 ));
         }
         else
