@@ -522,7 +522,13 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
         }
         if (isset($settings['is_in_stock']) && strlen($settings['is_in_stock']))
         {
-            $collection->getSelect()->where('is_in_stock = ?', intval($settings['is_in_stock']));
+            $isInStockFilter = intval($settings['is_in_stock']);
+            $isInStockCondition = 'is_in_stock = ' . $isInStockFilter;
+            if ($isInStockFilter == 1)
+            {
+                $isInStockCondition = '(' . $isInStockCondition . ' OR manage_stock = 0)';
+            }
+            $collection->getSelect()->where($isInStockCondition);
         }
         if (!empty($settings['qty'])) {
             if (isset($settings['qty']['threshold']) && strlen($settings['qty']['threshold'])) {
