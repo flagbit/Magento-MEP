@@ -89,7 +89,7 @@ class Flagbit_MEP_Model_Observer extends Varien_Object
      *
      * @param Flagbit_MEP_Model_Profile $profile
      */
-    public function exportProfile(Flagbit_MEP_Model_Profile $profile)
+    public function exportProfile(Flagbit_MEP_Model_Profile $profile, $catchErrors = true)
     {
         $exportFile = null;
         try{
@@ -122,8 +122,11 @@ class Flagbit_MEP_Model_Observer extends Varien_Object
 
         }catch (Exception $e){
             Mage::helper('mep/log')->err($e, $this);
-            echo $e->getMessage();
             Mage::logException($e);
+
+            if(!$catchErrors){
+                throw $e;
+            }
         }
         return $exportFile;
     }

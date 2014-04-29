@@ -1,7 +1,5 @@
 <?php
-ini_set('display_errors', '1');
-error_reporting(E_ALL);
-// Mage_ImportExport_Model_Export_Entity_Product
+
 class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Export_Entity_Product
 {
 
@@ -64,16 +62,9 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
      *
      * @return void
      */
-    public function __construct()
+    public function __construct($options = array())
     {
-        if (Mage::app()->getRequest()->getParam('id'))
-        {
-            $this->_parameters['id'] = Mage::app()->getRequest()->getParam('id');
-        }
-        else
-        {
-            $this->_parameters['id'] = Mage::registry('current_exporting_mep_profile');
-        }
+        $this->setParameters($options);
         parent::__construct();
     }
 
@@ -109,6 +100,11 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
         return $this;
     }
 
+    /**
+     * init Writer
+     *
+     * @param $writer Mage_ImportExport_Model_Export_Adapter_Abstract
+     */
     protected function  _initWriter(&$writer)
     {
         $obj_profile = $this->getProfile();
