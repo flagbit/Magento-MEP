@@ -107,6 +107,9 @@ class Flagbit_MEP_Model_Observer extends Varien_Object
             // disable flat Tables
             Mage::app()->getConfig()->setNode('catalog/frontend/flat_catalog_product',0,true);
 
+            // add additional Logfile for the current Profile
+            Mage::helper('mep/log')->addAdditionalLogfile('mep-'.$profile->getId().'.log');
+
             /* @var $export Flagbit_MEP_Model_Export */
             $export = Mage::getModel('mep/export');
             $export->setData('id', $profile->getId());

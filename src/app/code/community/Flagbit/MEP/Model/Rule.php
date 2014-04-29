@@ -149,7 +149,7 @@ class Flagbit_MEP_Model_Rule extends Mage_CatalogRule_Model_Rule
                     $productCollection->addIdFilter($this->_productsFilter);
                 }
                 $select = $productCollection->getSelect();
-                Mage::log($select->assemble(), null, 'mep-1.log');
+
                 $this->getConditions()->collectValidatedAttributes($productCollection);
                 $this->_walk(
                     $select,
