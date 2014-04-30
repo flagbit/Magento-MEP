@@ -150,7 +150,7 @@ class Flagbit_MEP_Model_Observer extends Varien_Object
     /**
      * Get the export path
      *
-     * @param $profile Flagbit_MEP_Model_Profil
+     * @param $profile Flagbit_MEP_Model_Profile
      * @return string
      */
     protected function _getExportPath($profile)

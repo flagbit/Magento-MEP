@@ -2,13 +2,14 @@
 
 class   Flagbit_MEP_Model_Cron_Execute {
 
-    protected $_pendingSchedules;
-
     /**
      * @var Flagbit_MEP_Model_Cron
      */
     public static $currentSchedule = null;
 
+    /**
+     * config xpath to task Livetime
+     */
     const XML_PATH_CRON_LIFETIME = 'mep/settings/task_lifetime';
 
     /**
@@ -16,45 +17,58 @@ class   Flagbit_MEP_Model_Cron_Execute {
      */
     public function run()
     {
+        $now = time();
+        $schedule = null;
 
         // register shutdown Handler for Error Handling
         register_shutdown_function(array('Flagbit_MEP_Model_Cron_Execute', 'shutdownHandler'));
 
-        $schedules = $this->_loadSchedulesCron();
-        $observer = Mage::getModel('mep/observer');
+        $schedules = Mage::getModel('mep/cron')
+                        ->getCollection()
+                        ->addFieldToFilter('status', Mage_Cron_Model_Schedule::STATUS_PENDING)
+                        ->addOrder('cron_id', Varien_Data_Collection_Db::SORT_ORDER_DESC)
+                        ->load();
 
         // get the first schedule
-        $schedule = $schedules->getFirstItem();
+        foreach($schedules as $schedule){
 
-        if($schedule instanceof Flagbit_MEP_Model_Cron
-            && $schedule->getId()){
-
-            if($this->countRunningCron()){
-                Mage::helper('mep/log')->debug('Cannot run Profile '.$schedule->getProfileId().' because there is already a Job running', $this);
-                return;
+            // skip future tasks
+            if (strtotime($schedule->getScheduledAt()) > $now) {
+                continue;
             }
 
-            Mage::helper('mep/log')->debug('CRON RUN Profile: ' . $schedule->getProfileId(), $this);
+            if($schedule instanceof Flagbit_MEP_Model_Cron
+                && $schedule->getId()){
 
-            // set current schedule to static variable so we can use it in shutdown handler
-            self::$currentSchedule = $schedule;
+                if($this->countRunningCron()){
+                    Mage::helper('mep/log')->debug('Cannot run Profile '.$schedule->getProfileId().' because there is already a Job running', $this);
+                    return;
+                }
 
-            // set cron running
-            $schedule->setStatus(Mage_Cron_Model_Schedule::STATUS_RUNNING)->save();
+                Mage::helper('mep/log')->debug('CRON RUN Profile: ' . $schedule->getProfileId(), $this);
 
-            // run Profile
-            try{
-                $observer->runProfile($schedule->getProfileId());
-            }catch (Exception $e){
-                $schedule->setStatus(Mage_Cron_Model_Schedule::STATUS_ERROR)
-                ->setLogs($e->getMessage())
-                ->save();
-            }
+                // set current schedule to static variable so we can use it in shutdown handler
+                self::$currentSchedule = $schedule;
 
-            // set cron success
-            $schedule->setFinishedAt(strftime('%Y-%m-%d %H:%M:%S', time()))
-                    ->setStatus(Mage_Cron_Model_Schedule::STATUS_SUCCESS)
+                // set cron running
+                $schedule->setStatus(Mage_Cron_Model_Schedule::STATUS_RUNNING)->save();
+
+                // run Profile
+                try{
+                    Mage::getModel('mep/observer')->runProfile($schedule->getProfileId(), false);
+                }catch (Exception $e){
+                    $schedule->setStatus(Mage_Cron_Model_Schedule::STATUS_ERROR)
+                    ->setLogs($e->getMessage())
                     ->save();
+                }
+
+                // set cron success
+                $schedule->setFinishedAt(strftime('%Y-%m-%d %H:%M:%S', time()))
+                        ->setStatus(Mage_Cron_Model_Schedule::STATUS_SUCCESS)
+                        ->save();
+            }
+            // only one task per instance to get right of limits and strange behavior
+            break;
         }
 
         $this->_scheduleCron();
@@ -102,28 +116,12 @@ class   Flagbit_MEP_Model_Cron_Execute {
         return $this;
     }
 
-    /**
-     * get schedules collection
-     *
-     * @return Flagbit_MEP_Model_Mysql4_Cron_Collection
-     */
-    protected function  _loadSchedulesCron() {
-        if (!$this->_pendingSchedules) {
-            $this->_pendingSchedules = Mage::getModel('mep/cron')
-                ->getCollection()
-                ->addFieldToFilter('status', Mage_Cron_Model_Schedule::STATUS_PENDING)
-                ->addOrder('cron_id', Varien_Data_Collection_Db::SORT_ORDER_DESC)
-                ->load();
-        }
-        return $this->_pendingSchedules;
-    }
-
 
     /**
      * Hook to php shutdown handler
      *
      * This method is registered via register_shutdown_handler and
-     * is used to grab fatal errors and handly them gracefully where
+     * is used to grab fatal errors and handle them gracefully where
      * possible
      *
      * @return void
@@ -151,7 +149,10 @@ class   Flagbit_MEP_Model_Cron_Execute {
        }
     }
 
-    protected function  _scheduleCron()
+    /**
+     * create schedules
+     */
+    protected function _scheduleCron()
     {
         $profiles = Mage::getModel('mep/profile')
             ->getCollection()
@@ -162,7 +163,7 @@ class   Flagbit_MEP_Model_Cron_Execute {
         foreach ($profiles as $profile)
         {
             $id = $profile->getId();
-            $scheduleAheadFor = Mage::getStoreConfig(Mage_Cron_Model_Observer::XML_PATH_SCHEDULE_AHEAD_FOR) * 60;
+            $scheduleAheadFor = 60 * 60;
             $schedule = Mage::getModel('mep/cron');
             $now = time() + 60;
             $timeAhead = $now + $scheduleAheadFor;
@@ -175,6 +176,7 @@ class   Flagbit_MEP_Model_Cron_Execute {
 
             $_errorMsg = null;
             for ($time = $now; $time < $timeAhead; $time += 60) {
+
                 if (!$schedule->trySchedule($time)) {
                     // time does not match cron expression
                     continue;
@@ -184,22 +186,26 @@ class   Flagbit_MEP_Model_Cron_Execute {
                     continue ;
                 }
                 $_errorMsg = null;
+
+                Mage::helper('mep/log')->debug('SCHEDULE planned Profile ' .$id . ' on '.date('c', $time), $this);
                 $schedule->unsScheduleId()->save();
                 break;
             }
         }
     }
 
-    protected function  _alreadyScheduled($toSchedule)
+    /**
+     * get if a schedule already planned
+     *
+     * @param $toSchedule
+     * @return bool
+     */
+    protected function _alreadyScheduled($toSchedule)
     {
-        $pending = $this->_loadSchedulesCron();
-        foreach ($pending as $schedule)
-        {
-            if ($toSchedule->getProfileId() == $schedule->getProfileId() && $toSchedule->getScheduledAt() == $schedule->getScheduledAt())
-            {
-                return true;
-            }
-        }
-        return false;
+        $counter = Mage::getModel('mep/cron')->getCollection()
+            ->addFieldToFilter('main_table.scheduled_at', array('eq' => $toSchedule->getScheduledAt()))
+            ->addFieldToFilter('main_table.profile_id', array('eq' => $toSchedule->getProfileId()));
+
+        return $counter->count() ? true : false;
     }
 }
