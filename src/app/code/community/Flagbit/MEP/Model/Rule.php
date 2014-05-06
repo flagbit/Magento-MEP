@@ -124,7 +124,14 @@ class Flagbit_MEP_Model_Rule extends Mage_CatalogRule_Model_Rule
                 }
                 if (isset($settings['is_in_stock']) && strlen($settings['is_in_stock']))
                 {
-                    $productCollection->getSelect()->where('is_in_stock = ?', intval($settings['is_in_stock']));
+                    $isInStockFilter = intval($settings['is_in_stock']);
+                    $isInStockCondition = 'is_in_stock = ' . $isInStockFilter;
+                    if ($isInStockFilter == 1)
+                    {
+                        $isInStockCondition = '(' . $isInStockCondition . ' OR manage_stock = 0)';
+                    }
+                    $productCollection->getSelect()->where($isInStockCondition);
+
                 }
                 if (!empty($settings['qty'])) {
                     if (isset($settings['qty']['threshold']) && strlen($settings['qty']['threshold'])) {
@@ -142,7 +149,7 @@ class Flagbit_MEP_Model_Rule extends Mage_CatalogRule_Model_Rule
                     $productCollection->addIdFilter($this->_productsFilter);
                 }
                 $select = $productCollection->getSelect();
-                Mage::log($select->assemble(), null, 'mep-1.log');
+
                 $this->getConditions()->collectValidatedAttributes($productCollection);
                 $this->_walk(
                     $select,

@@ -89,7 +89,7 @@ class Flagbit_MEP_Model_Observer extends Varien_Object
      *
      * @param Flagbit_MEP_Model_Profile $profile
      */
-    public function exportProfile(Flagbit_MEP_Model_Profile $profile)
+    public function exportProfile(Flagbit_MEP_Model_Profile $profile, $catchErrors = true)
     {
         $exportFile = null;
         try{
@@ -107,6 +107,9 @@ class Flagbit_MEP_Model_Observer extends Varien_Object
             // disable flat Tables
             Mage::app()->getConfig()->setNode('catalog/frontend/flat_catalog_product',0,true);
 
+            // add additional Logfile for the current Profile
+            Mage::helper('mep/log')->addAdditionalLogfile('mep-'.$profile->getId().'.log');
+
             /* @var $export Flagbit_MEP_Model_Export */
             $export = Mage::getModel('mep/export');
             $export->setData('id', $profile->getId());
@@ -122,8 +125,11 @@ class Flagbit_MEP_Model_Observer extends Varien_Object
 
         }catch (Exception $e){
             Mage::helper('mep/log')->err($e, $this);
-            echo $e->getMessage();
             Mage::logException($e);
+
+            if(!$catchErrors){
+                throw $e;
+            }
         }
         return $exportFile;
     }
@@ -144,7 +150,7 @@ class Flagbit_MEP_Model_Observer extends Varien_Object
     /**
      * Get the export path
      *
-     * @param $profile Flagbit_MEP_Model_Profil
+     * @param $profile Flagbit_MEP_Model_Profile
      * @return string
      */
     protected function _getExportPath($profile)
