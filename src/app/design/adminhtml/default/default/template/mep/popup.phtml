@@ -75,7 +75,7 @@
                     </div>
                     <label for="google_mapping_separator"><?php echo $this->__('Mapping separator');?></label>
                     <div class="input-box">
-                        <input type="text" name="options[google_mapping_separator]" id="google_mapping_separator" class="input-text"/>
+                        <input value="<?php echo $this->getMapping()->getOption('google_mapping_separator'); ?>" type="text" name="options[google_mapping_separator]" id="google_mapping_separator" class="input-text"/>
                     </div>
                 </li>
                 <li>

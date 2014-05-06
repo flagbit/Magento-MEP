@@ -32,6 +32,7 @@ GoogleMapping.prototype = {
         });
     },
     parseJson : function(text) {
+        this.options.categoriesBlock.update();
         var json = eval(text);
         for (var i = 0; i < json.length; i++) {
             var current = json[i];
