@@ -578,6 +578,7 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
      */
     protected function  _getAttributeValue($item, $attrCode, $mapItem) {
         //Callback method configuration for special attribute
+        Mage::app()->setCurrentStore($this->getProfile()->getStoreId());
         $attributeValueFilter = array(
             'url' => '_getProductUrl',
             'price' => '_getPrice',
@@ -610,6 +611,7 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
                 $attrValue = implode(',', $currentValues);
             }
         }
+        Mage::app()->setCurrentStore(0);
         return $attrValue;
     }
 
