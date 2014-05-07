@@ -672,6 +672,7 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
      */
     protected function  _getAttributeValue($item, $attrCode, $mapItem) {
         //Callback method configuration for special attribute
+        Mage::app()->setCurrentStore($this->getProfile()->getStoreId());
         $attributeValueFilter = array(
             'url' => '_getProductUrl',
             'gross_price' => '_getGrossPrice',
@@ -700,6 +701,7 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
                 $attrValue = implode(',', $currentValues);
             }
         }
+        Mage::app()->setCurrentStore(0);
         return $attrValue;
     }
 
@@ -759,9 +761,9 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
             $attrValue = Mage::app()->getStore($objProfile->getStoreId())->getBaseUrl(Mage_Core_Model_Store::URL_TYPE_WEB) . $urlRewrite->getFirstItem()->getRequestPath();
         }
         else {
+
             $attrValue = $item->getProductUrl(false);
         }
-
         return $attrValue;
     }
 
