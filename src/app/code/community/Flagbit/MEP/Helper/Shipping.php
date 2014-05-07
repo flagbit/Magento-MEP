@@ -119,7 +119,7 @@ class Flagbit_MEP_Helper_Shipping extends Mage_Core_Helper_Abstract
         /** @var $request Mage_Shipping_Model_Rate_Request */
         $request = $this->_getShippingRequest();
 
-        $quoteItem = $this->_getQuoteItem()->setProduct($product)->setQty(1);
+        $quoteItem = $this->_getQuoteItem()->setProduct($product)->setPrice($productPrice)->setQty(1);
 
         /** @var $quote Mage_Sales_Model_Quote */
         $quote = $this->_getQuote(true)->setStore($store);
@@ -226,7 +226,7 @@ class Flagbit_MEP_Helper_Shipping extends Mage_Core_Helper_Abstract
                  if ($rate == false) return false;
                  return $rate->getPrice();
              } catch (Exception $e) {
-                 Mage::log("Order save error...".$e->getMessage());
+                 Mage::logException($e);
              }
          }
      }

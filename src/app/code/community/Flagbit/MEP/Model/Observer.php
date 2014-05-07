@@ -17,9 +17,8 @@ class Flagbit_MEP_Model_Observer extends Varien_Object
      *
      * @param $schedule
      */
-    public function runProfile($schedule)
+    public function runProfile($profileId)
     {
-        $profileId = (int) $schedule->getMessages();
         $profile = Mage::getModel('mep/profile')->load($profileId);
         if($profile->getId()){
             $this->exportProfile($profile);
@@ -90,14 +89,14 @@ class Flagbit_MEP_Model_Observer extends Varien_Object
      *
      * @param Flagbit_MEP_Model_Profile $profile
      */
-    public function exportProfile(Flagbit_MEP_Model_Profile $profile)
+    public function exportProfile(Flagbit_MEP_Model_Profile $profile, $catchErrors = true)
     {
         $exportFile = null;
         try{
             /** @var $appEmulation Mage_Core_Model_App_Emulation */
             $appEmulation = Mage::getSingleton('core/app_emulation');
             //Start environment emulation of the specified store
-            $initialEnvironmentInfo = $appEmulation->startEnvironmentEmulation($profile->getStoreId());
+            $initialEnvironmentInfo = $appEmulation->startEnvironmentEmulation($profile->getStoreId(), Mage_Core_Model_App_Area::AREA_ADMINHTML);
 
             // destination File
             $exportFile = $this->_getExportPath($profile) . DS . $profile->getFilename();
@@ -107,6 +106,9 @@ class Flagbit_MEP_Model_Observer extends Varien_Object
 
             // disable flat Tables
             Mage::app()->getConfig()->setNode('catalog/frontend/flat_catalog_product',0,true);
+
+            // add additional Logfile for the current Profile
+            Mage::helper('mep/log')->addAdditionalLogfile('mep-'.$profile->getId().'.log');
 
             /* @var $export Flagbit_MEP_Model_Export */
             $export = Mage::getModel('mep/export');
@@ -123,8 +125,11 @@ class Flagbit_MEP_Model_Observer extends Varien_Object
 
         }catch (Exception $e){
             Mage::helper('mep/log')->err($e, $this);
-            echo $e->getMessage();
             Mage::logException($e);
+
+            if(!$catchErrors){
+                throw $e;
+            }
         }
         return $exportFile;
     }
@@ -145,7 +150,7 @@ class Flagbit_MEP_Model_Observer extends Varien_Object
     /**
      * Get the export path
      *
-     * @param $profile Flagbit_MEP_Model_Profil
+     * @param $profile Flagbit_MEP_Model_Profile
      * @return string
      */
     protected function _getExportPath($profile)

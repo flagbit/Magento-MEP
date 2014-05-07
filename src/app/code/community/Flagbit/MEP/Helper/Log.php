@@ -3,6 +3,7 @@ class Flagbit_MEP_Helper_Log extends Mage_Core_Helper_Abstract {
 
     const FILE = 'mep.log';
     const START_TIME_KEY = 'MEP_START_TIME';
+    protected $_additionalLogFiles = array();
 
     /**
      * log warn message
@@ -91,6 +92,9 @@ class Flagbit_MEP_Helper_Log extends Mage_Core_Helper_Abstract {
         }
 
         Mage::log(implode(' ', $_logMessage), $level, self::FILE, true);
+        foreach($this->_additionalLogFiles as $logfile){
+            Mage::log(implode(' ', $_logMessage), $level, $logfile, true);
+        }
     }
 
     /**
@@ -115,6 +119,20 @@ class Flagbit_MEP_Helper_Log extends Mage_Core_Helper_Abstract {
     protected function _getMemoryUsage()
     {
         return $this->_byteFormat(memory_get_usage(true));
+    }
+
+    /**
+     * add additional Logfiles
+     *
+     * @param $logFile
+     * @return $this
+     */
+    public function addAdditionalLogfile($logFile)
+    {
+        if(!in_array($logFile, $this->_additionalLogFiles)){
+            $this->_additionalLogFiles[] = $logFile;
+        }
+        return $this;
     }
 
     /**

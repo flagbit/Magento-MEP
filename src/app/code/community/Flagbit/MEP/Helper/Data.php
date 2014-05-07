@@ -13,7 +13,7 @@
 
 class Flagbit_MEP_Helper_Data extends Mage_Core_Helper_Abstract
 {
-
+    const CONFIG_KEY_FORMATS  = 'global/mep/export_file_formats';
     /**
      * get current Profile Data
      *
@@ -33,6 +33,14 @@ class Flagbit_MEP_Helper_Data extends Mage_Core_Helper_Abstract
             $data = isset($data['id']) ? $data['id'] : null;
         }elseif($idOnly){
             $data = isset($data[$idOnly]) ? $data[$idOnly] : '';
+        }
+        else {
+            if (empty($data['ftp_host_port'])) {
+                $data['ftp_host_port'] = ':21';
+            }
+            if (empty($data['ftp_path'])) {
+                $data['ftp_path'] = '/';
+            }
         }
         return $data;
     }
@@ -81,5 +89,50 @@ class Flagbit_MEP_Helper_Data extends Mage_Core_Helper_Abstract
         );
 
         return strtr($string, $table);
+    }
+
+    public function getProductsCollection()
+    {
+        $collection = Mage::getModel('catalog/product')->getCollection()
+            ->addAttributeToSelect('sku')
+            ->addAttributeToSelect('name')
+            ->addAttributeToSelect('attribute_set_id')
+            ->addAttributeToSelect('type_id');
+
+        if (Mage::helper('catalog')->isModuleEnabled('Mage_CatalogInventory')) {
+            $collection->getSelect()->joinLeft(
+                array('_inventory_table' => $collection->getTable('cataloginventory/stock_item')),
+                '_inventory_table.product_id = e.entity_id',
+                array('qty', 'is_in_stock')
+            );
+        }
+        return $collection;
+    }
+
+    public function getNewWriteInstance($destinationFile, $fileFormat)
+    {
+        $validWriters = Mage_ImportExport_Model_Config::getModels(self::CONFIG_KEY_FORMATS);
+
+        if (isset($validWriters[$fileFormat])) {
+            try {
+                if(file_exists($destinationFile)){
+                    unlink($destinationFile);
+                }
+                $writer = Mage::getModel($validWriters[$fileFormat]['model'], $destinationFile);
+            } catch (Exception $e) {
+                Mage::logException($e);
+                Mage::throwException(
+                    Mage::helper('importexport')->__('Invalid entity model')
+                );
+            }
+            if (! $writer instanceof Mage_ImportExport_Model_Export_Adapter_Abstract) {
+                Mage::throwException(
+                    Mage::helper('importexport')->__('Adapter object must be an instance of %s', 'Mage_ImportExport_Model_Export_Adapter_Abstract')
+                );
+            }
+        } else {
+            Mage::throwException(Mage::helper('importexport')->__('Invalid file format'));
+        }
+        return $writer;
     }
 }

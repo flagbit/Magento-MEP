@@ -1,7 +1,7 @@
 /* MEP-Styles */
 
 .adminhtml-profile-edit div.mapping-dialog {
-    padding: 20px 10px;
+    padding: 10px;
 }
 
 .adminhtml-profile-edit div.mapping-dialog ul.formfield_list li {
@@ -13,26 +13,20 @@
     font-weight: bold;
 }
 
-.adminhtml-profile-edit div.mapping-dialog label,
-.adminhtml-profile-edit div.mapping-dialog .input-box {
-    float: left;
-    width: 200px;
+.adminhtml-profile-edit div.mapping-dialog select {
+    margin-bottom: 15px;
+}
+
+.adminhtml-profile-edit div.mapping-dialog label {
+    margin-right: 5px;
 }
 
 .adminhtml-profile-edit div.mapping-dialog li.block-checkbox {
-    clear: both;
-    margin-top: 5px;
-}
-
-.adminhtml-profile-edit div.mapping-dialog li.block-checkbox label {
-    float: none;
-    width: auto;
+    margin: 5px 0px;
 }
 
 .adminhtml-profile-edit div.mapping-dialog input {
     margin-bottom: 5px;
-}
-.adminhtml-profile-edit div.mapping-dialog input {
     width: 167px;
 }
 
@@ -44,19 +38,22 @@
 }
 
 .adminhtml-profile-edit div.mapping-dialog #inheritance_type_block {
-    margin-top: 5px;
+    padding-left: 37px;
+    margin-left: 5px;
+    background-image: url(images/down_right.png);
+    background-repeat: no-repeat;
+    background-position-y: -10px;
 }
 
 .adminhtml-profile-edit #widget_window .magento_content {
-    height: auto !important;
-    min-height: 320px;
+    min-height: 0 !important;
 }
-
 
 .adminhtml-shipping-edit div.mapping-dialog {
     padding: 20px 10px;
 }
-.adminhtml-profil-edit .dialog .attribute-mapping-window_close {
+
+.adminhtml-profile-edit .dialog .attribute-mapping-window_close {
     width: 20px;
     height: 20px;
     background-color: transparent;
@@ -66,41 +63,102 @@
     cursor: pointer;
     color: #D85909;
 }
-.adminhtml-profil-edit .dialog .attribute-mapping-window_close:after {
+.adminhtml-profile-edit .dialog .attribute-mapping-window_close:after {
     content: "x";
     font-size: 20px;
 }
 
-.adminhtml-profil-edit .dialog div.attribute-mapping-window_content {
+.adminhtml-profile-edit .dialog div.attribute-mapping-window_content {
     padding: 20px;
     background-color: #FFF6ED;
     border: 2px solid #F3BE8E;
     color: #D85909;
 }
-.adminhtml-profil-edit .dialog div.attribute-mapping-window_content li {
+.adminhtml-profile-edit .dialog div.attribute-mapping-window_content li {
     overflow: hidden;
     display: block;
 }
 
-.adminhtml-profil-edit .dialog div.attribute-mapping-window_content label {
+.adminhtml-profile-edit .dialog div.attribute-mapping-window_content label {
     color: #D85909;
     font-weight: bold;
 }
 
-.adminhtml-profil-edit .dialog div.attribute-mapping-window_content label,
-.adminhtml-profil-edit .dialog div.attribute-mapping-window_content .input-box {
-    float: left;
-    width: 200px;
-}
-
-.adminhtml-profil-edit .dialog div.attribute-mapping-window_content input,
-.adminhtml-profil-edit .dialog div.attribute-mapping-window_content select {
+.adminhtml-profile-edit .dialog div.attribute-mapping-window_content input,
+.adminhtml-profile-edit .dialog div.attribute-mapping-window_content select {
     margin-bottom: 5px;
 }
 .adminhtml-profil-edit .dialog div.attribute-mapping-window_content input {
     width: 167px;
 }
-.adminhtml-profil-edit .dialog div.attribute-mapping-window_content input.form-button {
+.adminhtml-profile-edit .dialog div.attribute-mapping-window_content input.form-button {
     width: 100px;
     margin-top: 10px;
+}
+
+.adminhtml-profile-edit #preview-table {
+    margin: 0px 0px 5px !important;
+}
+
+.adminhtml-profile-edit .popup-window .magento_message {
+    padding: 0px !important;
+}
+
+.adminhtml-profile-edit #widget_window.popup-window {
+    width: 99% !important;
+    height: auto !important;
+    top: 0px !important;
+    left: 0px !important;
+    margin: auto !important;
+    right: 0px;
+    margin-top: 1% !important;
+}
+
+.adminhtml-profile-edit #widget_window {
+    display: none;
+}
+
+.adminhtml-profile-edit #widget_window.dialog {
+    border: none;
+}
+
+.adminhtml-profile-edit #loading-mask {
+    z-index: 2000 !important;
+}
+
+.adminhtml-profile-edit #widget_window.popup-window #widget_window_table_content.magento_content {
+    padding: 5px 5px 0px !important;
+}
+
+.adminhtml-profile-edit #widget_window_content.magento_content {
+    position: relative;
+    width: auto !important;
+}
+
+.adminhtml-profile-edit .magento_e, .adminhtml-profile-edit .magento_w {
+    width: 0px !important;
+}
+
+.adminhtml-profile-edit .dialog table.table_window {
+    table-layout:fixed !important;
+}
+
+.adminhtml-profile-edit #widget_window.attr-popup-window {
+    width: 320px !important;
+}
+
+.adminhtml-profile-edit #widget_window.attr-popup-window #widget_window_content.magento_content {
+    overflow: hidden;
+}
+
+.mep_category_list_item {
+    background-color: #eeeeee;
+    border: 1px solid #CCCCCC;
+    padding: 3px;
+    margin: 2px 0px;
+}
+
+.mep_category_list_item select
+{
+    margin-left: 5px;
 }

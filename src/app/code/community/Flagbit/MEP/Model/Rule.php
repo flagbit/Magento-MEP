@@ -93,7 +93,7 @@ class Flagbit_MEP_Model_Rule extends Mage_CatalogRule_Model_Rule
     {
         $product = clone $args['product'];
         $product->setData($args['row']);
-        if ($this->getConditions()->validate($product)) {
+        if ($this->getConditions() && $this->getConditions()->validate($product)) {
             $this->_productIds[] = $product->getId();
         }
     }
@@ -118,41 +118,41 @@ class Flagbit_MEP_Model_Rule extends Mage_CatalogRule_Model_Rule
 
             if ($this->getWebsiteIds()) {
                 /** @var $productCollection Mage_Catalog_Model_Resource_Eav_Mysql4_Product_Collection */
-                $productCollection = Mage::getResourceModel('catalog/product_collection');
+                $productCollection = Mage::helper('mep')->getProductsCollection();
                 if (isset($settings['apply_to']) && !is_null($settings['apply_to'])) {
                     $productCollection->addAttributeToFilter('type_id', array('in' => $settings['apply_to']));
                 }
-                if (isset($settings['is_in_stock']) && strlen($settings['is_in_stock'])) {
-                    $productCollection->joinField(
-                        'is_in_stock',
-                        'cataloginventory/stock_item',
-                        'is_in_stock',
-                        'product_id=entity_id',
-                        '{{table}}.stock_id=1',
-                        'left'
-                    )->addAttributeToFilter('is_in_stock', array('eq' => $settings['is_in_stock']));
+                if (isset($settings['is_in_stock']) && strlen($settings['is_in_stock']))
+                {
+                    $isInStockFilter = intval($settings['is_in_stock']);
+                    $isInStockCondition = 'is_in_stock = ' . $isInStockFilter;
+                    if ($isInStockFilter == 1)
+                    {
+                        $isInStockCondition = '(' . $isInStockCondition . ' OR manage_stock = 0)';
+                    }
+                    $productCollection->getSelect()->where($isInStockCondition);
+
                 }
                 if (!empty($settings['qty'])) {
                     if (isset($settings['qty']['threshold']) && strlen($settings['qty']['threshold'])) {
-                        $operator = $settings['qty']['operator'];
+                        $operator = Mage::helper('mep/qtyFilter')->getOperatorForSqlFilter($settings['qty']['operator']);
                         $threshold = $settings['qty']['threshold'];
-                        $productCollection->joinField(
-                            'qty',
-                            'cataloginventory/stock_item',
-                            'qty',
-                            'product_id=entity_id',
-                            '{{table}}.stock_id=1',
-                            'left'
-                        )->addAttributeToFilter('qty', array(Mage::helper('mep/qtyFilter')->getOperatorForCollectionFilter($operator) => $threshold));
+                        $productCollection->getSelect()->where('qty ' . $operator . ' ?', $threshold);
                     }
                 }
-                $productCollection->addWebsiteFilter($this->getWebsiteIds());
-                if ($this->_productsFilter) {
+                if ($this->_profile->getStoreId() != 0)
+                {
+                    $productCollection->addWebsiteFilter($this->getWebsiteIds());
+                }
+                if ($this->_productsFilter)
+                {
                     $productCollection->addIdFilter($this->_productsFilter);
                 }
+                $select = $productCollection->getSelect();
+
                 $this->getConditions()->collectValidatedAttributes($productCollection);
-                Mage::getSingleton('core/resource_iterator')->walk(
-                    $productCollection->getSelect(),
+                $this->_walk(
+                    $select,
                     array(array($this, 'callbackValidateProduct')),
                     array(
                         'attributes' => $this->getCollectedAttributes(),
@@ -163,6 +163,50 @@ class Flagbit_MEP_Model_Rule extends Mage_CatalogRule_Model_Rule
         }
 
         return $this->_productIds;
+    }
+
+    protected function _walk($query, array $callbacks, array $args=array(), $adapter = null)
+    {
+        $stmt = $this->_getStatement($query, $adapter);
+        $args['idx'] = 0;
+        while ($row = $stmt->fetch()) {
+            $args['row'] = $row;
+            foreach ($callbacks as $callback) {
+                $result = call_user_func($callback, $args);
+                if (!empty($result)) {
+                    $args = array_merge($args, $result);
+                }
+            }
+            $args['idx']++;
+            if ($limit = $this->getData('limit')) {
+                if (!is_null($this->_productIds) && count($this->_productIds) == $limit)
+                {
+                    break ;
+                }
+            }
+        }
+
+        return $this;
+    }
+
+    protected function _getStatement($query, $conn = null)
+    {
+        if ($query instanceof Zend_Db_Statement_Interface) {
+            return $query;
+        }
+
+        if ($query instanceof Zend_Db_Select) {
+            return $query->query();
+        }
+
+        if (is_string($query)) {
+            if (!$conn instanceof Zend_Db_Adapter_Abstract) {
+                Mage::throwException(Mage::helper('core')->__('Invalid connection'));
+            }
+            return $conn->query($query);
+        }
+
+        Mage::throwException(Mage::helper('core')->__('Invalid query'));
     }
 
 }

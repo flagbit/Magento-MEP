@@ -1,49 +1,13 @@
 <?php
-ini_set('display_errors', '1');
-error_reporting(E_ALL);
-// Mage_ImportExport_Model_Export_Entity_Product
+
 class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Export_Entity_Product
 {
 
-    const CONFIG_KEY_PRODUCT_TYPES = 'global/importexport/export_product_types';
-
-    /**
-     * Value that means all entities (e.g. websites, groups etc.)
-     */
-    const VALUE_ALL = 'all';
-
-    /**
-     * Permanent column names.
-     *
-     * Names that begins with underscore is not an attribute. This name convention is for
-     * to avoid interference with same attribute name.
-     */
-    const COL_STORE = '_store';
-    const COL_ATTR_SET = '_attribute_set';
-    const COL_TYPE = '_type';
-    const COL_CATEGORY = '_category';
-    const COL_ROOT_CATEGORY = '_root_category';
-    const COL_SKU = 'sku';
-
     protected $_configurable_delimiter = '|';
-
-    /**
-     * Pairs of attribute set ID-to-name.
-     *
-     * @var array
-     */
-    protected $_attrSetIdToName = array();
 
     protected $_attributeMapping = null;
 
     protected $_threads = array();
-
-    /**
-     * Categories ID to text-path hash.
-     *
-     * @var array
-     */
-    protected $_categories = array();
 
     protected $_categoryIds = array();
 
@@ -55,68 +19,13 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
     protected $_limit = null;
 
     /**
-     * Root category names for each category
-     *
-     * @var array
-     */
-    protected $_rootCategories = array();
-
-    /**
-     * Attributes with index (not label) value.
-     *
-     * @var array
-     */
-    protected $_indexValueAttributes = array(
-        'status',
-        'tax_class_id',
-        'visibility',
-        'enable_googlecheckout',
-        'gift_message_available',
-        'custom_design'
-    );
-
-    /**
-     * Permanent entity columns.
-     *
-     * @var array
-     */
-    protected $_permanentAttributes = array(self::COL_SKU);
-
-    /**
-     * Array of supported product types as keys with appropriate model object as value.
-     *
-     * @var array
-     */
-    protected $_productTypeModels = array();
-
-    /**
-     * Array of pairs store ID to its code.
-     *
-     * @var array
-     */
-    protected $_storeIdToCode = array();
-
-    /**
-     * Website ID-to-code.
-     *
-     * @var array
-     */
-    protected $_websiteIdToCode = array();
-
-    /**
-     * Attribute types
-     * @var array
-     */
-    protected $_attributeTypes = array();
-
-    /**
      * Attribute Models
      * @var array
      */
     protected $_attributeModels = array();
 
     /**
-     * @var Flagbit_MEP_Model_Profil
+     * @var Flagbit_MEP_Model_Profile
      */
     protected $_profile = null;
 
@@ -135,30 +44,35 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
     protected $_shippingAttrCodes;
 
     /**
+     * Tax config object
+     *
+     * @var array
+     */
+    protected $_taxConfig = null;
+
+    /**
+     * Google Mapping
+     *
+     * @var array
+     */
+    protected $_googleMapping = null;
+
+    /**
+     * Temporary Stock Items
+     *
+     * @var array
+     */
+    protected $_stockItems = array();
+
+    /**
      * Constructor.
      *
      * @return void
      */
-    public function __construct()
+    public function __construct($options = array())
     {
-        $entityCode = 'catalog_product';
-        $this->_entityTypeId = Mage::getSingleton('eav/config')->getEntityType($entityCode)->getEntityTypeId();
-        $this->_connection = Mage::getSingleton('core/resource')->getConnection('write');
-    }
-
-    /**
-     * Initialize attribute sets code-to-id pairs.
-     *
-     * @return Mage_ImportExport_Model_Export_Entity_Product
-     */
-    protected function _initAttributeSets()
-    {
-        $productTypeId = Mage::getModel('catalog/product')->getResource()->getTypeId();
-        foreach (Mage::getResourceModel('eav/entity_attribute_set_collection')
-                     ->setEntityTypeFilter($productTypeId) as $attributeSet) {
-            $this->_attrSetIdToName[$attributeSet->getId()] = $attributeSet->getAttributeSetName();
-        }
-        return $this;
+        $this->setParameters($options);
+        parent::__construct();
     }
 
     /**
@@ -194,51 +108,35 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
     }
 
     /**
-     * Initialize product type models.
+     * init Writer
      *
-     * @throws Exception
-     * @return Mage_ImportExport_Model_Export_Entity_Product
+     * @param $writer Mage_ImportExport_Model_Export_Adapter_Abstract
      */
-    protected function _initTypeModels()
+    protected function  _initWriter(&$writer)
     {
-        $config = Mage::getConfig()->getNode(self::CONFIG_KEY_PRODUCT_TYPES)->asCanonicalArray();
-        foreach ($config as $type => $typeModel) {
-            if (!($model = Mage::getModel($typeModel, array($this, $type)))) {
-                Mage::throwException("Entity type model '{$typeModel}' is not found");
-            }
-            if (!$model instanceof Mage_ImportExport_Model_Export_Entity_Product_Type_Abstract) {
-                Mage::throwException(
-                    Mage::helper('importexport')->__('Entity type model must be an instance of Mage_ImportExport_Model_Export_Entity_Product_Type_Abstract')
-                );
-            }
-            if ($model->isSuitable()) {
-                $this->_productTypeModels[$type] = $model;
-                $this->_disabledAttrs = array_merge($this->_disabledAttrs, $model->getDisabledAttrs());
-                $this->_indexValueAttributes = array_merge(
-                    $this->_indexValueAttributes, $model->getIndexValueAttributes()
-                );
-            }
-        }
-        if (!$this->_productTypeModels) {
-            Mage::throwException(Mage::helper('importexport')->__('There are no product types available for export'));
-        }
-        $this->_disabledAttrs = array_unique($this->_disabledAttrs);
+        $obj_profile = $this->getProfile();
 
-        return $this;
-    }
-
-    /**
-     * Initialize website values.
-     *
-     * @return Mage_ImportExport_Model_Export_Entity_Product
-     */
-    protected function _initWebsites()
-    {
-        /** @var $website Mage_Core_Model_Website */
-        foreach (Mage::app()->getWebsites() as $website) {
-            $this->_websiteIdToCode[$website->getId()] = $website->getCode();
+        $settings = $obj_profile->getSettings();
+        $encoding = null;
+        if (!empty($settings['encoding'])) {
+            $encoding = $settings['encoding'];
         }
-        return $this;
+
+        $writer->setDelimiter($obj_profile->getDelimiter());
+        $writer->setConfigurableDelimiter($this->_configurable_delimiter);
+        $writer->setEnclosure($obj_profile->getEnclose());
+        $writer->setEncoding($encoding);
+
+        // add Twig Templates
+        $writer->setTwigTemplate($obj_profile->getTwigHeaderTemplate(), 'header');
+        $writer->setTwigTemplate($obj_profile->getTwigContentTemplate(), 'content');
+        $writer->setTwigTemplate($obj_profile->getTwigFooterTemplate(), 'footer');
+
+        if ($obj_profile->getOriginalrow() == 1) {
+            $writer->setHeaderRow(true);
+        } else {
+            $writer->setHeaderRow(false);
+        }
     }
 
     /**
@@ -293,15 +191,12 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
      */
     public function export()
     {
-
-        $this->_initTypeModels()
-            ->_initAttributes()
-            ->_initAttributeSets()
-            ->_initWebsites()
-            ->_initCategories();
-
         //Execution time may be very long
         set_time_limit(0);
+
+        $this->_initTaxConfig();
+
+        $this->_initGoogleMapping();
 
         Mage::app()->setCurrentStore(0);
 
@@ -313,36 +208,18 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
 
 
         if ($this->hasProfileId()) {
-            /* @var $obj_profile Flagbit_MEP_Model_Profil */
+            Mage::helper('mep/log')->info('Starting export '.$this->getProfileId(), $this);
+
+            /* @var $obj_profile Flagbit_MEP_Model_Profile */
             $obj_profile = $this->getProfile();
-            $delimiter = $obj_profile->getDelimiter();
-            $settings = $obj_profile->getSettings();
-            $encoding = null;
-            if (!empty($settings['encoding'])) {
-                $encoding = $settings['encoding'];
-            }
+            //Mage::app()->setCurrentStore($obj_profile->getStoreId());
+
             $this->_configurable_delimiter = $obj_profile->getConfigurableValueDelimiter();
-            $enclosure = $obj_profile->getEnclose();
 
             $this->_storeIdToCode[0] = 'admin';
             $this->_storeIdToCode[$obj_profile->getStoreId()] = Mage::app()->getStore($obj_profile->getStoreId())->getCode();
 
-
-            $writer->setDelimiter($delimiter);
-            $writer->setConfigurableDelimiter($this->_configurable_delimiter);
-            $writer->setEnclosure($enclosure);
-            $writer->setEncoding($encoding);
-
-            // add Twig Templates
-            $writer->setTwigTemplate($obj_profile->getTwigHeaderTemplate(), 'header');
-            $writer->setTwigTemplate($obj_profile->getTwigContentTemplate(), 'content');
-            $writer->setTwigTemplate($obj_profile->getTwigFooterTemplate(), 'footer');
-
-            if ($obj_profile->getOriginalrow() == 1) {
-                $writer->setHeaderRow(true);
-            } else {
-                $writer->setHeaderRow(false);
-            }
+            $this->_initWriter($writer);
 
             // Get Shipping Mapping
             $shipping_id = $obj_profile->getShippingId();
@@ -369,19 +246,22 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
             $offsetProducts = 0;
 
             Mage::helper('mep/log')->debug('START Filter Rules', $this);
+
             // LOAD FILTER RULES
             /* @var $ruleObject Flagbit_MEP_Model_Rule */
             $ruleObject = Mage::getModel('mep/rule');
             $rule = unserialize($obj_profile->getConditionsSerialized());
-            $filteredProductIds = array();
-            if (!empty($rule) && count($rule) > 1) {
-                $ruleObject->setProfile($obj_profile);
-                $ruleObject->loadPost(array('conditions' => $rule));
-                $ruleObject->setWebsiteIds(array(Mage::app()->getStore($obj_profile->getStoreId())->getWebsiteId()));
-                $filteredProductIds = $ruleObject->getMatchingProductIds();
-                if(count($filteredProductIds) < 1){
-                    return 'No datas';
-                }
+            $ruleObject->setProfile($obj_profile);
+            $ruleObject->loadPost(array('conditions' => $rule));
+            $ruleObject->setWebsiteIds(array(Mage::app()->getStore($obj_profile->getStoreId())->getWebsiteId()));
+            Mage::helper('mep/log')->debug('Get matching product', $this);
+            if ($this->_limit) {
+                $ruleObject->setLimit($this->_limit);
+            }
+            $filteredProductIds = $ruleObject->getMatchingProductIds();
+            if(count($filteredProductIds) < 1){
+                Mage::helper('mep/log')->warn('Nothing to export ' . $this->getProfileId(), $this);
+                return 'No datas';
             }
             Mage::helper('mep/log')->debug('END Filter Rules', $this);
 
@@ -410,7 +290,7 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
             while(true){
                 $index++;
                 $this->_threads[$index] = new Flagbit_MEP_Model_Thread( array($this, '_exportThread') );
-                $this->_threads[$index]->start($index, $writer, $limitProducts, $filteredProductIds, $mapping, $shippingAttrCodes);
+                $this->_threads[$index]->start($index, null, $limitProducts, $filteredProductIds, $mapping, $shippingAttrCodes);
 
                 // let the first fork go to ensure that the headline is correct set
                 if($index == 1){
@@ -429,12 +309,22 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
                     break;
                 }
             }
+            // wait for all the threads to finish
+            while( !empty( $this->_threads ) ) {
+                $this->_cleanUpThreads();
+            }
+            $obj_profile->uploadToFtp();
+
+            Mage::helper('mep/log')->info('EXPORT done', $this);
         }
 
-        // wait for all the threads to finish
-        while( !empty( $this->_threads ) ) {
-            $this->_cleanUpThreads();
-        }
+        /**
+         * IMPORTANT TO PREVENT MySql to go away
+         */
+        $core_read = Mage::getSingleton('core/resource')->getConnection('core_read');
+        /** @var Varien_Db_Adapter_Pdo_Mysql $core_read */
+        $core_read->closeConnection();
+        $core_read->getConnection();
     }
 
     /**
@@ -444,6 +334,10 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
     {
         foreach( $this->_threads as $index => $thread ) {
             if( ! $thread->isAlive() ) {
+                $fileName = Mage::getConfig()->getOptions()->getBaseDir() . DS . $this->getProfile()->getFilepath() . DS . $this->getProfile()->getFilename();
+                $threadContent = file_get_contents($fileName . '.' . $index . '.tmp');
+                file_put_contents($fileName, $threadContent, FILE_APPEND);
+                unlink($fileName . '.' . $index . '.tmp');
                 unset( $this->_threads[$index] );
             }
         }
@@ -477,17 +371,30 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
      */
     public function _exportThread($offsetProducts, $writer, $limitProducts, $filteredProductIds, $mapping, $shippingAttrCodes)
     {
+        if (is_null($writer))
+        {
+            $destinationFile = Mage::getConfig()->getOptions()->getBaseDir() . DS . $this->getProfile()->getFilepath() . DS . $this->getProfile()->getFilename() . '.' . $offsetProducts . '.tmp';
+            $writer = Mage::helper('mep')->getNewWriteInstance($destinationFile, 'twig');
+            $this->_initWriter($writer);
+        }
+        /**
+         * IMPORTANT TO PREVENT MySql to go away
+         */
+        $core_read = Mage::getSingleton('core/resource')->getConnection('core_read');
+        /** @var Varien_Db_Adapter_Pdo_Mysql $core_read */
+        $core_read->closeConnection();
+        $core_read->getConnection();
+
         $this->_shippingAttrCodes = $shippingAttrCodes;
-        $this->_cleanUpProcess();
         Mage::helper('mep/log')->debug('START Thread: ' . $offsetProducts, $this);
         $objProfile = $this->getProfile();
         if($this->_limit !== null &&  $offsetProducts > 1){
             return false;
         }
         $storeId = $objProfile->getStoreId();
-        Mage::app()->setCurrentStore($storeId);
-
-        $collection = $this->_prepareEntityCollection(Mage::getResourceModel('catalog/product_collection'));
+        Mage::helper('mep/log')->debug('Setting store id: ' . $storeId, $this);
+        $resource = Mage::getResourceModel('catalog/product_collection');
+        $collection = $this->_prepareEntityCollection($resource);
         $collection
             ->setStoreId($storeId)
             ->addStoreFilter($objProfile->getStoreId())
@@ -497,6 +404,9 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
             $collection->addFieldToFilter("entity_id", array('in' => $filteredProductIds));
         }
         $collection->load();
+        $cpt = 1;
+
+        Mage::helper('mep/log')->debug('Looping on products', $this);
         foreach ($collection as $item) {
             $currentRow = array();
             foreach ($mapping->getItems() as $mapItem) {
@@ -520,10 +430,13 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
                 $writer->writeRow($currentRow);
             }
             catch (Exception $e) {
-                echo 'TWIG Exception: ' . $e->getMessage();
+                Mage::helper('mep/log')->err('Twig exception: ' . $e->getMessage(), $this);
             }
+            $cpt++;
         }
         $collection->clear();
+
+        Mage::helper('mep/log')->debug('END Thread: ' . $offsetProducts, $this);
         if ($collection->getCurPage() < $offsetProducts) {
             return false;
         }
@@ -534,8 +447,8 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
      * Check if a product has inherited product, get attribute value if so and cache them
      * Get attribute value from normal item if no inherited product
      */
-
-    protected function  _manageAttributeInheritance($item, $attrCode, $mapItem) {
+    protected function  _manageAttributeInheritance($item, $attrCode, $mapItem)
+    {
         $attrValues = array();
         $inheritanceType = $mapItem->getInheritanceType();
         if ($inheritanceType == 'from_child') {
@@ -593,44 +506,46 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
         return $attrValues;
     }
 
-    /*
+    /**
+     * @param Mage_Catalog_Model_Product $parent
+     * @param array $items
+     * @param string $attrCode
+     * @param Flagbit_MEP_Model_Mapping $mapItem
+     * @param string $cacheType
+     * @return array
+     *
      * Parse each inherited product to get attribute value and cache them
      */
     protected function  _doInheritanceAndCache($parent, $items, $attrCode, $mapItem, $cacheType){
         $attrValues = array();
-        $collection = Mage::getResourceModel('catalog/product_collection');
+        /** @var Mage_Catalog_Model_Resource_Product_Collection $collection */
+        $collection = Mage::helper('mep')->getProductsCollection();
         $collection->addAttributeToSelect('*');
         $settings = $this->getProfile()->getSettings();
         if (!empty($settings['is_in_stock']) && $settings['is_in_stock'] == 2) {
             $settings['is_in_stock'] = '';
         }
-        if (isset($settings['is_in_stock']) && strlen($settings['is_in_stock'])) {
-            $collection->joinField(
-                'is_in_stock',
-                'cataloginventory/stock_item',
-                'is_in_stock',
-                'product_id=entity_id',
-                '{{table}}.stock_id=1',
-                'left'
-            )->addAttributeToFilter('is_in_stock', array('eq' => $settings['is_in_stock']));
+        if (isset($settings['is_in_stock']) && strlen($settings['is_in_stock']))
+        {
+            $isInStockFilter = intval($settings['is_in_stock']);
+            $isInStockCondition = 'is_in_stock = ' . $isInStockFilter;
+            if ($isInStockFilter == 1)
+            {
+                $isInStockCondition = '(' . $isInStockCondition . ' OR manage_stock = 0)';
+            }
+            $collection->getSelect()->where($isInStockCondition);
         }
         if (!empty($settings['qty'])) {
             if (isset($settings['qty']['threshold']) && strlen($settings['qty']['threshold'])) {
-                $operator = $settings['qty']['operator'];
+                $operator = Mage::helper('mep/qtyFilter')->getOperatorForSqlFilter($settings['qty']['operator']);
                 $threshold = $settings['qty']['threshold'];
-                $collection->joinField(
-                    'qty',
-                    'cataloginventory/stock_item',
-                    'qty',
-                    'product_id=entity_id',
-                    '{{table}}.stock_id=1',
-                    'left'
-                )->addAttributeToFilter('qty', array(Mage::helper('mep/qtyFilter')->getOperatorForCollectionFilter($operator) => $threshold));
+                $collection->getSelect()->where('qty ' . $operator . ' ?', $threshold);
             }
         }
         $collection->addFieldToFilter("entity_id", array('in' => $items));
         $items = $collection->load();
         foreach ($items as $item) {
+            /** @var Mage_Catalog_Model_Product $item */
             $itemId = $item->getId();
             $currentValue = $this->_manageAttributeForItem($item, $attrCode, $mapItem);
             $this->_addAttributeToArray($currentValue, $attrValues);
@@ -652,7 +567,7 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
      * Manage attribute value for a given item
      */
     protected function  _manageAttributeForItem($item, $attrCode, $mapItem) {
-        Mage::app()->setCurrentStore($this->getProfile()->getStoreId());
+        //Mage::app()->setCurrentStore($this->getProfile()->getStoreId());
         if (($attributeMapping = $this->_getAttributeMapping($attrCode))) {
             $attrValue = $this->_manageAttributeMapping($attributeMapping, $item);
         }
@@ -662,7 +577,7 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
         else {
             $attrValue = $this->_getAttributeValue($item, $attrCode, $mapItem);
         }
-        Mage::app()->setCurrentStore(0);
+        //Mage::app()->setCurrentStore(0);
         return $attrValue;
     }
 
@@ -675,11 +590,16 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
         Mage::app()->setCurrentStore($this->getProfile()->getStoreId());
         $attributeValueFilter = array(
             'url' => '_getProductUrl',
+            'price' => '_getPrice',
             'gross_price' => '_getGrossPrice',
             'qty' => '_getQuantity',
+            'is_in_stock' => '_getIsInStock',
             'image_url' => '_getImageUrl',
             '_category' => '_getProductCategory',
-            'base_price_reference_amount' => '_getBasePriceReferenceAmount'
+            '_category_id' => '_getProductCategoryId',
+            'base_price_reference_amount' => '_getBasePriceReferenceAmount',
+            'is_salable' => '_getIsSalable',
+            'google_mapping' => '_getGoogleMapping'
         );
         $attrValue = $item->getData($attrCode);
         if (isset($attributeValueFilter[$attrCode])) {
@@ -767,20 +687,64 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
         return $attrValue;
     }
 
-    protected function  _getGrossPrice($item, $mapItem) {
+    protected function _getPrice($item, $mapItem)
+    {
         $objProfile = $this->getProfile();
-        $attrValue = Mage::helper('tax')->getPrice($item, $item->getFinalPrice(), null, null, null, null, $objProfile->getStoreId(), null);
-        return $attrValue;
+
+        if($item->getTypeId() == 'bundle')
+        {
+            $includeTax = null;
+
+            $displayConfig = $this->_taxConfig->getPriceDisplayType($objProfile->getStoreId());
+            if($displayConfig == Mage_Tax_Model_Config::DISPLAY_TYPE_BOTH) {
+                $includeTax = true;
+            }
+
+            return Mage::getModel('bundle/product_price')->getTotalPrices($item, 'min', $includeTax);
+        }
+
+        return $item->getPrice();
     }
 
-    protected function  _getQuantity($item, $mapItem) {
-        $attrValue = intval(Mage::getModel('cataloginventory/stock_item')->loadByProduct($item)->getQty());
-        return $attrValue;
+    protected function  _getGrossPrice($item, $mapItem)
+    {
+        if($item->getTypeId() == 'bundle')
+        {
+            return Mage::getModel('bundle/product_price')->getTotalPrices($item, 'min', true);
+        }
+
+        $objProfile = $this->getProfile();
+
+        $price = 0;
+        try {
+            $price = Mage::helper('tax')->getPrice($item, $item->getPrice(), true, null, null, null, $objProfile->getStoreId());
+        }
+        catch (Mage_Core_Exception $e) {
+            $price = $item->getPrice();
+        }
+        return $price;
+    }
+
+    protected function _getQuantity($item, $mapItem)
+    {
+        $qty = $this->_getStockItem($item);
+        return intval($qty->getQty());
+    }
+
+    protected function _getIsInStock($item, $mapItem)
+    {
+        $status = $this->_getStockItem($item);
+        return intval($status->getIsInStock());
     }
 
     protected function  _getImageUrl($item, $mapItem) {
         $item->load('media_gallery');
-        $attrValue = $item->getMediaConfig()->getMediaUrl($item->getData('image'));
+        $options = unserialize($mapItem->getOptions());
+        $image_type = (empty($options['image_url_type']) ? 'image' : $options['image_url_type']);
+        if ($item->getData($image_type) == 'no_selection') {
+            $image_type = 'image';
+        }
+        $attrValue = $item->getMediaConfig()->getMediaUrl($item->getData($image_type));
         return $attrValue;
     }
 
@@ -790,7 +754,7 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
         $max = 0;
         foreach ($categoryIds as $_categoryId) {
             if(isset($this->_categoryIds[$_categoryId]) && count($this->_categoryIds[$_categoryId]) > $max){
-                $max = $this->_categoryIds[$_categoryId];
+                $max = count($this->_categoryIds[$_categoryId]);
                 $categoryId = $_categoryId;
             }
         }
@@ -801,58 +765,72 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
         return $attrValue;
     }
 
+    protected function  _getProductCategoryId($item, $mapItem) {
+        $categoryIds = $item->getCategoryIds();
+        $categoryId = null;
+        $max = 0;
+        foreach ($categoryIds as $_categoryId) {
+            if(isset($this->_categoryIds[$_categoryId]) && count($this->_categoryIds[$_categoryId]) > $max){
+                $max = count($this->_categoryIds[$_categoryId]);
+                $categoryId = $_categoryId;
+            }
+        }
+        $attrValue = '';
+        if (isset($this->_categoryIds[$categoryId])) {
+            $attrValue = array_slice($this->_categoryIds[$categoryId], -1, 1);
+            $attrValue = $attrValue[0];
+        }
+        return $attrValue;
+    }
+
     protected function _getBasePriceReferenceAmount($item, $mapItem) {
         $attrValue = Mage::helper('baseprice')->getBasePriceLabel($item, '{{baseprice}}');
 		$attrValue = str_replace(array(' €'), '', strip_tags($attrValue));
         return $attrValue;
     }
 
+    protected function  _getIsSalable($item, $mapItem) {
+        $attrValue = intval($item->getTypeInstance()->isSalable());
+        return $attrValue;
+    }
 
-    /**
-     * Clean up already loaded attribute collection.
-     *
-     * @param Mage_Eav_Model_Resource_Entity_Attribute_Collection $collection
-     * @return Mage_Eav_Model_Resource_Entity_Attribute_Collection
-     */
-    public function filterAttributeCollection(Mage_Eav_Model_Resource_Entity_Attribute_Collection $collection)
-    {
-        $validTypes = array_keys($this->_productTypeModels);
-
-        foreach (parent::filterAttributeCollection($collection) as $attribute) {
-            $attrApplyTo = $attribute->getApplyTo();
-            $attrApplyTo = $attrApplyTo ? array_intersect($attrApplyTo, $validTypes) : $validTypes;
-
-            if ($attrApplyTo) {
-                foreach ($attrApplyTo as $productType) { // override attributes by its product type model
-                    if ($this->_productTypeModels[$productType]->overrideAttribute($attribute)) {
-                        break;
-                    }
-                }
-            } else { // remove attributes of not-supported product types
-                $collection->removeItemByKey($attribute->getId());
+    protected function  _getGoogleMapping($item, $mapItem) {
+        $categoryIds = $item->getCategoryIds();
+        $categoryId = null;
+        $max = 0;
+        foreach ($categoryIds as $_categoryId) {
+            if(isset($this->_categoryIds[$_categoryId]) && count($this->_categoryIds[$_categoryId]) > $max){
+                $max = count($this->_categoryIds[$_categoryId]);
+                $categoryId = $_categoryId;
             }
         }
-        return $collection;
-    }
-
-    /**
-     * Entity attributes collection getter.
-     *
-     * @return Mage_Catalog_Model_Resource_Eav_Mysql4_Product_Attribute_Collection
-     */
-    public function getAttributeCollection()
-    {
-        return Mage::getResourceModel('catalog/product_attribute_collection');
-    }
-
-    /**
-     * EAV entity type code getter.
-     *
-     * @return string
-     */
-    public function getEntityTypeCode()
-    {
-        return 'catalog_product';
+        $attrValue = '';
+        if (isset($this->_categoryIds[$categoryId])) {
+            $options = unserialize($mapItem->getOptions());
+            $mappingType = $options['google_mapping_type'];
+            $mappingSeparator = $options['google_mapping_separator'];
+            if (empty($mappingType)) {
+                return $attrValue;
+            }
+            $categories = $this->_categoryIds[$categoryId];
+            $mapped = array();
+            foreach ($categories as $category) {
+                if (!empty($this->_googleMapping[$category])) {
+                    if ($mappingType == 'last') {
+                        $element = array_slice($this->_googleMapping[$category], -1);
+                        $mapped[] = $element[0];
+                    }
+                    elseif ($mappingType == 'complete') {
+                        $mapped[] = implode($this->getProfile()->getCategoryDelimiter(), $this->_googleMapping[$category]);
+                    }
+                }
+            }
+            if (empty($mappingSeparator)) {
+                $mappingSeparator = ',';
+            }
+            $attrValue = implode($mappingSeparator, $mapped);
+        }
+        return $attrValue;
     }
 
     /**
@@ -869,6 +847,48 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
             $this->_attributeModels[$attribute->getAttributeCode()] = $attribute;
         }
         return $this;
+    }
+
+    /**
+     * Init tax config
+     *
+     * @return Mage_Tax_Model_Config
+     */
+    protected function _initTaxConfig()
+    {
+        if(is_null($this->_taxConfig)) {
+            $this->_taxConfig = Mage::getSingleton('tax/config');
+        }
+        return $this->_taxConfig;
+    }
+
+    protected function _getStockItem(Mage_Catalog_Model_Product $product)
+    {
+        if(!isset($this->_stockItems[$product->getId()])) {
+            $stockInfos = Mage::getModel('cataloginventory/stock_item')->loadByProduct($product->getId());
+            $this->_stockItems[$product->getId()] = $stockInfos;
+        }
+
+        return $this->_stockItems[$product->getId()];
+        //return $product->getData('stock_item');
+    }
+
+    /**
+     * Init google mapping
+     *
+     * @return array
+     */
+    protected function  _initGoogleMapping() {
+        $model = Mage::getModel('mep/googleMapping')->getCollection();
+        foreach ($model as $mapping) {
+            $mappingIds = explode('|', $mapping->getGoogleMappingIds());
+            $currentMapping = array();
+            foreach ($mappingIds as $mappingId) {
+                $current = Mage::getModel('mep/googleTaxonomies')->load($mappingId);
+                $currentMapping[] = $current->getName();
+            }
+            $this->_googleMapping[$mapping->getCategoryId()] = $currentMapping;
+        }
     }
 
     /**
@@ -896,6 +916,40 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
     public function getProfileId()
     {
         return (int)$this->_parameters['id'];
+    }
+
+    /**
+     * Returns attributes all values in label-value or value-value pairs form. Labels are lower-cased.
+     *
+     * @param Mage_Eav_Model_Entity_Attribute_Abstract $attribute
+     * @return array
+     */
+    public function getAttributeOptions(Mage_Eav_Model_Entity_Attribute_Abstract $attribute)
+    {
+        $options = array();
+
+        if ($attribute->usesSource()) {
+            // should attribute has index (option value) instead of a label?
+            $index = in_array($attribute->getAttributeCode(), $this->_indexValueAttributes) ? 'value' : 'label';
+
+            /* MEP changed admin store to current profile store id */
+            $attribute->setStoreId(
+                $this->getProfile()->getStoreId()
+            );
+
+            try {
+                foreach ($attribute->getSource()->getAllOptions(false) as $option) {
+                    foreach (is_array($option['value']) ? $option['value'] : array($option) as $innerOption) {
+                        if (strlen($innerOption['value'])) { // skip ' -- Please Select -- ' option
+                            $options[$innerOption['value']] = $innerOption[$index];
+                        }
+                    }
+                }
+            } catch (Exception $e) {
+                // ignore exceptions connected with source models
+            }
+        }
+        return $options;
     }
 
 }

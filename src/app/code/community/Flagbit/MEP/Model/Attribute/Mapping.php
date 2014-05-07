@@ -29,10 +29,6 @@ class Flagbit_MEP_Model_Attribute_Mapping extends Mage_Core_Model_Abstract
                     ->addFieldToFilter('frontend_input', array('in' => array('select', 'multiselect')));
 
         $options = array();
-        $options[] = array(
-            'label' => Mage::helper('mep')->__('Categories'),
-            'value' => 'category'
-        );
 
         foreach($attributes as $attribute){
             $options[] = array(

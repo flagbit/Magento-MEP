@@ -32,6 +32,7 @@ class Flagbit_MEP_Model_Twig_Observer_NumberFormatArray {
         $numbersArray = explode($delimiter, $numbers);
         if (is_array($numbersArray)) {
             foreach ($numbersArray as &$number) {
+                $number = floatval($number);
                 $number = number_format($number, $decimals, $dec_point, $thousands_sep);
             }
             $numbers = implode($delimiter, $numbersArray);

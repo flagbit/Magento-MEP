@@ -28,12 +28,19 @@
             <action method="addCss">
                 <name>mep.css</name>
             </action>
+            <action method="addCss">
+                <name>tablekit.css</name>
+            </action>
             <action method="addJs">
                 <script>mage/adminhtml/wysiwyg/widget.js</script>
             </action>
             <action method="addItem">
                 <type>js</type>
                 <script>prototype/window.js</script>
+            </action>
+            <action method="addItem">
+                <type>js</type>
+                <script>tablekit/tablekit.js</script>
             </action>
             <action method="addItem">
                 <type>js_css</type>
@@ -206,5 +213,24 @@
             </block>
         </block>
     </adminhtml_shipping_attribute_index>
+
+    <adminhtml_google_index>
+        <reference name="head">
+            <action method="addCss">
+                <name>mep.css</name>
+            </action>
+            <action method="addItem">
+                <type>js</type>
+                <name>mep/google_mapping.js</name>
+            </action>
+            <action method="addItem">
+                <type>js</type>
+                <name>mep/google_categories_import.js</name>
+            </action>
+        </reference>
+        <reference name="content">
+            <block type="mep/adminhtml_google_view" name="mep.attribute"/>
+        </reference>
+    </adminhtml_google_index>
 
 </layout>

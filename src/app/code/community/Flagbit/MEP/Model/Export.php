@@ -84,7 +84,7 @@ class Flagbit_MEP_Model_Export extends Mage_ImportExport_Model_Abstract
 
             if (isset($validTypes[$this->getEntity()])) {
                 try {
-                    $this->_entityAdapter = Mage::getModel($validTypes[$this->getEntity()]['model']);
+                    $this->_entityAdapter = Mage::getModel($validTypes[$this->getEntity()]['model'], $this->getData());
                 } catch (Exception $e) {
                     Mage::logException($e);
                     Mage::throwException(
@@ -107,6 +107,7 @@ class Flagbit_MEP_Model_Export extends Mage_ImportExport_Model_Abstract
             }
             $this->_entityAdapter->setParameters($this->getData());
         }
+
         return $this->_entityAdapter;
     }
 
@@ -119,25 +120,7 @@ class Flagbit_MEP_Model_Export extends Mage_ImportExport_Model_Abstract
     protected function _getWriter()
     {
         if (!$this->_writer) {
-            $validWriters = Mage_ImportExport_Model_Config::getModels(self::CONFIG_KEY_FORMATS);
-
-            if (isset($validWriters[$this->getFileFormat()])) {
-                try {
-                    $this->_writer = Mage::getModel($validWriters[$this->getFileFormat()]['model'], $this->_destination);
-                } catch (Exception $e) {
-                    Mage::logException($e);
-                    Mage::throwException(
-                        Mage::helper('importexport')->__('Invalid entity model')
-                    );
-                }
-                if (! $this->_writer instanceof Mage_ImportExport_Model_Export_Adapter_Abstract) {
-                    Mage::throwException(
-                        Mage::helper('importexport')->__('Adapter object must be an instance of %s', 'Mage_ImportExport_Model_Export_Adapter_Abstract')
-                    );
-                }
-            } else {
-                Mage::throwException(Mage::helper('importexport')->__('Invalid file format'));
-            }
+            $this->_writer = Mage::helper('mep')->getNewWriteInstance($this->_destination, $this->getFileFormat());
         }
         return $this->_writer;
     }
@@ -159,24 +142,6 @@ class Flagbit_MEP_Model_Export extends Mage_ImportExport_Model_Abstract
                 ->setLimit($this->getLimit())
                 ->export();
 
-
-            /*
-            $countRows = substr_count(trim($result), "\n");
-            if (!$countRows) {
-                Mage::helper('mep/log')->warn('There is no data for export', $this);
-                Mage::throwException(
-                    Mage::helper('importexport')->__('There is no data for export')
-                );
-            }
-            if ($result) {
-                Mage::helper('mep/log')->info('Exported '.$countRows.' rows.', $this);
-                $this->addLogComment(array(
-                    Mage::helper('importexport')->__('Exported %s rows.', $countRows),
-                    Mage::helper('importexport')->__('Export has been done.')
-                ));
-            }
-            */
-            #return $result;
         } else {
             Mage::throwException(
                 Mage::helper('importexport')->__('No filter data provided')

@@ -2,7 +2,7 @@
 <config>
     <modules>
         <Flagbit_MEP>
-            <version>0.7.0</version>
+            <version>0.9.1</version>
         </Flagbit_MEP>
     </modules>
 
@@ -33,12 +33,21 @@
                     <mapping>
                         <table>mep_profile_attribute</table>
                     </mapping>
+                    <cron>
+                        <table>mep_cron</table>
+                    </cron>
                     <attribute_mapping>
                         <table>mep_attribute_mapping</table>
                     </attribute_mapping>
                     <attribute_mapping_option>
                         <table>mep_attribute_mapping_option</table>
                     </attribute_mapping_option>
+                    <google_mapping>
+                        <table>mep_google_mapping</table>
+                    </google_mapping>
+                    <google_taxonomies>
+                        <table>mep_google_taxonomies</table>
+                    </google_taxonomies>
                     <rule>
                         <table>mep_rule</table>
                     </rule>
@@ -144,29 +153,27 @@
             </updates>
         </layout>
     </adminhtml>
-    <crontab>
-        <jobs>
-            <mep_profiles_enabled>
-                <schedule>
-                    <cron_expr>*/15 * * * *</cron_expr>
-                </schedule>
-                <run>
-                    <model>mep/observer::exportEnabledProfiles</model>
-                </run>
-            </mep_profiles_enabled>
-            <mep_run_profile>
-                <run>
-                    <model>mep/observer::runProfile</model>
-                </run>
-            </mep_run_profile>
-        </jobs>
-    </crontab>
+
     <default>
+        <mep>
+            <settings>
+                <task_lifetime>3600</task_lifetime>
+            </settings>
+        </mep>
         <datas>
             <inheritance_type>
                 <from_child>From child</from_child>
                 <from_parent>From parent</from_parent>
             </inheritance_type>
+            <image_url_type>
+                <image>Base Image</image>
+                <small_image>Small Image</small_image>
+                <thumbnail>Thumbnail</thumbnail>
+            </image_url_type>
+            <google_mapping_type>
+                <last>Only last mapping value</last>
+                <complete>Complete path</complete>
+            </google_mapping_type>
         </datas>
     </default>
 </config>

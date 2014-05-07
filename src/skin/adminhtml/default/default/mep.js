@@ -21,11 +21,11 @@ var mepAttributeSettingsDialog = {
             return;
         }
         this.dialogWindow = Dialog.info(null, {
-            draggable:true,
+            draggable:false,
             resizable:false,
             closable:true,
             className:'magento',
-            windowClassName:"popup-window",
+            windowClassName:"attr-popup-window",
             title:Translator.translate('Attribute Settings'),
             top:100,
             width:400,
@@ -37,7 +37,14 @@ var mepAttributeSettingsDialog = {
             id:'widget_window',
             onClose: this.closeDialog.bind(this)
         });
-        new Ajax.Updater('modal_dialog_message', widgetUrl, {evalScripts: true});
+        new Ajax.Updater('modal_dialog_message', widgetUrl, {
+            evalScripts: true,
+            onComplete: function(response) {
+                $('widget_window').setStyle({
+                    display: 'block'
+                });
+            }
+        });
     },
     closeDialog: function(window) {
         if (!window) {
@@ -64,14 +71,14 @@ var mepPreviewDialog = {
             return;
         }
         this.dialogWindow = Dialog.info(null, {
-            draggable:true,
-            resizable:true,
+            draggable:false,
+            resizable:false,
             closable:true,
             className:'magento',
             windowClassName:"popup-window",
             title:Translator.translate('Export Preview'),
-            top:100,
-            width:800,
+            top:0,
+            width:100,
             //height:450,
             zIndex:1000,
             recenterAuto:false,
@@ -80,7 +87,18 @@ var mepPreviewDialog = {
             id:'widget_window',
             onClose: this.closeDialog.bind(this)
         });
-        new Ajax.Updater('modal_dialog_message', widgetUrl, {evalScripts: true});
+        new Ajax.Updater('modal_dialog_message', widgetUrl, {
+            evalScripts: true,
+            onComplete: function(response) {
+                var table = new TableKit('preview-table', {
+                    editable: false,
+                    resizable: false
+                });
+                $('widget_window').setStyle({
+                    display: 'block'
+                });
+            }
+        });
     },
     closeDialog: function(window) {
         if (!window) {

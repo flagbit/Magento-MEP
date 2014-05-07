@@ -46,6 +46,10 @@ class Flagbit_MEP_Model_Export_Adapter_Twig extends Mage_ImportExport_Model_Expo
 
     private $_configurable_delimiter;
 
+    protected $_delimiter;
+
+    protected $_enclosure;
+
     /**
      * Object destructor.
      *
@@ -204,6 +208,7 @@ class Flagbit_MEP_Model_Export_Adapter_Twig extends Mage_ImportExport_Model_Expo
         $result = $this->_twig->render('content', $twigDataRow);
 
         $result = Mage::helper('mep/encoding')->fixUTF8($result);
+
         if (!empty($this->_encoding) && $this->_encoding != 'UTF-8') {
             $result = iconv ( "UTF-8", $this->_encoding, $result );
         }
@@ -249,7 +254,7 @@ class Flagbit_MEP_Model_Export_Adapter_Twig extends Mage_ImportExport_Model_Expo
         $element = str_replace(array($this->_delimiter, $this->_enclosure), '', $element);
         $element = str_replace(array("\r\n", "\r", "\n"), '', $element);
 
-        //$element = utf8_encode($element);
+        $element = utf8_encode($element);
         return $element;
     }
 }

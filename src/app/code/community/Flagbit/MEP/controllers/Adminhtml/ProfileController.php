@@ -97,7 +97,6 @@ class Flagbit_MEP_Adminhtml_ProfileController extends Mage_Adminhtml_Controller_
                 $data = $this->_filterDates($data, array('from_date', 'to_date'));
 
                 if (isset($data['rule']['conditions'])) {
-                    //$model->setConditionsSerialized($data['rule']['conditions']);
                     $data['conditions_serialized'] = $data['rule']['conditions'];
                     unset($data['rule']);
                 }
@@ -202,12 +201,16 @@ class Flagbit_MEP_Adminhtml_ProfileController extends Mage_Adminhtml_Controller_
             $model->setFileFormat("twig");
             $model->setExportFilter(array());
             $model->setLimit(20);
-            echo '<pre>'.htmlspecialchars($model->export()).'</pre>';
+            echo Mage::helper('mep/table')->toHtmlTable($model->export(), $this->getRequest()->getParam('id'));
+            //echo '<pre>'.htmlspecialchars($model->export()).'</pre>';
             die();
             #return $this->getResponse()->setBody('<pre>'.htmlspecialchars('sss'.$model->export()).'</pre>');
 
         } catch (Mage_Core_Exception $e) {
             $this->_getSession()->addError($e->getMessage());
+            Mage::logException($e);
+            echo 'FALSE';
+            die();
         } catch (Exception $e) {
             Mage::logException($e);
             $this->_getSession()->addError($this->__('No valid data sent'));
@@ -223,10 +226,9 @@ class Flagbit_MEP_Adminhtml_ProfileController extends Mage_Adminhtml_Controller_
         try {
             $id = (int) $this->getRequest()->getParam('id');
 
-            $scheduleAheadFor = Mage::getStoreConfig(Mage_Cron_Model_Observer::XML_PATH_SCHEDULE_AHEAD_FOR)*60;
-            $schedule = Mage::getModel('cron/schedule');
-            $jobCode = 'mep_run_profile';
-            $now = time()+60;
+            $scheduleAheadFor = Mage::getStoreConfig(Mage_Cron_Model_Observer::XML_PATH_SCHEDULE_AHEAD_FOR) * 60;
+            $schedule = Mage::getModel('mep/cron');
+            $now = time() + 60;
             $timeAhead = $now + $scheduleAheadFor;
 
 
@@ -234,22 +236,14 @@ class Flagbit_MEP_Adminhtml_ProfileController extends Mage_Adminhtml_Controller_
                 ->addFieldToFilter('status', Mage_Cron_Model_Schedule::STATUS_PENDING)
                 ->load();
 
-            $exists = array();
-            foreach ($schedules->getIterator() as $schedule) {
-                $exists[$schedule->getJobCode()] = 1;
-            }
-
-            $schedule->setJobCode($jobCode)
-                ->setCronExpr('* * * * *')
+            $schedule->setCronExpr('* * * * *')
                 ->setStatus(Mage_Cron_Model_Schedule::STATUS_PENDING)
-                ->setMessages($id);
+                ->setProfileId($id)
+                ->setIgnoreProfileStatus(1)
+            ;
 
             $_errorMsg = null;
             for ($time = $now; $time < $timeAhead; $time += 60) {
-                if (!empty($exists[$jobCode])) {
-                    $_errorMsg = Mage::helper('mep')->__('There is already a Export scheduled, please try again later.');
-                    continue;
-                }
                 if (!$schedule->trySchedule($time)) {
                     // time does not match cron expression
                     $_errorMsg = Mage::helper('mep')->__('Something went wrong, please try again later.');

@@ -2,9 +2,13 @@ src/app/code/community/Flagbit/MEP app/code/community/Flagbit/MEP
 src/app/design/adminhtml/default/default/layout/* app/design/adminhtml/default/default/layout
 src/app/design/adminhtml/default/default/template/* app/design/adminhtml/default/default/template
 src/app/etc/modules/* app/etc/modules
+src/js/tablekit/tablekit.js js/tablekit/tablekit.js
+src/js/mep/* js/mep
 src/skin/adminhtml/default/default/mep.css skin/adminhtml/default/default
 src/skin/adminhtml/default/default/mep.js skin/adminhtml/default/default
+src/skin/adminhtml/default/default/tablekit.css skin/adminhtml/default/default
 src/skin/adminhtml/default/default/chosen skin/adminhtml/default/default/chosen
 src/skin/adminhtml/default/default/images/* skin/adminhtml/default/default/images
 src/shell/* shell
 src/lib/* lib
+src/mep-cron.php mep-cron.php
