@@ -107,8 +107,6 @@ class Flagbit_MEP_Model_Data extends Mage_Catalog_Model_Convert_Parser_Product
                 ->checkConfigurableProducts()
                 ->addStoreLabel(Mage::app()->getStore()->getId());
 
-            $nodeChildren->getSelect()->where('main_table.is_user_defined = ?', 1);
-
             foreach ($nodeChildren as $child) {
 
                 if (in_array($child->getAttributeCode(), $this->_internalFields) || $child->getFrontendInput() == 'hidden') {
