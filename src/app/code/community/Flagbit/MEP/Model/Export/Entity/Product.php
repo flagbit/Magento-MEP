@@ -229,7 +229,6 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
             $mapping->setOrder('position', 'ASC');
             $mapping->load();
 
-
             foreach ($mapping->getItems() as $item) {
                 $validAttrCodes[] = $item->getToField();
             }
@@ -599,7 +598,8 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
             '_category' => '_getProductCategory',
             '_category_id' => '_getProductCategoryId',
             'base_price_reference_amount' => '_getBasePriceReferenceAmount',
-            'is_salable' => '_getIsSalable'
+            'is_salable' => '_getIsSalable',
+            'manage_stock' => '_getManageStock'
         );
         $attrValue = $item->getData($attrCode);
         if (isset($attributeValueFilter[$attrCode])) {
@@ -792,6 +792,12 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
     protected function  _getIsSalable($item, $mapItem) {
         $attrValue = intval($item->getTypeInstance()->isSalable());
         return $attrValue;
+    }
+
+    protected function _getManageStock($item, $mapItem)
+    {
+        $status = $this->_getStockItem($item);
+        return intval($status->getManageStock());
     }
 
     /**

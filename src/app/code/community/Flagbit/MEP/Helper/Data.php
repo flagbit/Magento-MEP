@@ -103,7 +103,7 @@ class Flagbit_MEP_Helper_Data extends Mage_Core_Helper_Abstract
             $collection->getSelect()->joinLeft(
                 array('_inventory_table' => $collection->getTable('cataloginventory/stock_item')),
                 '_inventory_table.product_id = e.entity_id',
-                array('qty', 'is_in_stock')
+                array('qty', 'is_in_stock', 'manage_stock')
             );
         }
         return $collection;
@@ -136,3 +136,4 @@ class Flagbit_MEP_Helper_Data extends Mage_Core_Helper_Abstract
         return $writer;
     }
 }
+

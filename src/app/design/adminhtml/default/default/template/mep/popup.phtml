@@ -8,15 +8,7 @@
                         <select name="attribute_code[]" id="attribute_code" class="chzn-select" multiple="multiple">
                             <?php $aha = Mage::getModel('mep/data')->getExternalAttributes($this->getProfileId()); ?>
                             <?php foreach ($aha as $_value => $_label): ?>
-                                <?php if (is_array($_label)): ?>
-                                    <optgroup label="<?php echo $_value ?>">
-                                        <?php foreach ($_label as $_attributeCode => $_attributeLabel): ?>
-                                            <option value="<?php echo $_attributeCode ?>" <?php echo $this->getIsSelectedAttribute($_attributeCode) ? 'selected' : '';?> ><?php echo $_attributeLabel ?></option>
-                                        <?php endforeach?>
-                                    </optgroup>
-                                <?php  else: ?>
-                                    <option value="<?php echo $_value ?>" <?php echo $this->getIsSelectedAttribute($_value) ? 'selected' : '';?> ><?php echo $_label ?></option>
-                                <?php endif; ?>
+                                <option value="<?php echo $_value ?>" <?php echo $this->getIsSelectedAttribute($_value) ? 'selected' : '';?> ><?php echo $_label ?></option>
                             <?php endforeach; ?>
                         </select>
                     </div>
