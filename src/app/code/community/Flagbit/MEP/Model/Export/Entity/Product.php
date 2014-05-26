@@ -411,6 +411,16 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
                         $currentValue = $this->_manageAttributeForItem($item, $attrCode, $mapItem);
                         $this->_addAttributeToArray($currentValue, $attrValues);
                     }
+
+                    //Taking care of existing value for current attribute
+                    $newAttrCode = $attrCode;
+                    $attrCount = 1;
+                    while (array_key_exists($newAttrCode, $currentRow))
+                    {
+                        $newAttrCode = $attrCode . '_' . $attrCount++;
+                    }
+                    $attrCode = $newAttrCode;
+
                     $currentRow[$attrCode] = implode($this->_configurable_delimiter, $attrValues);
                 }
             }
