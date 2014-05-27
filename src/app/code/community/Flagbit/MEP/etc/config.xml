@@ -146,6 +146,16 @@
                 </mep>
             </updates>
         </layout>
+        <translate>
+            <modules>
+                <mep>
+                    <files>
+                        <default>Flagbit_MEP.csv</default>
+                    </files>
+                </mep>
+            </modules>
+        </translate>
+
     </adminhtml>
     <crontab>
         <jobs>
