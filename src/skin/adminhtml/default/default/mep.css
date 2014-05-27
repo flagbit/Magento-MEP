@@ -150,3 +150,26 @@
 .adminhtml-profile-edit #widget_window.attr-popup-window #widget_window_content.magento_content {
     overflow: hidden;
 }
+
+/* MEP Add attribute dialog box styles */
+.adminhtml-profile-edit .dialog table#widget_window_row1,
+.adminhtml-profile-edit .dialog table#widget_window_row2,
+.adminhtml-profile-edit .dialog table#widget_window_row3 {
+    width: 490px;
+}
+
+#widget_window.dialog .magento_close {
+    right: -165px;
+}
+
+.mapping-dialog .chzn-drop,
+.mapping-dialog .chzn-results,
+.chosen-container .chosen-results {
+    height: 150px;
+}
+
+.chosen-container .chosen-drop,
+.chosen-container .chosen-choices{
+    width: 470px;
+}
+/* MEP Add attribute dialog box styles  END */
