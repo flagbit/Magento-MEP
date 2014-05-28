@@ -152,13 +152,13 @@
 }
 
 /* MEP Add attribute dialog box styles */
-.adminhtml-profile-edit .dialog table#widget_window_row1,
-.adminhtml-profile-edit .dialog table#widget_window_row2,
-.adminhtml-profile-edit .dialog table#widget_window_row3 {
+.attr-popup-window table#widget_window_row1,
+.attr-popup-window table#widget_window_row2,
+.attr-popup-window table#widget_window_row3 {
     width: 490px;
 }
 
-#widget_window.dialog .magento_close {
+.attr-popup-window .magento_close {
     right: -165px;
 }
 
