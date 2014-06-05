@@ -180,18 +180,13 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
     /**
      * Get current quantity of products for the export profile
      *
-     *  TODO make refactoring of the method. It has similar blocks of code as export() method.
+     *  It has similar blocks of code as export() method. Do not forget to keep it updated.
      *
      * @return int
      */
     public function countItems() {
 
-        $products_count = 0;
-        $this->_initTypeModels()
-            ->_initAttributes()
-            ->_initAttributeSets()
-            ->_initWebsites()
-            ->_initCategories();
+        $this->_initTaxConfig();
 
         Mage::app()->setCurrentStore(0);
 
@@ -208,14 +203,24 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
             /* @var $ruleObject Flagbit_MEP_Model_Rule */
             $ruleObject = Mage::getModel('mep/rule');
             $rule = unserialize($obj_profile->getConditionsSerialized());
-            if (!empty($rule) && count($rule) > 1) {
-                $ruleObject->setProfile($obj_profile);
-                $ruleObject->loadPost(array('conditions' => $rule));
-                $ruleObject->setWebsiteIds(array(Mage::app()->getStore($obj_profile->getStoreId())->getWebsiteId()));
-                $products_count = $ruleObject->getMatchingProductsCount();
+            $ruleObject->setProfile($obj_profile);
+            $ruleObject->loadPost(array('conditions' => $rule));
+            $ruleObject->setWebsiteIds(array(Mage::app()->getStore($obj_profile->getStoreId())->getWebsiteId()));
+            $filteredProductIds = $ruleObject->getMatchingProductIds();
+
+            /* @var $collection Mage_Catalog_Model_Resource_Product_Collection */
+            $collection = $this->_prepareEntityCollection(Mage::getResourceModel('catalog/product_collection'));
+            $collection->setStoreId(0)->addStoreFilter($obj_profile->getStoreId());
+
+            if(!empty($filteredProductIds)){
+                $collection->addFieldToFilter("entity_id", array('in' => $filteredProductIds));
             }
+
+            return $collection->getSize();
+
+
         }
-        return $products_count;
+        return 0;
     }
 
     /**
