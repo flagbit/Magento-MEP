@@ -173,3 +173,8 @@
     width: 470px;
 }
 /* MEP Add attribute dialog box styles  END */
+
+.mep-version {
+    font-size: .95em;
+    text-align: center;
+}
