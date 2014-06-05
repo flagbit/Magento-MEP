@@ -126,6 +126,22 @@ class Flagbit_MEP_Model_Export extends Mage_ImportExport_Model_Abstract
     }
 
     /**
+     * Get current quantity of items for the export profile
+     *
+     * @return integer
+     */
+    public function countItems()
+    {
+        // check for existing of the method in the core abstract class
+        $entity_adapter = $this->_getEntityAdapter();
+        if (method_exists($entity_adapter, 'countItems')) {
+            return $entity_adapter->countItems();
+        }
+        return 0;
+    }
+
+
+    /**
      * Export data.
      *
      * @throws Mage_Core_Exception

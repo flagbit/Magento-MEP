@@ -123,7 +123,8 @@ class Flagbit_MEP_Adminhtml_ProfileController extends Mage_Adminhtml_Controller_
                     $this->_redirect('*/*/edit', array('id' => $newProfile->getId(), 'tab' => 'form_section'));
 
                 }elseif ($this->getRequest()->getParam('back')) {
-                    Mage::getSingleton('adminhtml/session')->addSuccess(Mage::helper('mep')->__('Profile was successfully saved'));
+                    Mage::getSingleton('adminhtml/session')->addSuccess(Mage::helper('mep')->__('Profile was successfully saved')
+                        . '. ' . Mage::helper('mep')->__('Products count: ') . $model->getProductCount());
                     $this->_redirect('*/*/edit', array('id' => $model->getId(), 'tab' => $this->getRequest()->getParam('tab')));
 
                 } else {

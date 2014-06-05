@@ -178,6 +178,47 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
     }
 
     /**
+     * Get current quantity of products for the export profile
+     *
+     *  TODO make refactoring of the method. It has similar blocks of code as export() method.
+     *
+     * @return int
+     */
+    public function countItems() {
+
+        $products_count = 0;
+        $this->_initTypeModels()
+            ->_initAttributes()
+            ->_initAttributeSets()
+            ->_initWebsites()
+            ->_initCategories();
+
+        Mage::app()->setCurrentStore(0);
+
+        /** @var $collection Mage_Catalog_Model_Resource_Eav_Mysql4_Product_Collection */
+
+        if ($this->hasProfileId()) {
+            /* @var $obj_profile Flagbit_MEP_Model_Profil */
+            $obj_profile = $this->getProfile();
+            $this->_configurable_delimiter = $obj_profile->getConfigurableValueDelimiter();
+            $this->_storeIdToCode[0] = 'admin';
+            $this->_storeIdToCode[$obj_profile->getStoreId()] = Mage::app()->getStore($obj_profile->getStoreId())->getCode();
+
+            // LOAD FILTER RULES
+            /* @var $ruleObject Flagbit_MEP_Model_Rule */
+            $ruleObject = Mage::getModel('mep/rule');
+            $rule = unserialize($obj_profile->getConditionsSerialized());
+            if (!empty($rule) && count($rule) > 1) {
+                $ruleObject->setProfile($obj_profile);
+                $ruleObject->loadPost(array('conditions' => $rule));
+                $ruleObject->setWebsiteIds(array(Mage::app()->getStore($obj_profile->getStoreId())->getWebsiteId()));
+                $products_count = $ruleObject->getMatchingProductsCount();
+            }
+        }
+        return $products_count;
+    }
+
+    /**
      * Export process.
      *
      * @return string
@@ -785,7 +826,7 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
 
     protected function _getBasePriceReferenceAmount($item, $mapItem) {
         $attrValue = Mage::helper('baseprice')->getBasePriceLabel($item, '{{baseprice}}');
-		$attrValue = str_replace(array(' €'), '', strip_tags($attrValue));
+		$attrValue = str_replace(array('��'), '', strip_tags($attrValue));
         return $attrValue;
     }
 
