@@ -99,6 +99,16 @@ class Flagbit_MEP_Model_Rule extends Mage_CatalogRule_Model_Rule
     }
 
     /**
+     * Get quantity of product ids matching the rule
+     *
+     * @return array
+     */
+    public function getMatchingProductsCount()
+    {
+        return count($this->getMatchingProductIds());
+    }
+
+    /**
      * Get array of product ids which are matched by rule
      *
      * @return array

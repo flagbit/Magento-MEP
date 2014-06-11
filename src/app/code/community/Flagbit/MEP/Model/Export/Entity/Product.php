@@ -178,6 +178,52 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
     }
 
     /**
+     * Get current quantity of products for the export profile
+     *
+     *  It has similar blocks of code as export() method. Do not forget to keep it updated.
+     *
+     * @return int
+     */
+    public function countItems() {
+
+        $this->_initTaxConfig();
+
+        Mage::app()->setCurrentStore(0);
+
+        /** @var $collection Mage_Catalog_Model_Resource_Eav_Mysql4_Product_Collection */
+
+        if ($this->hasProfileId()) {
+            /* @var $obj_profile Flagbit_MEP_Model_Profil */
+            $obj_profile = $this->getProfile();
+            $this->_configurable_delimiter = $obj_profile->getConfigurableValueDelimiter();
+            $this->_storeIdToCode[0] = 'admin';
+            $this->_storeIdToCode[$obj_profile->getStoreId()] = Mage::app()->getStore($obj_profile->getStoreId())->getCode();
+
+            // LOAD FILTER RULES
+            /* @var $ruleObject Flagbit_MEP_Model_Rule */
+            $ruleObject = Mage::getModel('mep/rule');
+            $rule = unserialize($obj_profile->getConditionsSerialized());
+            $ruleObject->setProfile($obj_profile);
+            $ruleObject->loadPost(array('conditions' => $rule));
+            $ruleObject->setWebsiteIds(array(Mage::app()->getStore($obj_profile->getStoreId())->getWebsiteId()));
+            $filteredProductIds = $ruleObject->getMatchingProductIds();
+
+            /* @var $collection Mage_Catalog_Model_Resource_Product_Collection */
+            $collection = $this->_prepareEntityCollection(Mage::getResourceModel('catalog/product_collection'));
+            $collection->setStoreId(0)->addStoreFilter($obj_profile->getStoreId());
+
+            if(!empty($filteredProductIds)){
+                $collection->addFieldToFilter("entity_id", array('in' => $filteredProductIds));
+            }
+
+            return $collection->getSize();
+
+
+        }
+        return 0;
+    }
+
+    /**
      * Export process.
      *
      * @return string
@@ -785,7 +831,7 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
 
     protected function _getBasePriceReferenceAmount($item, $mapItem) {
         $attrValue = Mage::helper('baseprice')->getBasePriceLabel($item, '{{baseprice}}');
-		$attrValue = str_replace(array(' €'), '', strip_tags($attrValue));
+		$attrValue = str_replace(array('��'), '', strip_tags($attrValue));
         return $attrValue;
     }
 
