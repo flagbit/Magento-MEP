@@ -42,6 +42,41 @@ class Flagbit_MEP_Model_Profile extends Mage_Core_Model_Abstract
     }
 
     /**
+     * Get quantity of products matching the profile
+     *
+     * @return integer
+     */
+    function getProductCount() {
+
+        $export = Mage::getModel('mep/export');
+        $export->setData('id', $this->getId());
+        $export->setEntity("catalog_product");
+        $export->setExportFilter(array());
+        return $export->countItems();
+    }
+
+    /**
+     * Retrieves data from the object
+     *
+     * If value for key product_count is requested, it will count quantity of products matching the profile
+     *
+     * @see Varien_Object::getData
+     *      for more details
+     *
+     * @param string $key
+     * @param string|int $index
+     * @return mixed
+     */
+    function getData($key = '', $index = null) {
+        if ($key == 'product_count') {
+            if (!isset($this->_data['product_count'])) {
+                $this->_data['product_count'] = $this->getProductCount();
+            }
+        }
+        return parent::getData($key, $index);
+    }
+
+    /**
      * Processing object before save data
      *
      * @return Mage_Core_Model_Abstract

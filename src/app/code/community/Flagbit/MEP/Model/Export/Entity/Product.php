@@ -185,6 +185,52 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
     }
 
     /**
+     * Get current quantity of products for the export profile
+     *
+     *  It has similar blocks of code as export() method. Do not forget to keep it updated.
+     *
+     * @return int
+     */
+    public function countItems() {
+
+        $this->_initTaxConfig();
+
+        Mage::app()->setCurrentStore(0);
+
+        /** @var $collection Mage_Catalog_Model_Resource_Eav_Mysql4_Product_Collection */
+
+        if ($this->hasProfileId()) {
+            /* @var $obj_profile Flagbit_MEP_Model_Profil */
+            $obj_profile = $this->getProfile();
+            $this->_configurable_delimiter = $obj_profile->getConfigurableValueDelimiter();
+            $this->_storeIdToCode[0] = 'admin';
+            $this->_storeIdToCode[$obj_profile->getStoreId()] = Mage::app()->getStore($obj_profile->getStoreId())->getCode();
+
+            // LOAD FILTER RULES
+            /* @var $ruleObject Flagbit_MEP_Model_Rule */
+            $ruleObject = Mage::getModel('mep/rule');
+            $rule = unserialize($obj_profile->getConditionsSerialized());
+            $ruleObject->setProfile($obj_profile);
+            $ruleObject->loadPost(array('conditions' => $rule));
+            $ruleObject->setWebsiteIds(array(Mage::app()->getStore($obj_profile->getStoreId())->getWebsiteId()));
+            $filteredProductIds = $ruleObject->getMatchingProductIds();
+
+            /* @var $collection Mage_Catalog_Model_Resource_Product_Collection */
+            $collection = $this->_prepareEntityCollection(Mage::getResourceModel('catalog/product_collection'));
+            $collection->setStoreId(0)->addStoreFilter($obj_profile->getStoreId());
+
+            if(!empty($filteredProductIds)){
+                $collection->addFieldToFilter("entity_id", array('in' => $filteredProductIds));
+            }
+
+            return $collection->getSize();
+
+
+        }
+        return 0;
+    }
+
+    /**
      * Export process.
      *
      * @return string
@@ -237,7 +283,6 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
             $mapping->addFieldToFilter('profile_id', array('eq' => $this->getProfileId()));
             $mapping->setOrder('position', 'ASC');
             $mapping->load();
-
 
             foreach ($mapping->getItems() as $item) {
                 $validAttrCodes[] = $item->getToField();
@@ -420,6 +465,16 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
                         $currentValue = $this->_manageAttributeForItem($item, $attrCode, $mapItem);
                         $this->_addAttributeToArray($currentValue, $attrValues);
                     }
+
+                    //Taking care of existing value for current attribute
+                    $newAttrCode = $attrCode;
+                    $attrCount = 1;
+                    while (array_key_exists($newAttrCode, $currentRow))
+                    {
+                        $newAttrCode = $attrCode . '_' . $attrCount++;
+                    }
+                    $attrCode = $newAttrCode;
+
                     $currentRow[$attrCode] = implode($this->_configurable_delimiter, $attrValues);
                 }
             }
@@ -587,6 +642,7 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
      */
     protected function  _getAttributeValue($item, $attrCode, $mapItem) {
         //Callback method configuration for special attribute
+        Mage::app()->setCurrentStore($this->getProfile()->getStoreId());
         $attributeValueFilter = array(
             'url' => '_getProductUrl',
             'price' => '_getPrice',
@@ -598,7 +654,8 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
             '_category_id' => '_getProductCategoryId',
             'base_price_reference_amount' => '_getBasePriceReferenceAmount',
             'is_salable' => '_getIsSalable',
-            'google_mapping' => '_getGoogleMapping'
+            'google_mapping' => '_getGoogleMapping',
+            'manage_stock' => '_getManageStock'
         );
         $attrValue = $item->getData($attrCode);
         if (isset($attributeValueFilter[$attrCode])) {
@@ -620,6 +677,7 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
                 $attrValue = implode(',', $currentValues);
             }
         }
+        Mage::app()->setCurrentStore(0);
         return $attrValue;
     }
 
@@ -790,6 +848,12 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
     protected function  _getIsSalable($item, $mapItem) {
         $attrValue = intval($item->getTypeInstance()->isSalable());
         return $attrValue;
+    }
+
+    protected function _getManageStock($item, $mapItem)
+    {
+        $status = $this->_getStockItem($item);
+        return intval($status->getManageStock());
     }
 
     protected function  _getGoogleMapping($item, $mapItem) {

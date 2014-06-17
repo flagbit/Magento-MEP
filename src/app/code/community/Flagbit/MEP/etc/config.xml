@@ -152,8 +152,26 @@
                 </mep>
             </updates>
         </layout>
-    </adminhtml>
+        <translate>
+            <modules>
+                <mep>
+                    <files>
+                        <default>Flagbit_MEP.csv</default>
+                    </files>
+                </mep>
+            </modules>
+        </translate>
 
+    </adminhtml>
+    <crontab>
+        <jobs>
+            <mep_run_profile>
+                <run>
+                    <model>mep/observer::runProfile</model>
+                </run>
+            </mep_run_profile>
+        </jobs>
+    </crontab>
     <default>
         <mep>
             <settings>

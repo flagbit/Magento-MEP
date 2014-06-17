@@ -161,4 +161,32 @@
 .mep_category_list_item select
 {
     margin-left: 5px;
+}}
+
+/* MEP Add attribute dialog box styles */
+.attr-popup-window table#widget_window_row1,
+.attr-popup-window table#widget_window_row2,
+.attr-popup-window table#widget_window_row3 {
+    width: 490px;
+}
+
+.attr-popup-window .magento_close {
+    right: -165px;
+}
+
+.mapping-dialog .chzn-drop,
+.mapping-dialog .chzn-results,
+.chosen-container .chosen-results {
+    height: 150px;
+}
+
+.chosen-container .chosen-drop,
+.chosen-container .chosen-choices{
+    width: 470px;
+}
+/* MEP Add attribute dialog box styles  END */
+
+.mep-version {
+    font-size: .95em;
+    text-align: center;
 }

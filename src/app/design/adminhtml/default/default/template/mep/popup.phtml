@@ -5,18 +5,10 @@
                 <li>
                     <label for="attribute_code"><?php echo $this->__('In Database');?></label>
                     <div class="input-box">
-                        <select name="attribute_code[]" id="attribute_code" class="chzn-select" multiple="multiple">
+                        <select name="attribute_code[]" id="attribute_code" class="chzn-select" multiple="multiple" data-placeholder="<?php echo $this->__('Select Some Attributes');?>">
                             <?php $aha = Mage::getModel('mep/data')->getExternalAttributes($this->getProfileId()); ?>
                             <?php foreach ($aha as $_value => $_label): ?>
-                                <?php if (is_array($_label)): ?>
-                                    <optgroup label="<?php echo $_value ?>">
-                                        <?php foreach ($_label as $_attributeCode => $_attributeLabel): ?>
-                                            <option value="<?php echo $_attributeCode ?>" <?php echo $this->getIsSelectedAttribute($_attributeCode) ? 'selected' : '';?> ><?php echo $_attributeLabel ?></option>
-                                        <?php endforeach?>
-                                    </optgroup>
-                                <?php  else: ?>
-                                    <option value="<?php echo $_value ?>" <?php echo $this->getIsSelectedAttribute($_value) ? 'selected' : '';?> ><?php echo $_label ?></option>
-                                <?php endif; ?>
+                                <option value="<?php echo $_value ?>" <?php echo $this->getIsSelectedAttribute($_value) ? 'selected' : '';?> ><?php echo $_label ?></option>
                             <?php endforeach; ?>
                         </select>
                     </div>
@@ -104,18 +96,10 @@
         }
     }
 
-    AbstractChosen.prototype.set_default_text = function() {
-        this.form_field = $('attribute_code');
-        this.is_multiple = true;
-        if (this.is_multiple) {
-            this.default_text = "<?php echo $this->__('Select Some Attributes');?>";
-        } else {
-            this.default_text =  "<?php echo $this->__('Select a Attribute');?>";
-        }
-        return this.results_none_found =  "<?php echo $this->__('No results match');?>";
-    };
-
-    var chosenObj = new Chosen($$(".chzn-select"));
+    var chosenObj = new Chosen($$(".chzn-select").first(), {
+        no_results_text: "<?php echo $this->__('No results match');?>",
+        max_selected_options: 1
+    });
 
     Event.observe("mappingform", "submit", function(event) {
         $("mappingform").request({

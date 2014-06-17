@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<jstranslator>
+    <mep-add-attributes-dialog-title translate="message" module="mep">
+        <message>Attribute Settings</message>
+    </mep-add-attributes-dialog-title>
+</jstranslator>

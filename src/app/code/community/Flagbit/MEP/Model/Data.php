@@ -23,14 +23,13 @@ class Flagbit_MEP_Model_Data extends Mage_Catalog_Model_Convert_Parser_Product
     public function getExternalAttributes($profileId = null)
     {
         $attributes = $this->_externalFields;
-        $_helper = Mage::helper('mep');
 
         $collection = Mage::getResourceModel('eav/entity_attribute_set_collection')
             ->setEntityTypeFilter(Mage::getModel('catalog/product')->getResource()->getTypeId())
             ->load();
 
         foreach ($collection as $attributeSet) {
-            $attributes[preg_replace('/([^A-Za-z_-]*)/', '', $attributeSet->getAttributeSetName())] = $this->getAttributesBySet($attributeSet->getAttributeSetId());
+            $attributes += $this->getAttributesBySet($attributeSet->getAttributeSetId());
         }
 
         foreach ($this->_inventoryFields as $field) {
@@ -38,37 +37,32 @@ class Flagbit_MEP_Model_Data extends Mage_Catalog_Model_Convert_Parser_Product
         }
 
         // added for url mapping
-        $specialAttributes = array();
-        $specialAttributes['url'] = 'url';
-        $specialAttributes['_category'] = 'category';
-        $specialAttributes['google_mapping'] = 'google_mapping';
-        $specialAttributes['_category_id'] = 'category_id';
-        $specialAttributes['image_url'] = 'image_url';
-        $specialAttributes['gross_price'] = 'gross_price';
-        $specialAttributes['special_price'] = 'special_price';
-        $specialAttributes['special_from_date'] = 'special_from_date';
-        $specialAttributes['special_to_date'] = 'special_to_date';
-        $specialAttributes['fixed_value_format'] = 'fixed_value_format';
-        $specialAttributes['is_salable'] = 'is_salable';
-        $specialAttributes['entity_id'] = 'entity_id';
-        $attributes[$_helper->__('Special Attributes')] = $specialAttributes;
+        $attributes['url'] = 'url';
+        $attributes['_category'] = 'category';
+        $attributes['_category_id'] = 'category_id';
+        $attributes['image_url'] = 'image_url';
+        $attributes['gross_price'] = 'gross_price';
+        $attributes['special_price'] = 'special_price';
+        $attributes['special_from_date'] = 'special_from_date';
+        $attributes['special_to_date'] = 'special_to_date';
+        $attributes['fixed_value_format'] = 'fixed_value_format';
+        $attributes['is_salable'] = 'is_salable';
+        $attributes['entity_id'] = 'entity_id';
 
         //Adding special attribute from DerModProd
         if(Mage::helper('core')->isModuleEnabled('DerModPro_BasePrice')) {
-            $specialAttributes = array();
-            $specialAttributes['base_price_amount'] = 'base_price_amount';
-            $specialAttributes['base_price_unit'] = 'base_price_unit';
-            $specialAttributes['base_price_base_amount'] = 'base_price_base_amount';
-            $specialAttributes['base_price_base_unit'] = 'base_price_base_unit';
-            $specialAttributes['base_price_reference_amount'] = 'base_price_reference_amount';
-            $attributes[$_helper->__('DerModPro')] = $specialAttributes;
+            $attributes['base_price_amount'] = 'base_price_amount';
+            $attributes['base_price_unit'] = 'base_price_unit';
+            $attributes['base_price_base_amount'] = 'base_price_base_amount';
+            $attributes['base_price_base_unit'] = 'base_price_base_unit';
+            $attributes['base_price_reference_amount'] = 'base_price_reference_amount';
         }
 
 
         // add attribute mapping attributes
         $attributeMappingCollection = Mage::getResourceModel('mep/attribute_mapping_collection')->load();
         foreach($attributeMappingCollection as $attributeMapping){
-            $attributes[$_helper->__('Mappings')][$attributeMapping->getAttributeCode()] = sprintf('%s (%s)', $attributeMapping->getName(), $attributeMapping->getAttributeCode());
+            $attributes[$attributeMapping->getAttributeCode()] = sprintf('%s (%s)', $attributeMapping->getName(), $attributeMapping->getAttributeCode());
         }
 
         //add shipping attributes
@@ -77,7 +71,7 @@ class Flagbit_MEP_Model_Data extends Mage_Catalog_Model_Convert_Parser_Product
             $collection = Mage::getModel('mep/shipping_attribute')->getCollection()
                 ->addFieldToFilter('profile_id', array('eq' => $shipping_id));
             foreach ($collection as $item) {
-                $attributes[$_helper->__('Shipping')][$item->getAttributeCode()] = sprintf('%s (%s + %s)',$item->getAttributeCode(), $item->getShippingMethod(), $item->getPaymentMethod());
+                $attributes[$item->getAttributeCode()] = sprintf('%s (%s + %s)',$item->getAttributeCode(), $item->getShippingMethod(), $item->getPaymentMethod());
             }
         }
 
@@ -107,8 +101,6 @@ class Flagbit_MEP_Model_Data extends Mage_Catalog_Model_Convert_Parser_Product
                 ->addVisibleFilter()
                 ->checkConfigurableProducts()
                 ->addStoreLabel(Mage::app()->getStore()->getId());
-
-            $nodeChildren->getSelect()->where('main_table.is_user_defined = ?', 1);
 
             foreach ($nodeChildren as $child) {
 

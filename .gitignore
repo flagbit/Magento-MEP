@@ -6,6 +6,8 @@ devonline.cache.properties
 *~
 *.swp
 build.properties
+build.default.properties
+build.xml
 .buildpath
 .project
 .settings

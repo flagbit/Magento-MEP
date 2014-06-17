@@ -81,7 +81,7 @@ class Flagbit_MEP_Block_Adminhtml_Profile_View_Edit_Tab_General extends Mage_Adm
                 'class' => 'required-entry',
                 'required'  => true,
                 'name'  => 'activate_ftp',
-                'values'    => Mage::getModel('adminhtml/system_config_source_yesno')->toArray()
+                'values'    => Mage::getModel('adminhtml/system_config_source_yesno')->toOptionArray()
             )
         );
 
