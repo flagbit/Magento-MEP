@@ -151,6 +151,18 @@
     overflow: hidden;
 }
 
+.mep_category_list_item {
+    background-color: #eeeeee;
+    border: 1px solid #CCCCCC;
+    padding: 3px;
+    margin: 2px 0px;
+}
+
+.mep_category_list_item select
+{
+    margin-left: 5px;
+}}
+
 /* MEP Add attribute dialog box styles */
 .attr-popup-window table#widget_window_row1,
 .attr-popup-window table#widget_window_row2,

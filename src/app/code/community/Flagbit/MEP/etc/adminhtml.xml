@@ -19,6 +19,10 @@
                             <title>Attribute Mapping</title>
                             <action>adminhtml/attribute/index</action>
                         </attribute>
+                        <google module="mep">
+                            <title>Google Mapping</title>
+                            <action>adminhtml/google/index</action>
+                        </google>
                     </children>
                 </mep>
             </children>

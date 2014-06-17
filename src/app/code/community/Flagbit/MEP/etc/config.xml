@@ -2,7 +2,7 @@
 <config>
     <modules>
         <Flagbit_MEP>
-            <version>0.8.3</version>
+            <version>0.9.1</version>
         </Flagbit_MEP>
     </modules>
 
@@ -42,6 +42,12 @@
                     <attribute_mapping_option>
                         <table>mep_attribute_mapping_option</table>
                     </attribute_mapping_option>
+                    <google_mapping>
+                        <table>mep_google_mapping</table>
+                    </google_mapping>
+                    <google_taxonomies>
+                        <table>mep_google_taxonomies</table>
+                    </google_taxonomies>
                     <rule>
                         <table>mep_rule</table>
                     </rule>
@@ -182,6 +188,10 @@
                 <small_image>Small Image</small_image>
                 <thumbnail>Thumbnail</thumbnail>
             </image_url_type>
+            <google_mapping_type>
+                <last>Only last mapping value</last>
+                <complete>Complete path</complete>
+            </google_mapping_type>
         </datas>
     </default>
 </config>
