@@ -14,6 +14,14 @@ class Flagbit_MEP_Adminhtml_ShippingController extends Mage_Adminhtml_Controller
             ->loadLayout()
             ->_setActiveMenu('system/importexport');
 
+        // add support of Magento CE 1.6
+        $version_info = Mage::getVersionInfo();
+        if ($version_info['major'] == 1 && $version_info['minor'] < 7 && !method_exists('Mage', 'getEdition')) {
+            $head = $this->getLayout()->getBlock('head');
+            $head->addItem('js_css', 'prototype/windows/themes/magento.css');
+            $head->removeItem('skin_css', 'lib/prototype/windows/themes/magento.css');
+        }
+
         return $this;
     }
 
