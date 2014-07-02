@@ -6,6 +6,10 @@ class Flagbit_MEP_Model_Profile extends Mage_Core_Model_Abstract
     const TWIG_TEMPLATE_TYPE_HEADER = 'header';
     const TWIG_TEMPLATE_TYPE_FOOTER = 'footer';
 
+    /**
+     * @var string
+     */
+    protected $_cacheTag = 'mep_model_profile';
 
     /**
      * Init resource model
@@ -42,12 +46,32 @@ class Flagbit_MEP_Model_Profile extends Mage_Core_Model_Abstract
     }
 
     /**
-     * Get quantity of products matching the profile
+     * Cached wrapper for counting of quantity of products matching the profile
      *
      * @return integer
      */
     function getProductCount() {
+        $tags = $this->getCacheIdTags();
+        $id = 'mep_profile_products_count_' . $this->getId();
 
+        $count = Mage::app()->loadCache($id);
+        if (empty($count)) {
+            // Make counting
+            $count = 1 + $this->_runProductCount(); // add 1 to distinguish between count=0 and empty cache
+            Mage::app()->saveCache($count, $id, $tags);
+        }
+
+        return $count - 1;
+    }
+
+    /**
+     * Calculate and return quantity of products matching the profile
+     *
+     * Note: It may take several seconds.
+     *
+     * @return integer
+     */
+    private function _runProductCount() {
         $export = Mage::getModel('mep/export');
         $export->setData('id', $this->getId());
         $export->setEntity("catalog_product");

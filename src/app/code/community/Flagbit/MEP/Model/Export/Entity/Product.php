@@ -187,47 +187,71 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
     /**
      * Get current quantity of products for the export profile
      *
-     *  It has similar blocks of code as export() method. Do not forget to keep it updated.
-     *
      * @return int
      */
     public function countItems() {
 
-        $this->_initTaxConfig();
-
-        Mage::app()->setCurrentStore(0);
-
-        /** @var $collection Mage_Catalog_Model_Resource_Eav_Mysql4_Product_Collection */
-
         if ($this->hasProfileId()) {
-            /* @var $obj_profile Flagbit_MEP_Model_Profil */
-            $obj_profile = $this->getProfile();
-            $this->_configurable_delimiter = $obj_profile->getConfigurableValueDelimiter();
-            $this->_storeIdToCode[0] = 'admin';
-            $this->_storeIdToCode[$obj_profile->getStoreId()] = Mage::app()->getStore($obj_profile->getStoreId())->getCode();
-
-            // LOAD FILTER RULES
-            /* @var $ruleObject Flagbit_MEP_Model_Rule */
-            $ruleObject = Mage::getModel('mep/rule');
-            $rule = unserialize($obj_profile->getConditionsSerialized());
-            $ruleObject->setProfile($obj_profile);
-            $ruleObject->loadPost(array('conditions' => $rule));
-            $ruleObject->setWebsiteIds(array(Mage::app()->getStore($obj_profile->getStoreId())->getWebsiteId()));
-            $filteredProductIds = $ruleObject->getMatchingProductIds();
-
-            /* @var $collection Mage_Catalog_Model_Resource_Product_Collection */
-            $collection = $this->_prepareEntityCollection(Mage::getResourceModel('catalog/product_collection'));
-            $collection->setStoreId(0)->addStoreFilter($obj_profile->getStoreId());
-
-            if(!empty($filteredProductIds)){
-                $collection->addFieldToFilter("entity_id", array('in' => $filteredProductIds));
+            $filteredProductIds = $this->_getFilteredProductIds();
+            if (!empty($filteredProductIds)) {
+                $collection = $this->_prepareMepEntityCollection(Mage::getResourceModel('catalog/product_collection'), $filteredProductIds);
+                return $collection->getSize();
             }
-
-            return $collection->getSize();
-
-
         }
         return 0;
+    }
+
+    /**
+     * Run ids of products, filtered by MEP rules
+     *
+     * @return array of Ids
+     */
+    protected function _getFilteredProductIds() {
+        /* @var $obj_profile Flagbit_MEP_Model_Profile */
+        $obj_profile = $this->getProfile();
+
+        Mage::helper('mep/log')->debug('START Filter Rules', $this);
+
+        // LOAD FILTER RULES
+        /* @var $ruleObject Flagbit_MEP_Model_Rule */
+        $ruleObject = Mage::getModel('mep/rule');
+        $rule = unserialize($obj_profile->getConditionsSerialized());
+        $ruleObject->setProfile($obj_profile);
+        $ruleObject->loadPost(array('conditions' => $rule));
+        $ruleObject->setWebsiteIds(array(Mage::app()->getStore($obj_profile->getStoreId())->getWebsiteId()));
+        Mage::helper('mep/log')->debug('Get matching product', $this);
+        if ($this->_limit) {
+            $ruleObject->setLimit($this->_limit);
+        }
+        $filteredProductIds = $ruleObject->getMatchingProductIds();
+        Mage::helper('mep/log')->debug('END Filter Rules', $this);
+
+        return $filteredProductIds;
+    }
+
+    /**
+     * Apply filter to collection and add not skipped attributes to select.
+     *
+     * Supports adding of additional parameter $filteredProductIds that allows to extend filtering
+     * base Magento filtering, provided by parent::_prepareEntityCollection() method.
+     *
+     * @param Mage_Eav_Model_Entity_Collection_Abstract $collection
+     * @param array $filteredIds
+     *
+     * @return Mage_Catalog_Model_Resource_Product_Collection
+     */
+    protected function _prepareMepEntityCollection(Mage_Eav_Model_Entity_Collection_Abstract $collection, $filteredIds) {
+
+        /* @var $obj_profile Flagbit_MEP_Model_Profile */
+        $obj_profile = $this->getProfile();
+
+        /* @var $collection Mage_Catalog_Model_Resource_Product_Collection */
+        $collection = parent::_prepareEntityCollection($collection);
+        $collection->setStoreId(0)->addStoreFilter($obj_profile->getStoreId());
+
+        $collection->addFieldToFilter("entity_id", array('in' => $filteredIds));
+
+        return $collection;
     }
 
     /**
@@ -288,35 +312,12 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
                 $validAttrCodes[] = $item->getToField();
             }
 
-            $offsetProducts = 0;
-
-            Mage::helper('mep/log')->debug('START Filter Rules', $this);
-
-            // LOAD FILTER RULES
-            /* @var $ruleObject Flagbit_MEP_Model_Rule */
-            $ruleObject = Mage::getModel('mep/rule');
-            $rule = unserialize($obj_profile->getConditionsSerialized());
-            $ruleObject->setProfile($obj_profile);
-            $ruleObject->loadPost(array('conditions' => $rule));
-            $ruleObject->setWebsiteIds(array(Mage::app()->getStore($obj_profile->getStoreId())->getWebsiteId()));
-            Mage::helper('mep/log')->debug('Get matching product', $this);
-            if ($this->_limit) {
-                $ruleObject->setLimit($this->_limit);
-            }
-            $filteredProductIds = $ruleObject->getMatchingProductIds();
-            if(count($filteredProductIds) < 1){
+            $filteredProductIds = $this->_getFilteredProductIds();
+            if (count($filteredProductIds) < 1) {
                 Mage::helper('mep/log')->warn('Nothing to export ' . $this->getProfileId(), $this);
-                return 'No datas';
+                return 'No data';
             }
-            Mage::helper('mep/log')->debug('END Filter Rules', $this);
-
-            /* @var $collection Mage_Catalog_Model_Resource_Product_Collection */
-            $collection = $this->_prepareEntityCollection(Mage::getResourceModel('catalog/product_collection'));
-            $collection->setStoreId(0)->addStoreFilter($obj_profile->getStoreId());
-
-            if(!empty($filteredProductIds)){
-                $collection->addFieldToFilter("entity_id", array('in' => $filteredProductIds));
-            }
+            $collection = $this->_prepareMepEntityCollection(Mage::getResourceModel('catalog/product_collection'), $filteredProductIds);
 
             $size = $collection->getSize();
 
