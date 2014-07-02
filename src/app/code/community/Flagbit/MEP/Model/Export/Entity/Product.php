@@ -312,8 +312,6 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
                 $validAttrCodes[] = $item->getToField();
             }
 
-            $offsetProducts = 0;
-
             $filteredProductIds = $this->_getFilteredProductIds();
             if (count($filteredProductIds) < 1) {
                 Mage::helper('mep/log')->warn('Nothing to export ' . $this->getProfileId(), $this);
