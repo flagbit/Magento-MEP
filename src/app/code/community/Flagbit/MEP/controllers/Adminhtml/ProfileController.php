@@ -10,6 +10,15 @@ class Flagbit_MEP_Adminhtml_ProfileController extends Mage_Adminhtml_Controller_
     protected function _initAction()
     {
         $this->loadLayout();
+
+        // add support of Magento CE 1.6
+        $version_info = Mage::getVersionInfo();
+        if ($version_info['major'] == 1 && $version_info['minor'] < 7 && !method_exists('Mage', 'getEdition')) {
+            $head = $this->getLayout()->getBlock('head');
+            $head->addItem('js_css', 'prototype/windows/themes/magento.css');
+            $head->removeItem('skin_css', 'lib/prototype/windows/themes/magento.css');
+        }
+
         $this->_setActiveMenu('mep/profile');
         return $this;
     }
