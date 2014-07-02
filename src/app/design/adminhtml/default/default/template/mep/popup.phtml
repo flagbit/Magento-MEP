@@ -96,10 +96,60 @@
         }
     }
 
+    /**
+     * Override this from Chosen library to be able to show/hide our extra fields in form
+     */
+    Chosen.prototype.choice_build = function(item) {
+        var choice, close_link,
+            _this = this,
+            result = null;
+        choice = new Element('li', {
+            "class": "search-choice"
+        }).update("<span>" + item.html + "</span>");
+        if (item.disabled) {
+            choice.addClassName('search-choice-disabled');
+        } else {
+            close_link = new Element('a', {
+                href: '#',
+                "class": 'search-choice-close',
+                rel: item.array_index
+            });
+            close_link.observe("click", function(evt) {
+                // removing out content
+                checkCallbackRemove(item);
+                return _this.choice_destroy_link_click(evt);
+            });
+            choice.insert(close_link);
+        }
+        result = this.search_container.insert({
+            before: choice
+        });
+
+        // showing out content
+        checkCallbackSelect(item);
+        return result;
+    };
+
     var chosenObj = new Chosen($$(".chzn-select").first(), {
         no_results_text: "<?php echo $this->__('No results match');?>",
         max_selected_options: 1
     });
+
+    function checkCallbackSelect(item) {
+        for (var i = 0; i < attributesCallback.length; i++) {
+            if (attributesCallback[i].attr == item.value) {
+                attributesCallback[i].callbackSelect();
+            }
+        }
+    }
+
+    function checkCallbackRemove(item) {
+        for (var i = 0; i < attributesCallback.length; i++) {
+            if (attributesCallback[i].attr == item.value) {
+                attributesCallback[i].callbackRemove();
+            }
+        }
+    }
 
     Event.observe("mappingform", "submit", function(event) {
         $("mappingform").request({
@@ -135,30 +185,6 @@
         {attr: 'google_mapping', callbackSelect: googleMappingOptions, callbackRemove: googleMappingOptionsHide}
     );
 
-    $$('.active-result').invoke('observe', 'click', function() {
-        var position = $(this).id.substr($(this).id.lastIndexOf("_") + 1);
-        var item = chosenObj.results_data[position];
-        var value = chosenObj.form_field.options[item.options_index].value;
-        for (var i = 0; i < attributesCallback.length; i++) {
-            if (attributesCallback[i].attr == value) {
-                attributesCallback[i].callbackSelect();
-            }
-        }
-    });
-
-    $$('.chzn-choices').invoke('observe', 'click', function(evt) {
-        if ($(evt.target).hasClassName('search-choice-close')) {
-            var position = $(evt.target).rel;
-            var item = chosenObj.results_data[position];
-            var value = chosenObj.form_field.options[item.options_index].value;
-            for (var i = 0; i < attributesCallback.length; i++) {
-                if (attributesCallback[i].attr == value) {
-                    attributesCallback[i].callbackRemove();
-                }
-            }
-        }
-    });
-
     function    imageUrlOptions() {
         $('image_url_type_block').show();
     }
@@ -174,10 +200,6 @@
     function    googleMappingOptionsHide() {
         $('google_mapping_type_block').hide();
     }
-    /**
-     *
-     */
-
     // ]]>
 </script>
 
