@@ -84,6 +84,12 @@
 
 <script type="text/javascript">
     // <![CDATA[
+
+    var attributesCallback = new Array(
+        {attr: 'image_url', callbackSelect: imageUrlOptions, callbackRemove: imageUrlOptionsHide},
+        {attr: 'google_mapping', callbackSelect: googleMappingOptions, callbackRemove: googleMappingOptionsHide}
+    );
+
     $('inheritance').observe('change', selectInheritance);
 
     function    selectInheritance(event) {
@@ -179,11 +185,6 @@
     /**
      * Add extra field to the form for specific attribute
      */
-
-    var attributesCallback = new Array(
-        {attr: 'image_url', callbackSelect: imageUrlOptions, callbackRemove: imageUrlOptionsHide},
-        {attr: 'google_mapping', callbackSelect: googleMappingOptions, callbackRemove: googleMappingOptionsHide}
-    );
 
     function    imageUrlOptions() {
         $('image_url_type_block').show();
