@@ -52,6 +52,7 @@ class Flagbit_MEP_Model_Profile extends Mage_Core_Model_Abstract
 
     /**
      * Set number of products matching the profile
+     * @param int $product_count
      */
     function setProductCount($product_count) {
         $this->setData('product_count', $product_count);
