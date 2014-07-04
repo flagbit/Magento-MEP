@@ -94,6 +94,7 @@ class Flagbit_MEP_Adminhtml_ProfileController extends Mage_Adminhtml_Controller_
     public function saveAction()
     {
         if ($data = $this->getRequest()->getPost()) {
+            /** @var Flagbit_MEP_Model_Profile $model */
             $model = Mage::getModel('mep/profile');
 
             $id = $this->getRequest()->getParam('id');
@@ -127,16 +128,19 @@ class Flagbit_MEP_Adminhtml_ProfileController extends Mage_Adminhtml_Controller_
 
                 if($this->getRequest()->getParam('duplicate')) {
                     $newProfile = $model->duplicate();
+                    $this->_recalculateProducts($newProfile);
                     Mage::getSingleton('adminhtml/session')->setMepProfileData($newProfile->getData());
                     Mage::getSingleton('adminhtml/session')->addSuccess(Mage::helper('mep')->__('Profile was successfully cloned'));
                     $this->_redirect('*/*/edit', array('id' => $newProfile->getId(), 'tab' => 'form_section'));
 
                 }elseif ($this->getRequest()->getParam('back')) {
+                    $this->_recalculateProducts($model);
                     Mage::getSingleton('adminhtml/session')->addSuccess(Mage::helper('mep')->__('Profile was successfully saved')
                         . '. ' . Mage::helper('mep')->__('Products count: ') . $model->getProductCount());
                     $this->_redirect('*/*/edit', array('id' => $model->getId(), 'tab' => $this->getRequest()->getParam('tab')));
 
                 } else {
+                    $this->_recalculateProducts($model);
                     Mage::getSingleton('adminhtml/session')->addSuccess(Mage::helper('mep')->__('Profile was successfully saved'));
                     $this->_redirect('*/*/');
                 }
@@ -152,6 +156,25 @@ class Flagbit_MEP_Adminhtml_ProfileController extends Mage_Adminhtml_Controller_
         }
         Mage::getSingleton('adminhtml/session')->addError(Mage::helper('mep')->__('No data found to save'));
         $this->_redirect('*/*/');
+    }
+
+    /**
+     * Recalculate quantity of products matching the profile and save the value in the database
+     *
+     * @param Flagbit_MEP_Model_Profile $profile
+     *
+     * @return void
+     */
+    private function _recalculateProducts($profile) {
+        $export = Mage::getModel('mep/export');
+        $export->setData('id', $profile->getId());
+        $export->setEntity("catalog_product");
+        $export->setExportFilter(array());
+        $count = $export->countItems();
+
+        // save value to the database
+        $profile->setProductCount($count);
+        $profile->save();
     }
 
     /**
