@@ -122,6 +122,7 @@ class Flagbit_MEP_Model_Rule extends Mage_CatalogRule_Model_Rule
         if (!empty($settings['is_in_stock']) && $settings['is_in_stock'] == 2) {
             $settings['is_in_stock'] = '';
         }
+        //SELECT entity_id, qty, is_in_stock, manage_stock, use_config_manage_stock FROM catalog_product_entity cpe LEFT JOIN cataloginventory_stock_item csi ON csi.product_id =  cpe.entity_id WHERE entity_id = 34903 AND (is_in_stock = 1 OR (manage_stock = 0 AND use_config_manage_stock = 0));
         if (is_null($this->_productIds)) {
             $this->_productIds = array();
             $this->setCollectedAttributes(array());
@@ -138,7 +139,12 @@ class Flagbit_MEP_Model_Rule extends Mage_CatalogRule_Model_Rule
                     $isInStockCondition = 'is_in_stock = ' . $isInStockFilter;
                     if ($isInStockFilter == 1)
                     {
-                        $isInStockCondition = '(' . $isInStockCondition . ' OR manage_stock = 0)';
+                        if (Mage::getStoreConfig('cataloginventory/item_options/manage_stock') == 1) {
+                            $isInStockCondition = '(' . $isInStockCondition . ' OR (manage_stock = 0 AND use_config_manage_stock = 0))';
+                        }
+                        else {
+                            $isInStockCondition = '(' . $isInStockCondition . ' OR manage_stock = 0';
+                        }
                     }
                     $productCollection->getSelect()->where($isInStockCondition);
 
