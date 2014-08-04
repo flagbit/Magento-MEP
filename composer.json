@@ -1,0 +1,9 @@
+{
+    "name": "flagbit/magento-mep",
+    "type": "magento-module",
+    "description":"This is the Flagbit Magento-Export-Platform",
+    "license": "propietary",
+    "require": {
+        "magento-hackathon/magento-composer-installer": "*"
+    }
+}
