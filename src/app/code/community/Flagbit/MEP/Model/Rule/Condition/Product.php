@@ -479,4 +479,23 @@ class Flagbit_MEP_Model_Rule_Condition_Product
 
         return $result;
     }
+
+    public function validate(Varien_Object $object)
+    {
+        $attrCode = $this->getAttribute();
+        if ('category_ids' == $attrCode) {
+            return $this->validateAttribute($object->getAvailableInCategories());
+        }
+        if ('attribute_set_id' == $attrCode) {
+            return $this->validateAttribute($object->getData($attrCode));
+        }
+
+        $oldAttrValue = $object->hasData($attrCode) ? $object->getData($attrCode) : null;
+        $newValue = $oldAttrValue ? $oldAttrValue : $this->_getAttributeValue($object);
+        $object->setData($attrCode, $newValue);
+        $result = $this->_validateProduct($object);
+        $this->_restoreOldAttrValue($object, $oldAttrValue);
+
+        return (bool)$result;
+    }
 }
