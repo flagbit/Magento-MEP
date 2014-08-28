@@ -24,7 +24,7 @@ $installer = $this;
 $installer->startSetup();
 
 $installer->run("
-CREATE TABLE `mep_cron` (
+CREATE TABLE IF NOT EXISTS `mep_cron` (
   `cron_id` INT NOT NULL AUTO_INCREMENT,
   `profile_id` INT NOT NULL,
   `ignore_profile_status` TINYINT NULL,
