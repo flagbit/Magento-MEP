@@ -331,8 +331,16 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
 
             // to export process in threads for better performance
             $index = 0;
-            $limitProducts = 1000;
-            $maxThreads = 5;
+            if($obj_profile->getUseSingleProcess()){
+                // sacrifice performance to avoid connection locks, for example
+                // on Redis session management
+                $limitProducts = $size;
+                $maxThreads = 1;
+            } else {
+                // to export process in threads for better performance
+                $limitProducts = 1000;
+                $maxThreads = 5;
+            }
             while(true){
                 $index++;
                 $this->_threads[$index] = new Flagbit_MEP_Model_Thread( array($this, '_exportThread') );
@@ -449,54 +457,89 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
         if (!empty($filteredProductIds)){
             $collection->addFieldToFilter("entity_id", array('in' => $filteredProductIds));
         }
-        $collection->load();
-        $cpt = 1;
 
         Mage::helper('mep/log')->debug('Looping on products', $this);
-        foreach ($collection as $item) {
-            $currentRow = array();
-            foreach ($mapping->getItems() as $mapItem) {
-                $attrValues = array();
-                $attrInheritance = $mapItem->getInheritance();
-                foreach ($mapItem->getAttributeCodeAsArray() as $attrCode) {
-                    if ($attrInheritance == 1) {
-                        $attrValues = $this->_manageAttributeInheritance($item, $attrCode, $mapItem);
-                    }
-                    else {
-                        $currentValue = $this->_manageAttributeForItem($item, $attrCode, $mapItem);
-                        $this->_addAttributeToArray($currentValue, $attrValues);
-                    }
 
-                    //Taking care of existing value for current attribute
-                    $newAttrCode = $attrCode;
-                    $attrCount = 1;
-                    while (array_key_exists($newAttrCode, $currentRow))
-                    {
-                        $newAttrCode = $attrCode . '_' . $attrCount++;
-                    }
-                    $attrCode = $newAttrCode;
+        if($objProfile->getUseSingleProcess()) {
+            // we need to walk collection one by one, slower but needed.
+            // due to race conditions on Redis we are invoking only one thread
+            // with all products loaded in collection.
+            Mage::getSingleton('core/resource_iterator')->walk(
+                $collection->getSelect(),
+                array(array($this, '_writeRow')),
+                array('mapping' => $mapping, 'offset' => $offsetProducts, 'writer' => $writer)
+            );
+        } else {
+            // iterate collection as usual since each thread only will load 1000 SKUs
+            foreach ($collection as $item) {
+                $this->_writeRow(array(
+                    'row' => $item, 'mapping' => $mapping, 'offset' => $offsetProducts, 'writer' => $writer
+                ));
+            }
 
-                    $currentRow[$attrCode] = implode($this->_configurable_delimiter, $attrValues);
-                }
-            }
-            if($offsetProducts != 1) {
-                $writer->setHeaderIsDisabled();
-            }
-            try {
-                $writer->writeRow($currentRow);
-            }
-            catch (Exception $e) {
-                Mage::helper('mep/log')->err('Twig exception: ' . $e->getMessage(), $this);
-            }
-            $cpt++;
+            $collection->clear();
         }
-        $collection->clear();
 
         Mage::helper('mep/log')->debug('END Thread: ' . $offsetProducts, $this);
         if ($collection->getCurPage() < $offsetProducts) {
             return false;
         }
         return true;
+    }
+
+    /**
+     * This work as a callback and as utility function for getting the row and write it.
+     *
+     * @param array $args
+     */
+    public function _writeRow($args) {
+
+        if(is_array($args['row'])) {
+            $item = Mage::getModel('catalog/product');
+            $item->setData($args['row']);
+        } else {
+            $item = $args['row'];
+        }
+
+        $mapping = $args['mapping'];
+        $offsetProducts = $args['offset'];
+        $writer = $args['writer'];
+
+        $currentRow = array();
+        foreach ($mapping->getItems() as $mapItem) {
+            $attrValues = array();
+            $attrInheritance = $mapItem->getInheritance();
+            foreach ($mapItem->getAttributeCodeAsArray() as $attrCode) {
+                if ($attrInheritance == 1) {
+                    $attrValues = $this->_manageAttributeInheritance($item, $attrCode, $mapItem);
+                }
+                else {
+                    $currentValue = $this->_manageAttributeForItem($item, $attrCode, $mapItem);
+                    $this->_addAttributeToArray($currentValue, $attrValues);
+                }
+
+                //Taking care of existing value for current attribute
+                $newAttrCode = $attrCode;
+                $attrCount = 1;
+                while (array_key_exists($newAttrCode, $currentRow))
+                {
+                    $newAttrCode = $attrCode . '_' . $attrCount++;
+                }
+                $attrCode = $newAttrCode;
+
+                $currentRow[$attrCode] = implode($this->_configurable_delimiter, $attrValues);
+            }
+        }
+        if($offsetProducts != 1) {
+            $writer->setHeaderIsDisabled();
+        }
+        try {
+            $writer->writeRow($currentRow);
+        }
+        catch (Exception $e) {
+            Mage::helper('mep/log')->err('Twig exception: ' . $e->getMessage(), $this);
+        }
+
     }
 
     /*
