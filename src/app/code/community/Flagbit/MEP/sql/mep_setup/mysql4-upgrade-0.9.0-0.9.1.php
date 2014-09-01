@@ -14,6 +14,11 @@ PRIMARY KEY (`taxonomy_id`),
 UNIQUE (`slug`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 ");
+
+$installer->run(
+    "ALTER TABLE `{$this->getTable('mep/profile')}` ADD COLUMN `use_single_process` int DEFAULT 0;"
+);
+
 $installer->endSetup();
 
 ?>
