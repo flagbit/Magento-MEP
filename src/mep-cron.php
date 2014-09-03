@@ -37,8 +37,25 @@ $_SERVER['SCRIPT_NAME'] = str_replace(basename(__FILE__), 'index.php', $_SERVER[
 $_SERVER['SCRIPT_FILENAME'] = str_replace(basename(__FILE__), 'index.php', $_SERVER['SCRIPT_FILENAME']);
 
 Mage::app('admin')->setUseSessionInUrl(false);
-umask(0);
 
+// here we replace the cache and in the process we get rid of all loaded configuration, only
+// core, core_resource and varien configuration is loaded after calling Mage::app() like this.
+// we need this to avoid race conditions when using redis as cache, the multithreading export
+// was having problems.
+Mage::app('admin')->baseInit(array(
+    'cache' => array(
+        'backend' => 'Zend_Cache_Backend_BlackHole',
+        'backend_options' => array()
+    )
+));
+
+// now load all configurations again
+Mage::app()->getConfig()
+    ->loadModules()
+    ->loadDb()
+    ->saveCache();
+
+umask(0);
 
 try {
     $mepCron = Mage::getModel('mep/cron_execute');
