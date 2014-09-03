@@ -124,10 +124,21 @@ class Flagbit_MEP_Block_Adminhtml_Profile_View_Edit_Tab_Format extends Mage_Admi
             'shipping_id',
             'select',
             array(
-                'label' => Mage::helper('mep')->__('Shipping Profil'),
+                'label' => Mage::helper('mep')->__('Shipping Profile'),
                 'name' => 'shipping_id',
                 'options' => $this->_getShippingOptionsHash(),
                 'note' => $this->__('First you have to create a shipping profile')
+            )
+        );
+
+        $fieldset->addField(
+            'use_single_process',
+            'select',
+            array(
+                'label' => Mage::helper('mep')->__('Use single process export'),
+                'name' => 'use_single_process',
+                'options' => $this->_getYesNoOptionsHash(),
+                'note' => 'DO NOT use if you don\'t know what this means.'
             )
         );
 
