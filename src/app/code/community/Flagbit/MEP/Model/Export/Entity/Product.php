@@ -609,7 +609,10 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
             }
         }
         $collection->addFieldToFilter("entity_id", array('in' => $items));
+        // ensure we don't get duplicates products
+        $collection->groupByAttribute('sku');
         $items = $collection->load();
+
         foreach ($items as $item) {
             /** @var Mage_Catalog_Model_Product $item */
             $itemId = $item->getId();
