@@ -694,9 +694,10 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
         }
         Mage::app()->setCurrentStore(0);
 
-        Mage::dispatchEvent('mep_product_attribute_value', array('value' => &$attrValue, 'attribute_code' => $attrCode, 'item' => $mapItem));
+        $eventObject = new Varien_Object(array('value' => $attrValue, 'attribute_code' => $attrCode, 'item' => $mapItem));
+        Mage::dispatchEvent('mep_product_attribute_value', array('export' => $eventObject));
 
-        return $attrValue;
+        return $eventObject->getValue();
     }
 
     /*
