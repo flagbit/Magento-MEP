@@ -654,7 +654,8 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
      * Get attribute value for a given item
      * Apply filters if necessary
      */
-    protected function  _getAttributeValue($item, $attrCode, $mapItem) {
+    protected function  _getAttributeValue($item, $attrCode, $mapItem)
+    {
         //Callback method configuration for special attribute
         Mage::app()->setCurrentStore($this->getProfile()->getStoreId());
         $attributeValueFilter = array(
@@ -692,6 +693,9 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
             }
         }
         Mage::app()->setCurrentStore(0);
+
+        Mage::dispatchEvent('mep_product_attribute_value', array('value' => &$attrValue, 'attribute_code' => $attrCode, 'item' => $mapItem));
+
         return $attrValue;
     }
 
