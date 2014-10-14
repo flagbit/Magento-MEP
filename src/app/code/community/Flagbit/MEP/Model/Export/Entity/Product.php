@@ -65,6 +65,12 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
     protected $_stockItems = array();
 
     /**
+     * Configuration for product suffix url
+     * @var null|string
+     */
+    protected $_seoSuffixUrl = null;
+
+    /**
      * Constructor.
      *
      * @return void
@@ -283,6 +289,10 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
             /* @var $obj_profile Flagbit_MEP_Model_Profile */
             $obj_profile = $this->getProfile();
             //Mage::app()->setCurrentStore($obj_profile->getStoreId());
+
+            $this->_seoSuffixUrl = (string) Mage::app()->getStore($obj_profile->getStoreId())->getConfig(
+                Mage_Catalog_Helper_Product::XML_PATH_PRODUCT_URL_SUFFIX
+            );
 
             $this->_configurable_delimiter = $obj_profile->getConfigurableValueDelimiter();
 
@@ -642,7 +652,10 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
             }
         }
         $collection->addFieldToFilter("entity_id", array('in' => $items));
+        // ensure we don't get duplicates products
+        $collection->groupByAttribute('sku');
         $items = $collection->load();
+
         foreach ($items as $item) {
             /** @var Mage_Catalog_Model_Product $item */
             $itemId = $item->getId();
@@ -684,7 +697,8 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
      * Get attribute value for a given item
      * Apply filters if necessary
      */
-    protected function  _getAttributeValue($item, $attrCode, $mapItem) {
+    protected function  _getAttributeValue($item, $attrCode, $mapItem)
+    {
         //Callback method configuration for special attribute
         Mage::app()->setCurrentStore($this->getProfile()->getStoreId());
         $attributeValueFilter = array(
@@ -722,7 +736,11 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
             }
         }
         Mage::app()->setCurrentStore(0);
-        return $attrValue;
+
+        $eventObject = new Varien_Object(array('value' => $attrValue, 'attribute_code' => $attrCode, 'item' => $mapItem));
+        Mage::dispatchEvent('mep_product_attribute_value', array('export' => $eventObject));
+
+        return $eventObject->getValue();
     }
 
     /*
@@ -773,18 +791,34 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
         return null;
     }
 
-    protected function  _getProductUrl($item, $mapItem)
+    protected function _getProductUrl($item, $mapItem)
     {
         $objProfile = $this->getProfile();
         if (version_compare(Mage::getVersion(), '1.13.0.0') >= 0) {
             $urlRewrite = Mage::getModel('enterprise_urlrewrite/url_rewrite')->getCollection()->addFieldToFilter('target_path', array('eq' => 'catalog/product/view/id/' . $item->getId()))->addFieldToFilter('is_system', array('eq' => 1));
             $attrValue = Mage::app()->getStore($objProfile->getStoreId())->getBaseUrl(Mage_Core_Model_Store::URL_TYPE_WEB) . $urlRewrite->getFirstItem()->getRequestPath();
+            $attrValue = $this->_addSuffixToUrl($attrValue, $this->_seoSuffixUrl);
         }
         else {
             $attrValue = $item->getProductUrl(false);
         }
 
         return $attrValue;
+    }
+
+    /**
+     * Add the suffix if needed
+     * @param $url
+     * @param $seoSuffix
+     * @return string
+     */
+    protected function _addSuffixToUrl($url, $seoSuffix)
+    {
+        if (!preg_match('%\.[^/]+$%', $url)) {
+            $url .= '.' . $seoSuffix;
+        }
+
+        return $url;
     }
 
     protected function _getPrice($item, $mapItem)

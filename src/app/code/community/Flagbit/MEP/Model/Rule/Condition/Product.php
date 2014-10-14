@@ -498,4 +498,119 @@ class Flagbit_MEP_Model_Rule_Condition_Product
 
         return (bool)$result;
     }
+
+    /**
+     * Get attribute value.
+     *
+     * Backward compatibility with versions < 1.13.0.0
+     *
+     * @param Varien_Object $object
+     * @return mixed
+     */
+    protected function _getAttributeValue(Varien_Object $object) {
+        // just use the parent in case the method change in future versions
+        if (version_compare(Mage::getVersion(), '1.13.0.0') >= 0) {
+            return parent::_getAttributeValue($object);
+        }
+
+        // reproduce functionality from 1.13
+        $attrCode = $this->getAttribute();
+        $storeId = $object->getStoreId();
+        $defaultStoreId = Mage_Core_Model_App::ADMIN_STORE_ID;
+        $productValues  = isset($this->_entityAttributeValues[$object->getId()])
+            ? $this->_entityAttributeValues[$object->getId()] : array();
+        $defaultValue = isset($productValues[$defaultStoreId])
+            ? $productValues[$defaultStoreId] : $object->getData($attrCode);
+        $value = isset($productValues[$storeId]) ? $productValues[$storeId] : $defaultValue;
+
+        $value = $this->_prepareDatetimeValue($value, $object);
+        $value = $this->_prepareMultiselectValue($value, $object);
+
+        return $value;
+
+    }
+
+    /**
+     * Prepare datetime attribute value
+     *
+     * Backward compatibility with versions < 1.13.0.0
+     *
+     * @param mixed $value
+     * @param Varien_Object $object
+     * @return mixed
+     */
+    protected function _prepareDatetimeValue($value, $object)
+    {
+        // just use the parent in case the method change in future versions
+        if (version_compare(Mage::getVersion(), '1.13.0.0') >= 0) {
+            return parent::_prepareDatetimeValue($value, $object);
+        }
+
+        // reproduce functionality from 1.13
+        $attribute = $object->getResource()->getAttribute($this->getAttribute());
+        if ($attribute && $attribute->getBackendType() == 'datetime') {
+            $value = strtotime($value);
+        }
+        return $value;
+    }
+
+    /**
+     * Prepare multiselect attribute value
+     *
+     * Backward compatibility with versions < 1.13.0.0
+     *
+     * @param mixed $value
+     * @param Varien_Object $object
+     * @return mixed
+     */
+    protected function _prepareMultiselectValue($value, $object)
+    {
+        // just use the parent in case the method change in future versions
+        if (version_compare(Mage::getVersion(), '1.13.0.0') >= 0) {
+            return parent::_prepareMultiselectValue($value, $object);
+        }
+
+        // reproduce functionality from 1.13
+        $attribute = $object->getResource()->getAttribute($this->getAttribute());
+        if ($attribute && $attribute->getFrontendInput() == 'multiselect') {
+            $value = strlen($value) ? explode(',', $value) : array();
+        }
+        return $value;
+    }
+
+    /**
+     * Validate product
+     *
+     * Backward compatibility with versions < 1.13.0.0
+     *
+     * @param Varien_Object $object
+     * @return bool
+     */
+    protected function _validateProduct($object)
+    {
+        return Mage_Rule_Model_Condition_Abstract::validate($object);
+    }
+
+    /**
+     * Restore old attribute value
+     *
+     * Backward compatibility with versions < 1.13.0.0
+     *
+     * @param Varien_Object $object
+     * @param mixed $oldAttrValue
+     */
+    protected function _restoreOldAttrValue($object, $oldAttrValue)
+    {
+        // just use the parent in case the method change in future versions
+        if (version_compare(Mage::getVersion(), '1.13.0.0') >= 0) {
+            parent::_restoreOldAttrValue($object, $oldAttrValue);
+        }
+
+        $attrCode = $this->getAttribute();
+        if (is_null($oldAttrValue)) {
+            $object->unsetData($attrCode);
+        } else {
+            $object->setData($attrCode, $oldAttrValue);
+        }
+    }
 }
