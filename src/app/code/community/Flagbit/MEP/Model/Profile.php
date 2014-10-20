@@ -6,10 +6,6 @@ class Flagbit_MEP_Model_Profile extends Mage_Core_Model_Abstract
     const TWIG_TEMPLATE_TYPE_HEADER = 'header';
     const TWIG_TEMPLATE_TYPE_FOOTER = 'footer';
 
-    /**
-     * @var string
-     */
-    protected $_cacheTag = 'mep_model_profile';
 
     /**
      * Init resource model
@@ -46,58 +42,20 @@ class Flagbit_MEP_Model_Profile extends Mage_Core_Model_Abstract
     }
 
     /**
-     * Cached wrapper for counting of quantity of products matching the profile
+     * Get quantity of products matching the profile
      *
      * @return integer
      */
     function getProductCount() {
-        $tags = $this->getCacheIdTags();
-        $id = 'mep_profile_products_count_' . $this->getId();
-
-        $count = Mage::app()->loadCache($id);
-        if (empty($count)) {
-            // Make counting
-            $count = 1 + $this->_runProductCount(); // add 1 to distinguish between count=0 and empty cache
-            Mage::app()->saveCache($count, $id, $tags);
-        }
-
-        return $count - 1;
+        return $this->getData('product_count');
     }
 
     /**
-     * Calculate and return quantity of products matching the profile
-     *
-     * Note: It may take several seconds.
-     *
-     * @return integer
+     * Set number of products matching the profile
+     * @param int $product_count
      */
-    private function _runProductCount() {
-        $export = Mage::getModel('mep/export');
-        $export->setData('id', $this->getId());
-        $export->setEntity("catalog_product");
-        $export->setExportFilter(array());
-        return $export->countItems();
-    }
-
-    /**
-     * Retrieves data from the object
-     *
-     * If value for key product_count is requested, it will count quantity of products matching the profile
-     *
-     * @see Varien_Object::getData
-     *      for more details
-     *
-     * @param string $key
-     * @param string|int $index
-     * @return mixed
-     */
-    function getData($key = '', $index = null) {
-        if ($key == 'product_count') {
-            if (!isset($this->_data['product_count'])) {
-                $this->_data['product_count'] = $this->getProductCount();
-            }
-        }
-        return parent::getData($key, $index);
+    function setProductCount($product_count) {
+        $this->setData('product_count', $product_count);
     }
 
     /**
