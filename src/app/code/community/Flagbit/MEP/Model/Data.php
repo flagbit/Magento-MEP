@@ -49,6 +49,8 @@ class Flagbit_MEP_Model_Data extends Mage_Catalog_Model_Convert_Parser_Product
         $attributes['fixed_value_format'] = 'fixed_value_format';
         $attributes['is_salable'] = 'is_salable';
         $attributes['entity_id'] = 'entity_id';
+        $attributes['created_at'] = 'created_at';
+        $attributes['updated_at'] = 'updated_at';
 
         //Adding special attribute from DerModProd
         if(Mage::helper('core')->isModuleEnabled('DerModPro_BasePrice')) {
