@@ -136,7 +136,7 @@ class Flagbit_MEP_Block_Adminhtml_Category_Dynamic
         $form->getElement('qty')->setValue($this->getQtyFilterValue($form));
 
         $profilData = Mage::helper('mep')->getCurrentProfileData();
-        $settings = $profilData['settings'];
+        $settings = unserialize($profilData['settings']);
         if (!$settings) {
             $form->getElement('apply_to')->addClass('no-display ignore-validate');
             $form->getElement('qty')->addClass('no-display ignore-validate');
@@ -149,7 +149,7 @@ class Flagbit_MEP_Block_Adminhtml_Category_Dynamic
 
     protected function  getProfilSettingsValueForKey($key) {
         $profilData = Mage::helper('mep')->getCurrentProfileData();
-        $settings = $profilData['settings'];
+        $settings = unserialize($profilData['settings']);
         if (isset($settings[$key]) && ($value = $settings[$key]) !== false) {
             return $value;
         }
@@ -158,7 +158,7 @@ class Flagbit_MEP_Block_Adminhtml_Category_Dynamic
 
     protected function  getApplyToValue(&$form) {
         $profilData = Mage::helper('mep')->getCurrentProfileData();
-        $settings = $profilData['settings'];
+        $settings = unserialize($profilData['settings']);
         if (isset($settings['apply_to']) && ($product_type = $settings['apply_to'])) {
             $product_type = is_array($product_type) ? $product_type : explode(',', $product_type);
             return $product_type;
@@ -171,7 +171,7 @@ class Flagbit_MEP_Block_Adminhtml_Category_Dynamic
 
     protected function  getQtyFilterValue(&$form) {
         $profilData = Mage::helper('mep')->getCurrentProfileData();
-        $settings = $profilData['settings'];
+        $settings = unserialize($profilData['settings']);
         if (isset($settings['qty']) && isset($settings['qty']['threshold']) && strlen($settings['qty']['threshold'])) {
             return $settings['qty']['threshold'];
         }
@@ -183,7 +183,7 @@ class Flagbit_MEP_Block_Adminhtml_Category_Dynamic
 
     protected function  getQtyOperatorValue() {
         $profilData = Mage::helper('mep')->getCurrentProfileData();
-        $settings = $profilData['settings'];
+        $settings = unserialize($profilData['settings']);
         if (isset($settings['qty']) && isset($settings['qty']['operator']) && ($operator = $settings['qty']['operator'])) {
             return $operator;
         }
