@@ -487,8 +487,8 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
             // iterate collection as usual since each thread only will load 1000 SKUs
             foreach ($collection as $item) {
                 $this->_writeRow(array(
-                    'row' => $item, 'mapping' => $mapping, 'offset' => $offsetProducts, 'writer' => $writer
-                ));
+                        'row' => $item, 'mapping' => $mapping, 'offset' => $offsetProducts, 'writer' => $writer
+                    ));
             }
 
             $collection->clear();
@@ -915,15 +915,14 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
         }
         $attrValue = '';
         if (isset($this->_categoryIds[$categoryId])) {
-            $attrValue = array_slice($this->_categoryIds[$categoryId], -1, 1);
-            $attrValue = $attrValue[0];
+            $attrValue = implode($this->getProfile()->getCategoryDelimiter(), $this->_categoryIds[$categoryId]);
         }
         return $attrValue;
     }
 
     protected function _getBasePriceReferenceAmount($item, $mapItem) {
         $attrValue = Mage::helper('baseprice')->getBasePriceLabel($item, '{{baseprice}}');
-		$attrValue = str_replace(array(' €'), '', strip_tags($attrValue));
+        $attrValue = str_replace(array(' €'), '', strip_tags($attrValue));
         return $attrValue;
     }
 
