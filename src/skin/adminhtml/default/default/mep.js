@@ -120,3 +120,41 @@ function    toggleQtyFilterVisibility(select) {
         $(select).next('input').removeClassName('ignore-validate');
     }
 }
+
+document.observe('dom:loaded', function() {
+    var delimiter = '\\' + jQuery( "#delimiter").val().replace(/(\\)/gm, '\\');
+    jQuery('#twig_header_template').attr('spellcheck', false);
+    jQuery('#twig_content_template').attr('spellcheck', false);
+    jQuery( "#delimiter" ).change(function() {
+        delimiter = '\\' + jQuery( "#delimiter").val().replace(/(\\)/gm, '\\');
+        jQuery('#twig_header_template').clone().insertAfter(jQuery('#twig_header_template').parent());
+        jQuery('#twig_header_template').parent().remove();
+        jQuery('#twig_content_template').clone().insertAfter(jQuery('#twig_content_template').parent());
+        jQuery('#twig_content_template').parent().remove();
+        console.log( jQuery('#twig_content_template').val());
+        jQuery('#twig_header_template').highlightTextarea({
+            words: {
+                color: '#FFFF00',
+                words: [delimiter]
+            }
+        });
+        jQuery('#twig_content_template').highlightTextarea({
+            words: {
+                color: '#FFFF00',
+                words: [delimiter]
+            }
+        });
+    });
+    jQuery('#twig_header_template').highlightTextarea({
+        words: {
+            color: '#FFFF00',
+            words: [delimiter]
+        }
+    });
+    jQuery('#twig_content_template').highlightTextarea({
+        words: {
+            color: '#FFFF00',
+            words: [delimiter]
+        }
+    });
+});
