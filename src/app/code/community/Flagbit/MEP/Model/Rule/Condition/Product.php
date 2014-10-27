@@ -507,7 +507,7 @@ class Flagbit_MEP_Model_Rule_Condition_Product
      * @param Varien_Object $object
      * @return mixed
      */
-    protected function _getAttributeValue(Varien_Object $object) {
+    protected function _getAttributeValue($object) {
         // just use the parent in case the method change in future versions
         if (method_exists(get_class(parent), '_getAttributeValue') ) {
             return parent::_getAttributeValue($object);
