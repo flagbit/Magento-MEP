@@ -915,8 +915,7 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
         }
         $attrValue = '';
         if (isset($this->_categoryIds[$categoryId])) {
-            $attrValue = array_slice($this->_categoryIds[$categoryId], -1, 1);
-            $attrValue = $attrValue[0];
+            $attrValue = implode($this->getProfile()->getCategoryDelimiter(), $this->_categoryIds[$categoryId]);
         }
         return $attrValue;
     }
