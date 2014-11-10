@@ -221,7 +221,10 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
         // LOAD FILTER RULES
         /* @var $ruleObject Flagbit_MEP_Model_Rule */
         $ruleObject = Mage::getModel('mep/rule');
-        $rule = unserialize($obj_profile->getConditionsSerialized());
+        $rule = $obj_profile->getConditionsSerialized();
+        if (!is_array($rule)) {
+            $rule = unserialize($rule);
+        }
         $ruleObject->setProfile($obj_profile);
         $ruleObject->loadPost(array('conditions' => $rule));
         $ruleObject->setWebsiteIds(array(Mage::app()->getStore($obj_profile->getStoreId())->getWebsiteId()));

@@ -21,7 +21,9 @@ class Flagbit_MEP_Model_Profile extends Mage_Core_Model_Abstract
      * @return Mage_Core_Model_Abstract
      */
     protected function  _afterLoad() {
-        $this->setSettings(unserialize($this->getSettings()));
+        if (!is_array($this->getSettings())) {
+            $this->setSettings(unserialize($this->getSettings()));
+        }
         $cronExpression = $this->getCronExpression();
         if ($cronExpression) {
             //0 0 * * 1
@@ -73,7 +75,9 @@ class Flagbit_MEP_Model_Profile extends Mage_Core_Model_Abstract
             $this->setTwigContentTemplate(
                 $this->_generateTemplate($this->getTwigContentTemplate(), self::TWIG_TEMPLATE_TYPE_CONTENT)
             );
-            $this->setSettings(serialize($this->getSettings()));
+            if (is_array($this->getSettings())) {
+                $this->setSettings(serialize($this->getSettings()));
+            }
             if(!$this->getUseTwigTemplates()){
                 $this->setTwigFooterTemplate('');
             }

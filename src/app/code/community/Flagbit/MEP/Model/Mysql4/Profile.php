@@ -3,6 +3,7 @@
 class Flagbit_MEP_Model_Mysql4_Profile extends Mage_Core_Model_Mysql4_Abstract
 {
 
+    protected $_serializedAttr = array('conditions_serialized', 'settings');
     /**
      * Constructor
      *
@@ -15,9 +16,10 @@ class Flagbit_MEP_Model_Mysql4_Profile extends Mage_Core_Model_Mysql4_Abstract
 
     protected function _beforeSave(Mage_Core_Model_Abstract $object)
     {
-        $attrCode = 'conditions_serialized';
-        if(is_array($object->getData($attrCode))){
-            $object->setData($attrCode, serialize($object->getData($attrCode)));
+        foreach ($this->_serializedAttr as $attrCode) {
+            if (is_array($object->getData($attrCode))) {
+                $object->setData($attrCode, serialize($object->getData($attrCode)));
+            }
         }
 
         $now = Varien_Date::now(false);
@@ -25,10 +27,14 @@ class Flagbit_MEP_Model_Mysql4_Profile extends Mage_Core_Model_Mysql4_Abstract
     }
 
 
-    public function afterLoad(Mage_Core_Model_Abstract $object)
+    protected function _afterLoad(Mage_Core_Model_Abstract $object)
     {
-        $attrCode = 'conditions_serialized';
-        $object->setData($attrCode, unserialize($object->getData($attrCode)));
+        foreach ($this->_serializedAttr as $attrCode) {
+            if (!is_array($object->getData($attrCode))) {
+                $object->setData($attrCode, unserialize($object->getData($attrCode)));
+            }
+        }
+        return $this;
     }
 
     /**

@@ -509,7 +509,7 @@ class Flagbit_MEP_Model_Rule_Condition_Product
      */
     protected function _getAttributeValue($object) {
         // just use the parent in case the method change in future versions
-        if (method_exists(get_class(parent), '_getAttributeValue') ) {
+        if (method_exists(get_parent_class($this), '_getAttributeValue') ) {
             return parent::_getAttributeValue($object);
         }
 
@@ -542,7 +542,7 @@ class Flagbit_MEP_Model_Rule_Condition_Product
     protected function _prepareDatetimeValue($value, $object)
     {
         // just use the parent in case the method change in future versions
-        if (method_exists(get_class(parent), '_prepareDatetimeValue') ) {
+        if (method_exists(get_parent_class($this), '_prepareDatetimeValue') ) {
             return parent::_prepareDatetimeValue($value, $object);
         }
 
@@ -566,7 +566,7 @@ class Flagbit_MEP_Model_Rule_Condition_Product
     protected function _prepareMultiselectValue($value, $object)
     {
         // just use the parent in case the method change in future versions
-        if (method_exists(get_class(parent), '_prepareMultiselectValue')) {
+        if (method_exists(get_parent_class($this), '_prepareMultiselectValue')) {
             return parent::_prepareMultiselectValue($value, $object);
         }
 
@@ -602,7 +602,7 @@ class Flagbit_MEP_Model_Rule_Condition_Product
     protected function _restoreOldAttrValue($object, $oldAttrValue)
     {
         // just use the parent in case the method change in future versions
-        if (method_exists(get_class(parent), '_restoreOldAttrValue')) {
+        if (method_exists(get_parent_class($this), '_restoreOldAttrValue')) {
             parent::_restoreOldAttrValue($object, $oldAttrValue);
         }
 
