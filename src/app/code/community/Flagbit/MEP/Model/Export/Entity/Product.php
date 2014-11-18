@@ -709,6 +709,7 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
         //Callback method configuration for special attribute
         Mage::app()->setCurrentStore($this->getProfile()->getStoreId());
         $attributeValueFilter = array(
+            'price_catalog_rule' => '_getPriceWithCatalogRule',
             'url' => '_getProductUrl',
             'price' => '_getPrice',
             'gross_price' => '_getGrossPrice',
@@ -845,6 +846,18 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
         }
 
         return $item->getPrice();
+    }
+
+    protected function  _getPriceWithCatalogRule($item, $mapItem)
+    {
+        $objProfile = $this->getProfile();
+
+        $item->setWebsiteId($item->getStore()->getWebsiteId());
+        $item->setCustomerGroupId(0);
+
+        $finalPrice = $item->getFinalPrice();
+
+        return $finalPrice;
     }
 
     protected function  _getGrossPrice($item, $mapItem)

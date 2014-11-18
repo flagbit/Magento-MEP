@@ -37,6 +37,7 @@ class Flagbit_MEP_Model_Data extends Mage_Catalog_Model_Convert_Parser_Product
         }
 
         // added for url mapping
+        $attributes['price_catalog_rule'] = 'price with catalog rule';
         $attributes['url'] = 'url';
         $attributes['_category'] = 'category';
         $attributes['_category_id'] = 'category_id';
