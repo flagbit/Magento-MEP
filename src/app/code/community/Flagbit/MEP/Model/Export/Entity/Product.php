@@ -821,7 +821,7 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
      */
     protected function _addSuffixToUrl($url, $seoSuffix)
     {
-        if (!preg_match('%\.[^/]+$%', $url)) {
+        if (!preg_match('%\.[^/]+$%', $url) && !empty($seoSuffix)) {
             $url .= '.' . $seoSuffix;
         }
 
