@@ -1,0 +1,21 @@
+{
+    "name": "flagbit/mep",
+    "license": "GPL2",
+    "type": "magento-module",
+    "version":"0.9.2",
+    "description": "Flagbit MEP",
+    "require": {
+        "magento-hackathon/magento-composer-installer": "*"
+    },
+    "require-dev": {
+    },
+    "authors":[
+        {
+            "name":"Joerg Weller",
+            "email":"weller@flagbit.de",
+            "homepage":"http://www.flagbit.de/",
+            "role": "Developer"
+        }
+    ]
+
+}
