@@ -279,6 +279,8 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
 
         Mage::app()->setCurrentStore(0);
 
+        Mage::app()->loadArea(Mage_Core_Model_App_Area::AREA_ADMINHTML);
+
 
         /** @var $collection Mage_Catalog_Model_Resource_Eav_Mysql4_Product_Collection */
         $validAttrCodes = array();
