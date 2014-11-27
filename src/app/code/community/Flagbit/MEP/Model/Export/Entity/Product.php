@@ -339,8 +339,7 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
             // write quantity to the log
             Mage::helper('mep/log')->debug('EXPORT '.$size.' Products', $this);
             // write quantity to the database
-            $obj_profile->setProductCount($size);
-            $obj_profile->save();
+            $obj_profile->getResource()->saveField('product_count', $size, $this->getProfileId());
 
             // run just a small export for the preview function
             if($this->_limit){

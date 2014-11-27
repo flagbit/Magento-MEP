@@ -63,6 +63,6 @@ class Flagbit_MEP_Model_Mysql4_Profile extends Mage_Core_Model_Mysql4_Abstract
     }
 
     public function  saveField($field, $value, $profileId) {
-        $this->_getWriteAdapter()->update($this->getMainTable(), array($field => $value), array('id' => $profileId));
+        $this->_getWriteAdapter()->update($this->getMainTable(), array($field => $value), 'id = ' . $profileId);
     }
 }
