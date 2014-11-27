@@ -603,7 +603,7 @@ TableKit.Sortable.addSortType(
 			return TableKit.Sortable.Type.compare(new Date(ds + a),new Date(ds + b));
 		}}),
 	new TableKit.Sortable.Type('currency',{
-		pattern : /^[$����]/, // dollar,pound,yen,euro,generic currency symbol
+		pattern : /^[$£¥€¤]/, // dollar,pound,yen,euro,generic currency symbol
 		normal : function(v) {
 			return v ? parseFloat(v.replace(/[^-\d\.]/g,'')) : 0;
 		}})

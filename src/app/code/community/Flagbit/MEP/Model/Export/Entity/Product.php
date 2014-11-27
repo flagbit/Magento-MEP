@@ -723,7 +723,8 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
             'base_price_reference_amount' => '_getBasePriceReferenceAmount',
             'is_salable' => '_getIsSalable',
             'google_mapping' => '_getGoogleMapping',
-            'manage_stock' => '_getManageStock'
+            'manage_stock' => '_getManageStock',
+			'_type' => '_getType'
         );
         $attrValue = $item->getData($attrCode);
         if (isset($attributeValueFilter[$attrCode])) {
@@ -992,6 +993,11 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
             $attrValue = implode($mappingSeparator, $mapped);
         }
         return $attrValue;
+    }
+
+    protected function _getType($item, $mapItem)
+    {
+        return $item->getTypeId();
     }
 
     /**
