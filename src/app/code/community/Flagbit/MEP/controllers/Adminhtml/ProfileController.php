@@ -103,12 +103,13 @@ class Flagbit_MEP_Adminhtml_ProfileController extends Mage_Adminhtml_Controller_
                 $model->load($id);
             }
             if (isset($data['rule'])) {
-
                 $data = $this->_filterDates($data, array('from_date', 'to_date'));
-
                 if (isset($data['rule']['conditions'])) {
-                    $data['conditions_serialized'] = $data['rule']['conditions'];
-                    unset($data['rule']);
+                    /* @var $ruleObject Flagbit_MEP_Model_Rule */
+                    $ruleObject = Mage::getModel('mep/rule');
+                    $subcatArray = $ruleObject->addSubcategoriesId($data['rule']);
+                    $data['conditions_serialized'] = $subcatArray['conditions'];
+                    unset($data['rule'], $subcatArray['conditions']);
                 }
             }
 

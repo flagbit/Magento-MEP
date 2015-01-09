@@ -225,4 +225,37 @@ class Flagbit_MEP_Model_Rule extends Mage_CatalogRule_Model_Rule
         Mage::throwException(Mage::helper('core')->__('Invalid query'));
     }
 
+    /**
+     * Add subcategories to selected main categories ids for the export
+     *
+     * @param $data
+     * @return $data
+     */
+    public function addSubcategoriesId($data)
+    {
+        foreach ($data as $key => $value) {
+            if (($key === 'conditions') && is_array($value)) {
+                foreach ($value as $id => $sval) {
+                    if ($sval['type'] == 'mep/rule_condition_product' &&
+                        $sval['attribute'] == 'category_ids' &&
+                        $sval['operator'] == '=='
+                    ) {
+                        $arr = array();
+                        $catIdSelected = explode(",", $data[$key][$id]['value']);
+                        foreach ($catIdSelected as $k => $catId) {
+                            $arr[] = $catId;
+                            /* Load category by id*/
+                            $cat = Mage::getModel('catalog/category')->load($catId);
+                            /* Returns comma separated ids */
+                            $subcats = $cat->getChildren();
+                            $arr[] = $subcats;
+                        }
+                        $data[$key][$id]['value'] = implode(',', $arr);
+                    }
+                }
+            }
+        }
+        return $data;
+    }
 }
+
