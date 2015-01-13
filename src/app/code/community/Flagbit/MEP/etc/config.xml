@@ -108,6 +108,10 @@
                         <class>mep/twig_observer_sortArray</class>
                         <method>addSortArray</method>
                     </mep_twig_observer_sortArray>
+                    <mep_twig_observer_unserializeString>
+                        <class>mep/twig_observer_unserializeString</class>
+                        <method>addUnserializeString</method>
+                    </mep_twig_observer_unserializeString>
                 </observers>
             </mep_export_adapter_twig_init>
         </events>
