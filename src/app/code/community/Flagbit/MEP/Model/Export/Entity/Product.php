@@ -723,7 +723,11 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
             'is_salable' => '_getIsSalable',
             'google_mapping' => '_getGoogleMapping',
             'manage_stock' => '_getManageStock',
+<<<<<<< HEAD
 			'_type' => '_getType'
+=======
+            '_type' => '_getType'
+>>>>>>> SANETTA-418
         );
         $attrValue = $item->getData($attrCode);
         if (isset($attributeValueFilter[$attrCode])) {
@@ -885,6 +889,11 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
     {
         $qty = $this->_getStockItem($item);
         return intval($qty->getQty());
+    }
+
+    protected function _getType($item, $mapItem)
+    {
+        return $item->getTypeId();
     }
 
     protected function _getIsInStock($item, $mapItem)
