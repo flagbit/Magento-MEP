@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="Magento-Koempf" basedir=".">
+
+    <property file="build.properties"/>
+    <property file="build.default.properties"/>
+    <property name="srcdir" value="${basedir}/src"/>
+    <property name="vagrantdir" value="${basedir}/.vagrant"/>
+
+    <taskdef name="antform" classname="com.sardak.antform.AntForm"/>
+
+    <target name="rebuild_cache">
+        <concat destfile=".IGNOREME">
+            <fileset dir="src/">
+                <include name="**/*"/>
+                <modified>
+                    <param name="cache.cachefile" value="${transfer.dev.cache}.cache.properties"/>
+                </modified>
+
+                <modified>
+                    <param name="cache.cachefile" value="${transfer.live.cache}.cache.properties"/>
+                </modified>
+            </fileset>
+        </concat>
+    </target>
+
+    <target name="deploy_to_live">
+        <antcall target="deploy_scp">
+            <param name="transfer.user" value="${transfer.live.user}"/>
+            <param name="transfer.server" value="${transfer.live.server}"/>
+            <param name="transfer.path" value="${transfer.live.path}"/>
+            <param name="transfer.cache" value="${transfer.live.cache}"/>
+        </antcall>
+    </target>
+
+    <target name="deploy_to_dev">
+        <antcall target="deploy_scp">
+            <param name="transfer.user" value="${transfer.dev.user}"/>
+            <param name="transfer.server" value="${transfer.dev.server}"/>
+            <param name="transfer.path" value="${transfer.dev.path}"/>
+            <param name="transfer.cache" value="${transfer.dev.cache}"/>
+        </antcall>
+    </target>
+
+    <target name="deploy_scp">
+        <antform title="SSH-Key Authentification required">
+            <label>Please enter your Passphrase for Key ${transfer.keyfile}</label>
+            <textProperty label="Passphrase:" property="userPass"
+                          required="true" password="true" />
+        </antform>
+
+        <scp
+                remoteTodir="${transfer.user}@${transfer.server}:${transfer.path}"
+                passphrase="${userPass}"
+                trust="true"
+                verbose="true"
+                keyfile="${transfer.keyfile}"
+                >
+            <fileset dir="src">
+                <include name="**/*"/>
+                <modified>
+                    <param name="cache.cachefile" value="${transfer.cache}.cache.properties"/>
+                </modified>
+                <exclude name="**/.svn"/>
+                <exclude name="**/.sass-cache/**" />
+                <exclude name="**/sass/**" />
+                <exclude name=".buildpath"/>
+                <exclude name=".project"/>
+                <exclude name=".vagrant"/>
+                <exclude name=".modman"/>
+                <exclude name=".settings/**"/>
+                <exclude name=".cache/**"/>
+                <exclude name=".git/**"/>
+                <exclude name="webserver/**"/>
+                <exclude name=".externalToolBuilders/**"/>
+                <exclude name="downloader/**"/>
+                <exclude name="pear"/>
+                <exclude name="*cache.properties"/>
+                <exclude name="build.default.properties"/>
+                <exclude name="build.properties"/>
+                <exclude name="build.xml"/>
+                <exclude name="TODO"/>
+                <exclude name="var/**" />
+                <exclude name="Thumbs.db" />
+                <exclude name=".modman" />
+            </fileset>
+        </scp>
+    </target>
+</project>

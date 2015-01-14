@@ -803,15 +803,7 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
 
     protected function _getProductUrl($item, $mapItem)
     {
-        $objProfile = $this->getProfile();
-        if (version_compare(Mage::getVersion(), '1.13.0.0') >= 0) {
-            $urlRewrite = Mage::getModel('enterprise_urlrewrite/url_rewrite')->getCollection()->addFieldToFilter('target_path', array('eq' => 'catalog/product/view/id/' . $item->getId()))->addFieldToFilter('is_system', array('eq' => 1));
-            $attrValue = Mage::app()->getStore($objProfile->getStoreId())->getBaseUrl(Mage_Core_Model_Store::URL_TYPE_WEB) . $urlRewrite->getFirstItem()->getRequestPath();
-            $attrValue = $this->_addSuffixToUrl($attrValue, $this->_seoSuffixUrl);
-        }
-        else {
-            $attrValue = $item->getProductUrl(false);
-        }
+        $attrValue = $item->getProductUrl(false);
 
         return $attrValue;
     }
