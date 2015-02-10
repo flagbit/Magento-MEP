@@ -827,8 +827,7 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
     {
         $objProfile = $this->getProfile();
 
-        if($item->getTypeId() == 'bundle')
-        {
+        if ($item->getTypeId() == 'bundle') {
             $includeTax = null;
 
             $displayConfig = $this->_taxConfig->getPriceDisplayType($objProfile->getStoreId());
@@ -854,22 +853,43 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
         return $finalPrice;
     }
 
+    /**
+     * Get product price with including taxes
+     *
+     * @param Mage_Catalog_Model_Product $item
+     * @param $mapItem
+     *
+     * @return float
+     */
     protected function  _getGrossPrice($item, $mapItem)
     {
-        if($item->getTypeId() == 'bundle')
-        {
+        if ($item->getTypeId() == 'bundle') {
             return Mage::getModel('bundle/product_price')->getTotalPrices($item, 'min', true);
+        } elseif ($item->getTypeId() == 'grouped') {
+            // find the product with the lowest price
+            $children = $item->getTypeInstance(true)->getAssociatedProducts($item);
+            if (count($children)) {
+                $price = INF;
+                foreach ($children as $child) {
+                    if ($price > $child->getPrice()) {
+                        $price = $child->getPrice();
+                        //use the child instead of parent to get the proper price
+                        $item = $child;
+                    }
+                }
+            }
         }
 
         $objProfile = $this->getProfile();
 
-        $price = 0;
         try {
-            $price = Mage::helper('tax')->getPrice($item, $item->getPrice(), true, null, null, null, $objProfile->getStoreId());
-        }
-        catch (Mage_Core_Exception $e) {
+            $price = Mage::helper('tax')->getPrice(
+                $item, $item->getPrice(), true, null, null, null, $objProfile->getStoreId()
+            );
+        } catch (Mage_Core_Exception $e) {
             $price = $item->getPrice();
         }
+
         return $price;
     }
 
