@@ -895,8 +895,22 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
 
     protected function _getQuantity($item, $mapItem)
     {
-        $qty = $this->_getStockItem($item);
-        return intval($qty->getQty());
+        if ($item->getTypeId() == 'grouped') {
+            $children = $item->getTypeInstance(true)->getAssociatedProducts($item);
+            if (count($children)) {
+                // find first child product with a non-zero qty
+                foreach ($children as $child) {
+                    $stockItem = $this->_getStockItem($child);
+                    if ($stockItem->getQty() > 0) {
+                        return intval($stockItem->getQty());
+                    }
+                }
+            }
+        }
+
+        $stockItem = $this->_getStockItem($item);
+
+        return intval($stockItem->getQty());
     }
 
     protected function _getIsInStock($item, $mapItem)
