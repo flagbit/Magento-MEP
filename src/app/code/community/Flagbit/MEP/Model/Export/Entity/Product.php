@@ -719,6 +719,7 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
             'image_url' => '_getImageUrl',
             '_category' => '_getProductCategory',
             '_category_id' => '_getProductCategoryId',
+            '_categories' => '_getProductCategories',
             'base_price_reference_amount' => '_getBasePriceReferenceAmount',
             'is_salable' => '_getIsSalable',
             'google_mapping' => '_getGoogleMapping',
@@ -960,6 +961,23 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
         $attrValue = '';
         if (isset($this->_categoryIds[$categoryId])) {
             $attrValue = implode($this->getProfile()->getCategoryDelimiter(), $this->_categoryIds[$categoryId]);
+        }
+        return $attrValue;
+    }
+
+    protected function  _getProductCategories($item, $mapItem) {
+        $categoryIds = $item->getCategoryIds();
+        $attrValue = '';
+        $categories = array();
+        foreach ($categoryIds as $_categoryId) {
+            if(isset($this->_categoryIds[$_categoryId])){
+                if (isset($this->_categories[$_categoryId])) {
+                    $categories[] = $this->_categories[$_categoryId];
+                }
+            }
+        }
+        if (count($categories) > 0) {
+            $attrValue = implode($this->getProfile()->getConfigurableValueDelimiter(), $categories);
         }
         return $attrValue;
     }
