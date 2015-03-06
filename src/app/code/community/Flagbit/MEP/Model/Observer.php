@@ -98,6 +98,9 @@ class Flagbit_MEP_Model_Observer extends Varien_Object
             //Start environment emulation of the specified store
             $initialEnvironmentInfo = $appEmulation->startEnvironmentEmulation($profile->getStoreId(), Mage_Core_Model_App_Area::AREA_ADMINHTML);
 
+            // Initialize frontend translations
+            Mage::getSingleton('core/translate')->init('frontend', true);
+
             // destination File
             $exportFile = $this->_getExportPath($profile) . DS . $profile->getFilename();
             if(file_exists($exportFile)){

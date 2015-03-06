@@ -719,6 +719,7 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
             'image_url' => '_getImageUrl',
             '_category' => '_getProductCategory',
             '_category_id' => '_getProductCategoryId',
+            '_categories' => '_getProductCategories',
             'base_price_reference_amount' => '_getBasePriceReferenceAmount',
             'is_salable' => '_getIsSalable',
             'google_mapping' => '_getGoogleMapping',
@@ -803,15 +804,7 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
 
     protected function _getProductUrl($item, $mapItem)
     {
-        $objProfile = $this->getProfile();
-        if (version_compare(Mage::getVersion(), '1.13.0.0') >= 0) {
-            $urlRewrite = Mage::getModel('enterprise_urlrewrite/url_rewrite')->getCollection()->addFieldToFilter('target_path', array('eq' => 'catalog/product/view/id/' . $item->getId()))->addFieldToFilter('is_system', array('eq' => 1));
-            $attrValue = Mage::app()->getStore($objProfile->getStoreId())->getBaseUrl(Mage_Core_Model_Store::URL_TYPE_WEB) . $urlRewrite->getFirstItem()->getRequestPath();
-            $attrValue = $this->_addSuffixToUrl($attrValue, $this->_seoSuffixUrl);
-        }
-        else {
-            $attrValue = $item->getProductUrl(false);
-        }
+        $attrValue = $item->getProductUrl(false);
 
         return $attrValue;
     }
@@ -835,8 +828,7 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
     {
         $objProfile = $this->getProfile();
 
-        if($item->getTypeId() == 'bundle')
-        {
+        if ($item->getTypeId() == 'bundle') {
             $includeTax = null;
 
             $displayConfig = $this->_taxConfig->getPriceDisplayType($objProfile->getStoreId());
@@ -862,29 +854,64 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
         return $finalPrice;
     }
 
+    /**
+     * Get product price with including taxes
+     *
+     * @param Mage_Catalog_Model_Product $item
+     * @param $mapItem
+     *
+     * @return float
+     */
     protected function  _getGrossPrice($item, $mapItem)
     {
-        if($item->getTypeId() == 'bundle')
-        {
+        if ($item->getTypeId() == 'bundle') {
             return Mage::getModel('bundle/product_price')->getTotalPrices($item, 'min', true);
+        } elseif ($item->getTypeId() == 'grouped') {
+            // find the product with the lowest price
+            $children = $item->getTypeInstance(true)->getAssociatedProducts($item);
+            if (count($children)) {
+                $price = INF;
+                foreach ($children as $child) {
+                    if ($price > $child->getPrice()) {
+                        $price = $child->getPrice();
+                        //use the child instead of parent to get the proper price
+                        $item = $child;
+                    }
+                }
+            }
         }
 
         $objProfile = $this->getProfile();
 
-        $price = 0;
         try {
-            $price = Mage::helper('tax')->getPrice($item, $item->getPrice(), true, null, null, null, $objProfile->getStoreId());
-        }
-        catch (Mage_Core_Exception $e) {
+            $price = Mage::helper('tax')->getPrice(
+                $item, $item->getPrice(), true, null, null, null, $objProfile->getStoreId()
+            );
+        } catch (Mage_Core_Exception $e) {
             $price = $item->getPrice();
         }
+
         return $price;
     }
 
     protected function _getQuantity($item, $mapItem)
     {
-        $qty = $this->_getStockItem($item);
-        return intval($qty->getQty());
+        if ($item->getTypeId() == 'grouped') {
+            $children = $item->getTypeInstance(true)->getAssociatedProducts($item);
+            if (count($children)) {
+                // find first child product with a non-zero qty
+                foreach ($children as $child) {
+                    $stockItem = $this->_getStockItem($child);
+                    if ($stockItem->getQty() > 0) {
+                        return intval($stockItem->getQty());
+                    }
+                }
+            }
+        }
+
+        $stockItem = $this->_getStockItem($item);
+
+        return intval($stockItem->getQty());
     }
 
     protected function _getIsInStock($item, $mapItem)
@@ -934,6 +961,23 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
         $attrValue = '';
         if (isset($this->_categoryIds[$categoryId])) {
             $attrValue = implode($this->getProfile()->getCategoryDelimiter(), $this->_categoryIds[$categoryId]);
+        }
+        return $attrValue;
+    }
+
+    protected function  _getProductCategories($item, $mapItem) {
+        $categoryIds = $item->getCategoryIds();
+        $attrValue = '';
+        $categories = array();
+        foreach ($categoryIds as $_categoryId) {
+            if(isset($this->_categoryIds[$_categoryId])){
+                if (isset($this->_categories[$_categoryId])) {
+                    $categories[] = $this->_categories[$_categoryId];
+                }
+            }
+        }
+        if (count($categories) > 0) {
+            $attrValue = implode($this->getProfile()->getConfigurableValueDelimiter(), $categories);
         }
         return $attrValue;
     }

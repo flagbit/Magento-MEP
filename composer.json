@@ -2,7 +2,6 @@
     "name": "flagbit/mep",
     "license": "GPL2",
     "type": "magento-module",
-    "version":"0.9.6",
     "description": "Flagbit MEP",
     "require": {
         "magento-hackathon/magento-composer-installer": "*"
