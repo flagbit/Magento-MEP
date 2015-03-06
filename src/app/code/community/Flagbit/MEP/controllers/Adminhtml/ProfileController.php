@@ -144,6 +144,15 @@ class Flagbit_MEP_Adminhtml_ProfileController extends Mage_Adminhtml_Controller_
                     Mage::getSingleton('adminhtml/session')->addSuccess(Mage::helper('mep')->__('Profile was successfully saved'));
                     $this->_redirect('*/*/');
                 }
+            } catch (Zend_Db_Statement_Exception $e) {
+
+                Mage::getSingleton('adminhtml/session')->addError('MySQL error occured. See exception.log for details');
+                Mage::logException($e);
+                if ($model && $model->getId()) {
+                    $this->_redirect('*/*/edit', array('id' => $model->getId()));
+                } else {
+                    $this->_redirect('*/*/');
+                }
             } catch (Exception $e) {
                 Mage::getSingleton('adminhtml/session')->addError($e->getMessage());
                 if ($model && $model->getId()) {

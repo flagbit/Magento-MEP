@@ -143,7 +143,7 @@ class Flagbit_MEP_Model_Rule extends Mage_CatalogRule_Model_Rule
                             $isInStockCondition = '(' . $isInStockCondition . ' OR (manage_stock = 0 AND use_config_manage_stock = 0))';
                         }
                         else {
-                            $isInStockCondition = '(' . $isInStockCondition . ' OR manage_stock = 0';
+                            $isInStockCondition = '(' . $isInStockCondition . ' OR manage_stock = 0)';
                         }
                     }
                     $productCollection->getSelect()->where($isInStockCondition);
