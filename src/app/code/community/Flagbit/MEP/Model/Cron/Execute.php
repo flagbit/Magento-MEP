@@ -88,7 +88,7 @@ class   Flagbit_MEP_Model_Cron_Execute {
             ->addFieldToFilter('main_table.status', array('eq' => Mage_Cron_Model_Schedule::STATUS_RUNNING));
 
         if ($lifetime){
-            $counter->addFieldToFilter('UNIX_TIMESTAMP(scheduled_at)', array('gt' => time() - $lifetime));
+            $counter->addFieldToFilter('map.scheduled', array('gt' => time() - $lifetime));
         }
         return $counter->count();
     }
@@ -106,7 +106,7 @@ class   Flagbit_MEP_Model_Cron_Execute {
         $collection = Mage::getModel('mep/cron')->getCollection();
 
         if ($lifetime){
-            $collection->addFieldToFilter('UNIX_TIMESTAMP(scheduled_at)', array('lt' => time() - $lifetime));
+            $collection->addFieldToFilter('map.scheduled', array('lt' => time() - $lifetime));
             $collection->addFieldToFilter('main_table.status', array('eq' => Mage_Cron_Model_Schedule::STATUS_RUNNING));
 
             $collection->setDataToAll('status', Mage_Cron_Model_Schedule::STATUS_MISSED);
