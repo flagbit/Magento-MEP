@@ -54,4 +54,7 @@ You can create different profiles to export productdata into csv or xml format. 
 ## External Docu
 [TWIG Documentation](http://twig.sensiolabs.org/documentation)
 
+The source code is available, so feel free to jump in and contribute!
+
+
 [![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/Flagbit/magento-mep/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
