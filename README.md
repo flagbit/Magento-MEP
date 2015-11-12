@@ -4,6 +4,7 @@ You can create different profiles to export productdata into csv or xml format. 
 ## Features
 - Export product data to CSV or XML format
 - Create different profiles for different stores, languages or countries
+- Inheritance of attributes to parents or children of a product
 - Shipping mapping, to simulate the checkout and the shipping costs
 - Attribute mapping, to change the output for a attribute
 - Google mapping, to map your name of a category to the name goole like
