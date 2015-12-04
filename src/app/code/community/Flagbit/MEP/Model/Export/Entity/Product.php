@@ -720,6 +720,7 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
             '_category' => '_getProductCategory',
             '_category_id' => '_getProductCategoryId',
             '_categories' => '_getProductCategories',
+            '_media_gallery' => '_getMediaGallery',
             'base_price_reference_amount' => '_getBasePriceReferenceAmount',
             'is_salable' => '_getIsSalable',
             'google_mapping' => '_getGoogleMapping',
@@ -935,6 +936,20 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
         }
         $attrValue = $item->getMediaConfig()->getMediaUrl($item->getData($image_type));
         return $attrValue;
+    }
+
+    /**
+     * @param $item Mage_Catalog_Model_Product
+     * @param $mapItem
+     */
+    protected function _getMediaGallery($item, $mapItem) {
+        $item->load('media_gallery');
+        $images = array();
+        foreach($item->getMediaGalleryImages() as $image) {
+            $images[] = $image['url'];
+        }
+
+        return implode($this->getProfile()->getMediaGalleryDelimiter(), $images);
     }
 
     protected function  _getProductCategory($item, $mapItem) {
