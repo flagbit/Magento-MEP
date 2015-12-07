@@ -104,6 +104,13 @@ class Flagbit_MEP_Block_Adminhtml_Profile_View_Edit_Tab_Format extends Mage_Admi
             'name' => 'configurable_value_delimiter'
         ));
 
+        $fieldset->addField('media_gallery_delimiter', 'text', array(
+            'label' => Mage::helper('mep')->__('Separator between media gallery images'),
+            'class' => 'required-entry',
+            'required' => true,
+            'name' => 'media_gallery_delimiter'
+        ));
+
         $fieldset->addField('profile_locale', 'text', array(
             'label' => Mage::helper('mep')->__('Change default locale'),
             'name' => 'profile_locale',

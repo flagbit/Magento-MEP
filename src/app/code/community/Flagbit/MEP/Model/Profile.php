@@ -186,7 +186,6 @@ class Flagbit_MEP_Model_Profile extends Mage_Core_Model_Abstract
         }elseif(!$template && count($twigTemplateArray)){
             $template = '{% spaceless %}'.PHP_EOL.implode($this->getDelimiter(), $twigTemplateArray).PHP_EOL.'{% endspaceless %}';
         }
-
         return $template;
     }
 
@@ -234,7 +233,6 @@ class Flagbit_MEP_Model_Profile extends Mage_Core_Model_Abstract
                 break;
 
         }
-
 
         return $_field;
     }
