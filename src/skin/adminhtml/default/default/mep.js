@@ -153,25 +153,29 @@ document.observe('dom:loaded', function() {
             words: {
                 color: '#00FF11',
                 words: [delimiter]
-            }
+            },
+            resizable: true
         });
         jQuery('#twig_content_template').highlightTextarea({
             words: {
                 color: '#00FF11',
                 words: [delimiter]
-            }
+            },
+            resizable: true
         });
     });
     jQuery('#twig_header_template').highlightTextarea({
         words: {
             color: '#00FF11',
             words: [delimiter]
-        }
+        },
+        resizable: true
     });
     jQuery('#twig_content_template').highlightTextarea({
         words: {
             color: '#00FF11',
             words: [delimiter]
-        }
+        },
+        resizable: true
     });
 });
