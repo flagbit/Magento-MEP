@@ -60,6 +60,13 @@
             <action method="addCss">
                 <name>highlighttextarea/jquery.highlighttextarea.min.css</name>
             </action>
+            <action method="addItem">
+                <type>skin_js</type>
+                <script>jqueryui/jquery-ui.min.js</script>
+            </action>
+            <action method="addCss">
+                <name>jqueryui/jquery-ui.min.css</name>
+            </action>
         </reference>
     </adminhtml_profile_edit>
 
