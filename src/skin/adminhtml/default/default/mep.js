@@ -97,6 +97,9 @@ var mepPreviewDialog = {
                 $('widget_window').setStyle({
                     display: 'block'
                 });
+                var widgetWindowContent = jQuery('#widget_window_content');
+                widgetWindowContent.removeClass("magento_content");
+                widgetWindowContent.attr('style', 'height: ' + (jQuery(window).height() - 100) + 'px !important');
             }
         });
     },
