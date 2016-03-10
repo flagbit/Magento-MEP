@@ -725,7 +725,7 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
             'is_salable' => '_getIsSalable',
             'google_mapping' => '_getGoogleMapping',
             'manage_stock' => '_getManageStock',
-			'_type' => '_getType'
+			'type' => '_getType'
         );
         $attrValue = $item->getData($attrCode);
 
