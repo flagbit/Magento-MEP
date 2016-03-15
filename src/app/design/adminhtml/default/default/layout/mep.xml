@@ -12,14 +12,17 @@
             <action method="addItem">
                 <type>skin_js</type>
                 <script>jquery.min.js</script>
+                <params>group="mep"</params>
             </action>
             <action method="addItem">
                 <type>skin_js</type>
                 <script>chosen/chosen.proto.js</script>
+                <params>group="mep"</params>
             </action>
             <action method="addItem">
                 <type>skin_js</type>
                 <script>mep.js</script>
+                <params>group="mep"</params>
             </action>
             <action method="addItem">
                 <type>js</type>
@@ -174,14 +177,17 @@
             <action method="addItem">
                 <type>skin_js</type>
                 <script>jquery.min.js</script>
+                <params>group="mep"</params>
             </action>
             <action method="addItem">
                 <type>skin_js</type>
                 <script>chosen/chosen.proto.js</script>
+                <params>group="mep"</params>
             </action>
             <action method="addItem">
                 <type>skin_js</type>
                 <script>mep.js</script>
+                <params>group="mep"</params>
             </action>
             <action method="addItem">
                 <type>js</type>
