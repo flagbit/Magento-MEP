@@ -407,8 +407,9 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
         foreach( $this->_threads as $index => $thread ) {
             if( ! $thread->isAlive() ) {
                 $fileName = Mage::getConfig()->getOptions()->getBaseDir() . DS . $this->getProfile()->getFilepath() . DS . $this->getProfile()->getFilename();
+                $newFileName = $fileName . '.new';
                 $threadContent = file_get_contents($fileName . '.' . $index . '.tmp');
-                file_put_contents($fileName, $threadContent, FILE_APPEND);
+                file_put_contents($newFileName, $threadContent, FILE_APPEND);
                 unlink($fileName . '.' . $index . '.tmp');
                 unset( $this->_threads[$index] );
             }

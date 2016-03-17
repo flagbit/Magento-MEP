@@ -92,6 +92,7 @@ class Flagbit_MEP_Model_Observer extends Varien_Object
     public function exportProfile(Flagbit_MEP_Model_Profile $profile, $catchErrors = true)
     {
         $exportFile = null;
+        $newTempExportFile = null;
         try{
             /** @var $appEmulation Mage_Core_Model_App_Emulation */
             $appEmulation = Mage::getSingleton('core/app_emulation');
@@ -103,8 +104,9 @@ class Flagbit_MEP_Model_Observer extends Varien_Object
 
             // destination File
             $exportFile = $this->_getExportPath($profile) . DS . $profile->getFilename();
-            if(file_exists($exportFile)){
-                unlink($exportFile);
+            $newTempExportFile = $exportFile . '.new';
+            if(file_exists($newTempExportFile)){
+                unlink($newTempExportFile);
             }
 
             // disable flat Tables
@@ -134,6 +136,9 @@ class Flagbit_MEP_Model_Observer extends Varien_Object
                 throw $e;
             }
         }
+        copy($newTempExportFile, $exportFile);
+        unlink($newTempExportFile);
+
         return $exportFile;
     }
 
