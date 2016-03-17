@@ -143,15 +143,31 @@ function    toggleQtyFilterVisibility(select) {
 }
 
 document.observe('dom:loaded', function() {
-    var delimiter = '\\' + jQuery( "#delimiter").val().replace(/(\\)/gm, '\\');
-    jQuery('#twig_header_template').attr('spellcheck', false);
-    jQuery('#twig_content_template').attr('spellcheck', false);
-    jQuery( "#delimiter" ).change(function() {
-        delimiter = '\\' + jQuery( "#delimiter").val().replace(/(\\)/gm, '\\');
-        jQuery('#twig_header_template').clone().insertAfter(jQuery('#twig_header_template').parent());
-        jQuery('#twig_header_template').parent().remove();
-        jQuery('#twig_content_template').clone().insertAfter(jQuery('#twig_content_template').parent());
-        jQuery('#twig_content_template').parent().remove();
+    if (jQuery( "#delimiter").length) {
+        var delimiter = '\\' + jQuery( "#delimiter").val().replace(/(\\)/gm, '\\');
+        jQuery('#twig_header_template').attr('spellcheck', false);
+        jQuery('#twig_content_template').attr('spellcheck', false);
+        jQuery( "#delimiter" ).change(function() {
+            delimiter = '\\' + jQuery( "#delimiter").val().replace(/(\\)/gm, '\\');
+            jQuery('#twig_header_template').clone().insertAfter(jQuery('#twig_header_template').parent());
+            jQuery('#twig_header_template').parent().remove();
+            jQuery('#twig_content_template').clone().insertAfter(jQuery('#twig_content_template').parent());
+            jQuery('#twig_content_template').parent().remove();
+            jQuery('#twig_header_template').highlightTextarea({
+                words: {
+                    color: '#00FF11',
+                    words: [delimiter]
+                },
+                resizable: true
+            });
+            jQuery('#twig_content_template').highlightTextarea({
+                words: {
+                    color: '#00FF11',
+                    words: [delimiter]
+                },
+                resizable: true
+            });
+        });
         jQuery('#twig_header_template').highlightTextarea({
             words: {
                 color: '#00FF11',
@@ -166,19 +182,5 @@ document.observe('dom:loaded', function() {
             },
             resizable: true
         });
-    });
-    jQuery('#twig_header_template').highlightTextarea({
-        words: {
-            color: '#00FF11',
-            words: [delimiter]
-        },
-        resizable: true
-    });
-    jQuery('#twig_content_template').highlightTextarea({
-        words: {
-            color: '#00FF11',
-            words: [delimiter]
-        },
-        resizable: true
-    });
+    }
 });
