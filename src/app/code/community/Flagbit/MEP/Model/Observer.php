@@ -136,8 +136,6 @@ class Flagbit_MEP_Model_Observer extends Varien_Object
                 throw $e;
             }
         }
-        copy($newTempExportFile, $exportFile);
-        unlink($newTempExportFile);
 
         return $exportFile;
     }

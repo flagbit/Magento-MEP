@@ -385,6 +385,13 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
             while( !empty( $this->_threads ) ) {
                 $this->_cleanUpThreads();
             }
+
+            $fileName = Mage::getConfig()->getOptions()->getBaseDir() . DS . $this->getProfile()->getFilepath() . DS . $this->getProfile()->getFilename();
+            $newTempExportFile = $fileName . '.new';
+
+            copy($newTempExportFile, $fileName);
+            unlink($newTempExportFile);
+
             $obj_profile->uploadToFtp();
 
             Mage::helper('mep/log')->info('EXPORT done', $this);
