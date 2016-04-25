@@ -226,7 +226,6 @@ class Flagbit_MEP_Model_Export_Adapter_Twig extends Mage_ImportExport_Model_Expo
      */
     public function setHeaderCols(array $headerCols)
     {
-
         if (null !== $this->_headerCols) {
             Mage::throwException(Mage::helper('importexport')->__('Header column names already set'));
         }
@@ -249,6 +248,12 @@ class Flagbit_MEP_Model_Export_Adapter_Twig extends Mage_ImportExport_Model_Expo
      */
     public function cleanElement($element)
     {
+        if (is_array($element)) {
+            foreach ($element as $key => $value) {
+                $element[$key] = $this->cleanElement($value);
+            }
+            return $element;
+        }
         if(substr($element,0,2) == 'a:') {
             return $element;
         }
