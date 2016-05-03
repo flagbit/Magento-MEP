@@ -38,6 +38,30 @@ class   Flagbit_MEP_Helper_Categories extends Mage_Core_Helper_Abstract
         }
     }
 
+
+    public function loadCategoryTreeForGoogle(Varien_Data_Tree_Node_Collection $categoryCollection, $recursive, &$array)
+    {
+        $storeId = Mage::registry('category_store_id');
+        $margin = $recursive * 15;
+        foreach ($categoryCollection as $category)
+        {
+            /** @var Varien_Data_Tree_Node $category */
+            $categoryId = $category->getId();
+            $cat = Mage::getModel('catalog/category')->setStoreId($storeId)->load($categoryId);
+            $node = array(
+                'id' => $categoryId,
+                'margin' => $margin,
+                'name' => $cat->getName(),
+                'mapping' => $this->getMappingArrayForTaxonomy(0, $categoryId)
+            );
+            $array[] = $node;
+            if ($category->hasChildren())
+            {
+                $this->loadCategoryTreeForGoogle($category->getChildren(), $recursive + 1, $array);
+            }
+        }
+    }
+
     public function loadCategoryTree(Varien_Data_Tree_Node_Collection $categoryCollection, $recursive, &$array)
     {
         $margin = $recursive * 15;
@@ -85,10 +109,12 @@ class   Flagbit_MEP_Helper_Categories extends Mage_Core_Helper_Abstract
 
     public function getMappingArrayForTaxonomy($taxonomyId, $categoryId)
     {
+        $storeId = Mage::registry('category_store_id');
         $level = 1;
-        $mapping = Mage::getModel('mep/googleMapping');
-        $mapping->load($categoryId, 'category_id');
+        $mapping = Mage::getModel('mep/googleMapping')->loadByCategoryAndStore($categoryId, $storeId);
+
         $googleMappingIds = $mapping->getGoogleMappingIds();
+
         $array = array();
         $node = array(
             'level' => $level,

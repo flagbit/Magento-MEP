@@ -36,14 +36,34 @@ class Flagbit_MEP_Block_Adminhtml_Google_View_Edit_Form extends Mage_Adminhtml_B
                     'legend' => Mage::helper('mep')->__('Select a store')
                 ));
 
-            $storeSelection->addField('store_selection_select', 'select',
-                array(
-                    'label' => Mage::helper('mep')->__('Store'),
-                    'class' => 'required-entry',
-                    'required' => true,
-                    'name' => 'store_selection_select',
-                    'values'    => Mage::getSingleton('adminhtml/system_store')->getStoreValuesForForm(false, false),
+            if (!Mage::app()->isSingleStoreMode()) {
+
+                $storeSelection->addField('store_selection_select', 'select',
+                    array(
+                        'label' => Mage::helper('mep')->__('Store'),
+                        'class' => 'required-entry',
+                        'required' => true,
+                        'name' => 'store_id',
+                        'values'    => Mage::getSingleton('adminhtml/system_store')->getStoreValuesForForm(false, false),
+                    )
+                );
+
+                $storeId = Mage::registry('category_store_id');
+                if($storeId) {
+                    $form->setValues(['store_selection_select' => $storeId]);
+                }
+
+            } else {
+                $storeSelection->addField('store_id', 'hidden', array(
+                    'name' => 'store_id',
+                    'value' => Mage::app()->getStore(true)->getId()
                 ));
+
+                $storeId = Mage::register('store_id');
+                if($storeId) {
+                    $form->setValues(['store_id' => $storeId]);
+                }
+            }
 
             $categories = $form->addFieldset('categories', array(
                 'legend' => Mage::helper('mep')->__('Categories mapping'),
