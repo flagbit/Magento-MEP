@@ -26,6 +26,20 @@ class   Flagbit_MEP_Adminhtml_GoogleController extends Mage_Adminhtml_Controller
         $this->getResponse()->setBody(json_encode($array));
     }
 
+    public function loadlanguageAction()
+    {
+        $storeId = $this->getRequest()->getParam('store_id');
+        $strLang = null;
+
+        if ($storeId)  {
+            Mage::register('category_store_id', $storeId);
+            $strLang = Mage::helper('mep/storelang')->getLanguageForStoreId($storeId);
+        }
+
+        $this->getResponse()->clearHeaders()->setHeader('Content-Type', 'application/json');
+        $this->getResponse()->setBody(json_encode(['language' => $strLang]));
+    }
+
     public function loadtaxonomiesAction()
     {
         $taxonomyId = $this->getRequest()->getParam('taxonomy_id');
@@ -45,6 +59,15 @@ class   Flagbit_MEP_Adminhtml_GoogleController extends Mage_Adminhtml_Controller
         }
         if ($data = $this->getRequest()->getPost())
         {
+
+            if(isset($data['mep_store_language'])) {
+                Mage::getModel('mep/googleStorelang')
+                    ->load($storeId)
+                    ->setData('store_id', $storeId)
+                    ->setData('language', $data['mep_store_language'])
+                    ->save();
+            }
+
             $mappings = Mage::helper('mep/categories')->prepareMappingForSave($data['google-mapping']);
             try
             {
@@ -73,6 +96,23 @@ class   Flagbit_MEP_Adminhtml_GoogleController extends Mage_Adminhtml_Controller
         try
         {
             $importModel->runImportWithUrl($url);
+        }
+        catch (Exception $e)
+        {
+            Mage::getSingleton('adminhtml/session')->addError($e->getMessage());
+            $this->getResponse()->setHeader('Content-Type', 'application/json');
+            $this->getResponse()->setBody(json_encode(array('error' => $e->getMessage())));
+        }
+    }
+
+    public function importcategoriesmultistoreAction()
+    {
+        $urls = Mage::helper('mep/categories')->getGoogleCategoriesFileUrls();
+        /** @var Flagbit_MEP_Model_GoogleMapping_Import $importModel */
+        $importModel = Mage::getSingleton('mep/googleMapping_import');
+        try
+        {
+            $importModel->runImportWithUrls($urls);
         }
         catch (Exception $e)
         {

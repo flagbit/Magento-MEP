@@ -14,14 +14,27 @@ class Flagbit_MEP_Block_Adminhtml_Google_View_Edit_Form extends Mage_Adminhtml_B
                     'legend' => Mage::helper('mep')->__('Google Categories CSV')
                 ));
 
-            $formUpload->addField('launch', 'button',
-                array(
-                    'label' => Mage::helper('mep')->__('Google categories initialisation'),
-                    'value' => Mage::helper('mep')->__('Start'),
-                    'name' => 'launch',
-                    'class' => 'form-button',
-                    'onclick' => 'startGoogleCategoriesImport(\'' . Mage::helper('adminhtml')->getUrl('/google/importcategories') . '\');',
-                ));
+            if (Mage::app()->isSingleStoreMode()) {
+                $formUpload->addField('launch', 'button',
+                    array(
+                        'label' => Mage::helper('mep')->__('Google categories initialisation'),
+                        'value' => Mage::helper('mep')->__('Start'),
+                        'name' => 'launch',
+                        'class' => 'form-button',
+                        'onclick' => 'startGoogleCategoriesImport(\'' . Mage::helper('adminhtml')->getUrl('/google/importcategories') . '\');',
+                    ));
+            } else {
+                $formUpload->addField('launch', 'button',
+                    array(
+                        'label' => Mage::helper('mep')->__('Google categories initialisation'),
+                        'value' => Mage::helper('mep')->__('Start'),
+                        'name' => 'launch',
+                        'class' => 'form-button',
+                        'onclick' => 'startGoogleCategoriesImport('
+                            . '\'' . Mage::helper('adminhtml')->getUrl('/google/importcategoriesmultistore') . '\');',
+                    ));
+
+            }
         }
         else
         {
@@ -48,9 +61,25 @@ class Flagbit_MEP_Block_Adminhtml_Google_View_Edit_Form extends Mage_Adminhtml_B
                     )
                 );
 
+                $afterElementHtml = '<p class="nm"><small>' . 'Press save to reload taxonomy for the selected language!!' . '</small></p>';
+
+                $storeSelection->addField('mep_store_language', 'select',
+                    array(
+                        'label' => Mage::helper('mep')->__('Language'),
+                        'class' => 'required-entry',
+                        'required' => true,
+                        'name' => 'mep_store_language',
+                        'values'    => Mage::helper('mep/storelang')->getLanguagesForForm(),
+                        'after_element_html' => $afterElementHtml,
+                    )
+                );
+
                 $storeId = Mage::registry('category_store_id');
                 if($storeId) {
-                    $form->setValues(['store_selection_select' => $storeId]);
+                    $form->setValues([
+                        'store_selection_select' => $storeId,
+                        'mep_store_language' => Mage::helper('mep/storelang')->getLanguageForStoreId($storeId),
+                    ]);
                 }
 
             } else {
@@ -76,6 +105,7 @@ class Flagbit_MEP_Block_Adminhtml_Google_View_Edit_Form extends Mage_Adminhtml_B
                         var googleMapping = new GoogleMapping();
                         googleMapping.options.requestUrl.loadcategories = \'' . Mage::helper('adminhtml')->getUrl('/google/loadcategories') . '\';
                         googleMapping.options.requestUrl.loadtaxonomies = \'' . Mage::helper('adminhtml')->getUrl('/google/loadtaxonomies') . '\';
+                        googleMapping.options.requestUrl.loadlanguage = \'' . Mage::helper('adminhtml')->getUrl('/google/loadlanguage') . '\';
                         googleMapping.load();
                     });
                 </script>

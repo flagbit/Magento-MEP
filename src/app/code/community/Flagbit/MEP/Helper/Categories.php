@@ -165,15 +165,22 @@ class   Flagbit_MEP_Helper_Categories extends Mage_Core_Helper_Abstract
 
     public function getArrayForTaxonomy($taxonomyId)
     {
-        $taxonomies = $this->_getTaxonomiesForTaxonomy($taxonomyId);
+        $language = null;
+        $storeId = Mage::registry('category_store_id');
+        if($storeId) {
+            $language = Mage::helper('mep/storelang')->getLanguageForStoreId($storeId);
+        }
+
+        $taxonomies = $this->_getTaxonomiesForTaxonomy($taxonomyId, $language);
+
         return $taxonomies['array'];
     }
 
-    protected function _getTaxonomiesForTaxonomy($taxonomyId)
+    protected function _getTaxonomiesForTaxonomy($taxonomyId, $language = null)
     {
         if (empty($this->_selects[$taxonomyId]))
         {
-            $taxonomies = Mage::getModel('mep/googleTaxonomies')->getTaxonomiesForParent($taxonomyId);
+            $taxonomies = Mage::getModel('mep/googleTaxonomies')->getTaxonomiesForParent($taxonomyId, $language);
             $html = '';
             $array = array();
             foreach ($taxonomies as $taxonomy)
@@ -231,6 +238,20 @@ class   Flagbit_MEP_Helper_Categories extends Mage_Core_Helper_Abstract
         $locale = $this->getLocale();
         $url = 'http://www.google.com/basepages/producttype/taxonomy.' . $locale . '.txt';
         return $url;
+    }
+
+    public function getGoogleCategoriesFileUrls()
+    {
+        $urls = [];
+        $storeCollection = Mage::getModel('core/store')->getCollection();
+        foreach($storeCollection as $store) {
+            $storelang = Mage::getStoreConfig('general/locale/code', $store->getId());
+            $storelangParts = explode('_', $storelang);
+            $storeLang = strtolower($storelangParts[0]) . '-' . strtoupper($storelangParts[1]);
+            $urls[$storeLang] = 'http://www.google.com/basepages/producttype/taxonomy.' . $storeLang . '.txt';
+        }
+
+        return $urls;
     }
 
     public  function  getLocale()
