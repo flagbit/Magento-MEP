@@ -115,7 +115,7 @@ class Flagbit_MEP_Helper_Data extends Mage_Core_Helper_Abstract
 
         if (isset($validWriters[$fileFormat])) {
             try {
-                if(file_exists($destinationFile)){
+                if(file_exists($destinationFile) && strpos($destinationFile, 'tmp')){
                     unlink($destinationFile);
                 }
                 $writer = Mage::getModel($validWriters[$fileFormat]['model'], $destinationFile);
