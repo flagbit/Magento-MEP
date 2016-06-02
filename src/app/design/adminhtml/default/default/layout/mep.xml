@@ -60,6 +60,7 @@
             <action method="addItem">
                 <type>skin_js</type>
                 <script>highlighttextarea/jquery.highlighttextarea.min.js</script>
+                <params>group="mep"</params>
             </action>
             <action method="addCss">
                 <name>highlighttextarea/jquery.highlighttextarea.min.css</name>
@@ -67,6 +68,7 @@
             <action method="addItem">
                 <type>skin_js</type>
                 <script>jqueryui/jquery-ui.min.js</script>
+                <params>group="mep"</params>
             </action>
             <action method="addCss">
                 <name>jqueryui/jquery-ui.min.css</name>
