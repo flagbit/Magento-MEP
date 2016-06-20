@@ -2,7 +2,7 @@
 <config>
     <modules>
         <Flagbit_MEP>
-            <version>0.9.7</version>
+            <version>0.9.18</version>
         </Flagbit_MEP>
     </modules>
 
@@ -48,6 +48,9 @@
                     <google_taxonomies>
                         <table>mep_google_taxonomies</table>
                     </google_taxonomies>
+                    <google_storelang>
+                        <table>mep_google_store_language</table>
+                    </google_storelang>
                     <rule>
                         <table>mep_rule</table>
                     </rule>

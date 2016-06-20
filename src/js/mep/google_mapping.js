@@ -11,6 +11,7 @@ GoogleMapping.prototype = {
         this.currentLevel = null;
         this.options.storeSelector = $('store_selection_select');
         this.options.categoriesBlock = $('categories_list');
+        this.options.languageSelector = $('mep_store_language');
         this.options.storeId = this.options.storeSelector.value;
         this.options.selectClass = '.taxonomy-select';
         this.options.storeSelector.observe('change', function() {
@@ -30,6 +31,29 @@ GoogleMapping.prototype = {
                 instance.bindSelect();
             }
         });
+
+        new Ajax.Request(this.options.requestUrl.loadlanguage + '?store_id=' + this.options.storeId, {
+            method: 'get',
+            parameters: {
+                evalJS: true
+            },
+            onSuccess: function(transport) {
+                instance.parseJsonLanguage(transport.responseText);
+                instance.bindSelect();
+            }
+        });
+
+    },
+    parseJsonLanguage : function (text) {
+        var data = JSON.parse(text);
+        var language = data.language;
+        if(null == language) {
+            console.info('null');
+            this.options.languageSelector.setValue('')
+        } else {
+            this.options.languageSelector.setValue(language);
+        }
+        window.nm = this.options.languageSelector;
     },
     parseJson : function(text) {
         this.options.categoriesBlock.update();
@@ -61,6 +85,7 @@ GoogleMapping.prototype = {
             this.bindSelect();
             return ;
         }
+
         new Ajax.Request(this.options.requestUrl.loadtaxonomies + '?taxonomy_id=' + taxonomyId, {
             method: 'get',
             onSuccess: function(transport) {
