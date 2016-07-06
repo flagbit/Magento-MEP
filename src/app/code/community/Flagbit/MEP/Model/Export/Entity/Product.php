@@ -278,7 +278,7 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
 
         $this->_initTaxConfig();
 
-        $this->_initGoogleMapping();
+        $this->_initGoogleMapping($this->getProfile()->getStoreId());
 
         Mage::app()->setCurrentStore(0);
 
@@ -1163,8 +1163,9 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
      *
      * @return array
      */
-    protected function  _initGoogleMapping() {
-        $model = Mage::getModel('mep/googleMapping')->getCollection();
+    protected function  _initGoogleMapping($store_id) {
+        $model = Mage::getModel('mep/googleMapping')->getCollection()
+            ->addFieldToFilter('store_id', $store_id);
         foreach ($model as $mapping) {
             $mappingIds = explode('|', $mapping->getGoogleMappingIds());
             $currentMapping = array();
