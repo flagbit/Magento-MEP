@@ -261,7 +261,7 @@ class Flagbit_MEP_Model_Export_Adapter_Twig extends Mage_ImportExport_Model_Expo
         $element = trim($element);
         $element = str_replace(array($this->_delimiter, $this->_enclosure), '', $element);
         $element = str_replace(array("\r\n", "\r", "\n"), '', $element);
-
+        $element = preg_replace('/[\x00-\x1F\x80-\xFF]/', '', $element);
         $element = utf8_encode($element);
         return $element;
     }
