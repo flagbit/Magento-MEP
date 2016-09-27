@@ -256,7 +256,6 @@ class Flagbit_MEP_Model_Export_Adapter_Twig extends Mage_ImportExport_Model_Expo
         if(substr($element,0,2) == 'a:') {
             return $element;
         }
-        $element = htmlentities($element, ENT_QUOTES | ENT_IGNORE);
         $element = Mage::helper('mep/encoding')->decodeEntities($element);
         $element = trim($element);
         $element = str_replace(array($this->_delimiter, $this->_enclosure), '', $element);
