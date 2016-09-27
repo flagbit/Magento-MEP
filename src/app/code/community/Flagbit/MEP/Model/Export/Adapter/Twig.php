@@ -203,7 +203,6 @@ class Flagbit_MEP_Model_Export_Adapter_Twig extends Mage_ImportExport_Model_Expo
         if ($this->_headerDisabled === false && null === $this->_headerCols) {
             $this->setHeaderCols(array_keys($rowData));
         }
-
         $twigDataRow = array_map(array($this, 'cleanElement'), $rowData);
         $result = $this->_twig->render('content', $twigDataRow);
 
@@ -257,11 +256,13 @@ class Flagbit_MEP_Model_Export_Adapter_Twig extends Mage_ImportExport_Model_Expo
         if(substr($element,0,2) == 'a:') {
             return $element;
         }
+        $element = htmlentities($element, ENT_QUOTES | ENT_IGNORE);
         $element = Mage::helper('mep/encoding')->decodeEntities($element);
         $element = trim($element);
         $element = str_replace(array($this->_delimiter, $this->_enclosure), '', $element);
         $element = str_replace(array("\r\n", "\r", "\n"), '', $element);
-
+        // remove trademark sign (hex value 99)
+        $element = preg_replace('/[\x99]/', '', $element);
         $element = utf8_encode($element);
         return $element;
     }

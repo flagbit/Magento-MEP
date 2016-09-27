@@ -392,6 +392,8 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
             $fileName = Mage::getConfig()->getOptions()->getBaseDir() . DS . $this->getProfile()->getFilepath() . DS . $this->getProfile()->getFilename();
             $newTempExportFile = $fileName . '.new';
 
+            file_put_contents($newTempExportFile, $obj_profile->getTwigFooterTemplate(), FILE_APPEND);
+
             copy($newTempExportFile, $fileName);
             unlink($newTempExportFile);
 
