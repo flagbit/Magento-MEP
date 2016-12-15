@@ -101,7 +101,7 @@ class   Flagbit_MEP_Model_GoogleMapping_Import extends Mage_Core_Model_Abstract
                 .'"' . $e['name'] . '",'
                 .'"' . $e['id'] . '",'
                 .'"' . $e['locale'] . '")';
-            if(($counter % 20000) == 0) {
+            if(($counter % 10000) == 0) {
                 saveLines($values);
                 $values = [];
             }
