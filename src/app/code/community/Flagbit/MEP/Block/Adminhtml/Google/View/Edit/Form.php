@@ -21,7 +21,7 @@ class Flagbit_MEP_Block_Adminhtml_Google_View_Edit_Form extends Mage_Adminhtml_B
                         'value' => Mage::helper('mep')->__('Start'),
                         'name' => 'launch',
                         'class' => 'form-button',
-                        'onclick' => 'startGoogleCategoriesImport(\'' . Mage::helper('adminhtml')->getUrl('/google/importcategories') . '\');',
+                        'onclick' => 'startGoogleCategoriesImport(\'' . Mage::helper('adminhtml')->getUrl('adminhtml/google/importcategories') . '\');',
                     ));
             } else {
                 $formUpload->addField('launch', 'button',
@@ -31,7 +31,7 @@ class Flagbit_MEP_Block_Adminhtml_Google_View_Edit_Form extends Mage_Adminhtml_B
                         'name' => 'launch',
                         'class' => 'form-button',
                         'onclick' => 'startGoogleCategoriesImport('
-                            . '\'' . Mage::helper('adminhtml')->getUrl('/google/importcategoriesmultistore') . '\');',
+                            . '\'' . Mage::helper('adminhtml')->getUrl('adminhtml/google/importcategoriesmultistore') . '\');',
                     ));
 
             }
@@ -103,9 +103,9 @@ class Flagbit_MEP_Block_Adminhtml_Google_View_Edit_Form extends Mage_Adminhtml_B
                 <script type="text/javascript">
                     $(document).observe("dom:loaded", function() {
                         var googleMapping = new GoogleMapping();
-                        googleMapping.options.requestUrl.loadcategories = \'' . Mage::helper('adminhtml')->getUrl('/google/loadcategories') . '\';
-                        googleMapping.options.requestUrl.loadtaxonomies = \'' . Mage::helper('adminhtml')->getUrl('/google/loadtaxonomies') . '\';
-                        googleMapping.options.requestUrl.loadlanguage = \'' . Mage::helper('adminhtml')->getUrl('/google/loadlanguage') . '\';
+                        googleMapping.options.requestUrl.loadcategories = \'' . Mage::helper('adminhtml')->getUrl('adminhtml/google/loadcategories') . '\';
+                        googleMapping.options.requestUrl.loadtaxonomies = \'' . Mage::helper('adminhtml')->getUrl('adminhtml/google/loadtaxonomies') . '\';
+                        googleMapping.options.requestUrl.loadlanguage = \'' . Mage::helper('adminhtml')->getUrl('adminhtml/google/loadlanguage') . '\';
                         googleMapping.load();
                     });
                 </script>
