@@ -56,6 +56,7 @@ class Flagbit_MEP_Model_Data extends Mage_Catalog_Model_Convert_Parser_Product
         $attributes['_type'] = 'type';
         $attributes['_media_gallery'] = 'media_gallery';
         $attributes['_options'] = 'options';
+        $attributes['_rating_score'] = 'rating_score';
 
         //Adding special attribute from DerModProd
         if(Mage::helper('core')->isModuleEnabled('DerModPro_BasePrice')) {
