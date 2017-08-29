@@ -765,7 +765,8 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
             'google_mapping' => '_getGoogleMapping',
             '_options' => '_getCustomOptions',
             'manage_stock' => '_getManageStock',
-			'type' => '_getType'
+			'type' => '_getType',
+            '_rating_score' => '_getProductRatingScore'
         );
         $attrValue = $item->getData($attrCode);
 
@@ -1097,6 +1098,22 @@ class Flagbit_MEP_Model_Export_Entity_Product extends Mage_ImportExport_Model_Ex
             $attrValue = implode($mappingSeparator, $mapped);
         }
         return $attrValue;
+    }
+
+    protected function _loadProductSummaryById($item)
+    {
+        $storeId = Mage::app()->getStore()->getId();
+        Mage::getModel('review/review')->getEntitySummary($item, $storeId);
+        return $item->getRatingSummary()->getRatingSummary();
+    }
+
+    protected function _getProductRatingScore($item)
+    {
+        if(!Mage::helper('core')->isModuleEnabled('Mage_Review')) {
+            return 0;
+        } else {
+            return $this->_loadProductSummaryById($item);
+        }
     }
 
     protected function  _getCustomOptions($item, $mapItem) {
