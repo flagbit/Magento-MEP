@@ -1,4 +1,4 @@
-# Magento 1 Export Plattform (MEP)
+# Magento 1 Export Platform (MEP)
 You can create different profiles to export productdata into csv or xml format. Every attribute that is used in  magento can be added to the output. Experts have the possibility to use TWIG as a template engine for manipulating data.
 
 ## Features
