@@ -2,12 +2,14 @@
     "name": "flagbit/mep",
     "license": "GPL2",
     "type": "magento-module",
-    "description": "Flagbit MEP",
-    "require": {
-        "magento-hackathon/magento-composer-installer": "*"
-    },
-    "require-dev": {
-    },
+    "description": "Flagbit MEP -  Provides different profiles to export product data into csv or xml format",
+    "keywords": [
+        "magento",
+        "export",
+        "csv",
+        "xml",
+        "upload"
+    ],
     "authors":[
         {
             "name":"Joerg Weller",
@@ -15,6 +17,8 @@
             "homepage":"http://www.flagbit.de/",
             "role": "Developer"
         }
-    ]
-
+    ],
+    "require": {
+        "magento-hackathon/magento-composer-installer": "*"
+    }
 }
