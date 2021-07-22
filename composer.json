@@ -1,6 +1,6 @@
 {
     "name": "flagbit/mep",
-    "license": "GPL2",
+    "license": "GPL-2.0-or-later",
     "type": "magento-module",
     "description": "Flagbit MEP -  Provides different profiles to export product data into csv or xml format",
     "keywords": [
