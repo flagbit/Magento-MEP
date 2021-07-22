@@ -6,8 +6,15 @@ class Flagbit_MEP_Model_GoogleTaxonomies extends Mage_Core_Model_Abstract {
         $this->_init('mep/googleTaxonomies');
     }
 
-    public function getTaxonomiesForParent($parentId)
+    public function getTaxonomiesForParent($parentId, $language = null)
     {
-        return $this->getCollection()->addFieldToFilter('parent_id', $parentId);
+        if(is_null($language)){
+            return $this->getCollection()->addFieldToFilter('parent_id', $parentId);
+        } else {
+            return $this->getCollection()
+                ->addFieldToFilter('parent_id', $parentId)
+                ->addFieldToFilter('locale', $language)
+                ;
+        }
     }
 }

@@ -103,7 +103,7 @@ class Flagbit_MEP_Helper_Data extends Mage_Core_Helper_Abstract
             $collection->getSelect()->joinLeft(
                 array('_inventory_table' => $collection->getTable('cataloginventory/stock_item')),
                 '_inventory_table.product_id = e.entity_id',
-                array('qty', 'is_in_stock', 'manage_stock')
+                array('qty', 'is_in_stock', 'manage_stock', 'use_config_manage_stock')
             );
         }
         return $collection;
@@ -115,7 +115,7 @@ class Flagbit_MEP_Helper_Data extends Mage_Core_Helper_Abstract
 
         if (isset($validWriters[$fileFormat])) {
             try {
-                if(file_exists($destinationFile)){
+                if(file_exists($destinationFile) && strpos($destinationFile, 'tmp')){
                     unlink($destinationFile);
                 }
                 $writer = Mage::getModel($validWriters[$fileFormat]['model'], $destinationFile);

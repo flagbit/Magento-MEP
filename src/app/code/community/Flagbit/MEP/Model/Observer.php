@@ -92,16 +92,21 @@ class Flagbit_MEP_Model_Observer extends Varien_Object
     public function exportProfile(Flagbit_MEP_Model_Profile $profile, $catchErrors = true)
     {
         $exportFile = null;
+        $newTempExportFile = null;
         try{
             /** @var $appEmulation Mage_Core_Model_App_Emulation */
             $appEmulation = Mage::getSingleton('core/app_emulation');
             //Start environment emulation of the specified store
             $initialEnvironmentInfo = $appEmulation->startEnvironmentEmulation($profile->getStoreId(), Mage_Core_Model_App_Area::AREA_ADMINHTML);
 
+            // Initialize frontend translations
+            Mage::getSingleton('core/translate')->init('frontend', true);
+
             // destination File
             $exportFile = $this->_getExportPath($profile) . DS . $profile->getFilename();
-            if(file_exists($exportFile)){
-                unlink($exportFile);
+            $newTempExportFile = $exportFile . '.new';
+            if(file_exists($newTempExportFile)){
+                unlink($newTempExportFile);
             }
 
             // disable flat Tables
@@ -131,6 +136,7 @@ class Flagbit_MEP_Model_Observer extends Varien_Object
                 throw $e;
             }
         }
+
         return $exportFile;
     }
 

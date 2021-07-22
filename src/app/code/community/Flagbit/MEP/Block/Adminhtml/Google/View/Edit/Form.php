@@ -20,8 +20,10 @@ class Flagbit_MEP_Block_Adminhtml_Google_View_Edit_Form extends Mage_Adminhtml_B
                     'value' => Mage::helper('mep')->__('Start'),
                     'name' => 'launch',
                     'class' => 'form-button',
-                    'onclick' => 'startGoogleCategoriesImport(\'' . Mage::helper('adminhtml')->getUrl('/google/importcategories') . '\');',
+                    'onclick' => 'startGoogleCategoriesImport('
+                        . '\'' . Mage::helper('adminhtml')->getUrl('/google/importcategoriesmultistore') . '\');',
                 ));
+
         }
         else
         {
@@ -41,9 +43,32 @@ class Flagbit_MEP_Block_Adminhtml_Google_View_Edit_Form extends Mage_Adminhtml_B
                     'label' => Mage::helper('mep')->__('Store'),
                     'class' => 'required-entry',
                     'required' => true,
-                    'name' => 'store_selection_select',
+                    'name' => 'store_id',
                     'values'    => Mage::getSingleton('adminhtml/system_store')->getStoreValuesForForm(false, false),
-                ));
+                )
+            );
+
+            $afterElementHtml = '<p class="nm"><small>' . 'Press save to reload taxonomy for the selected language!!' . '</small></p>';
+
+            $storeSelection->addField('mep_store_language', 'select',
+                array(
+                    'label' => Mage::helper('mep')->__('Language'),
+                    'class' => 'required-entry',
+                    'required' => true,
+                    'name' => 'mep_store_language',
+                    'values'    => Mage::helper('mep/storelang')->getLanguagesForForm(),
+                    'after_element_html' => $afterElementHtml,
+                )
+            );
+
+            $storeId = Mage::registry('category_store_id');
+            if($storeId) {
+                $form->setValues([
+                    'store_selection_select' => $storeId,
+                    'mep_store_language' => Mage::helper('mep/storelang')->getLanguageForStoreId($storeId),
+                ]);
+            }
+
 
             $categories = $form->addFieldset('categories', array(
                 'legend' => Mage::helper('mep')->__('Categories mapping'),
@@ -54,8 +79,9 @@ class Flagbit_MEP_Block_Adminhtml_Google_View_Edit_Form extends Mage_Adminhtml_B
                 <script type="text/javascript">
                     $(document).observe("dom:loaded", function() {
                         var googleMapping = new GoogleMapping();
-                        googleMapping.options.requestUrl.loadcategories = \'' . Mage::helper('adminhtml')->getUrl('/google/loadcategories') . '\';
-                        googleMapping.options.requestUrl.loadtaxonomies = \'' . Mage::helper('adminhtml')->getUrl('/google/loadtaxonomies') . '\';
+                        googleMapping.options.requestUrl.loadcategories = \'' . Mage::helper('adminhtml')->getUrl('adminhtml/google/loadcategories') . '\';
+                        googleMapping.options.requestUrl.loadtaxonomies = \'' . Mage::helper('adminhtml')->getUrl('adminhtml/google/loadtaxonomies') . '\';
+                        googleMapping.options.requestUrl.loadlanguage = \'' . Mage::helper('adminhtml')->getUrl('adminhtml/google/loadlanguage') . '\';
                         googleMapping.load();
                     });
                 </script>

@@ -41,6 +41,7 @@ class Flagbit_MEP_Model_Data extends Mage_Catalog_Model_Convert_Parser_Product
         $attributes['url'] = 'url';
         $attributes['_category'] = 'category';
         $attributes['_category_id'] = 'category_id';
+        $attributes['_categories'] = 'categories';
         $attributes['google_mapping'] = 'google_mapping';
         $attributes['image_url'] = 'image_url';
         $attributes['gross_price'] = 'gross_price';
@@ -53,6 +54,9 @@ class Flagbit_MEP_Model_Data extends Mage_Catalog_Model_Convert_Parser_Product
         $attributes['created_at'] = 'created_at';
         $attributes['updated_at'] = 'updated_at';
         $attributes['_type'] = 'type';
+        $attributes['_media_gallery'] = 'media_gallery';
+        $attributes['_options'] = 'options';
+        $attributes['_rating_score'] = 'rating_score';
 
         //Adding special attribute from DerModProd
         if(Mage::helper('core')->isModuleEnabled('DerModPro_BasePrice')) {

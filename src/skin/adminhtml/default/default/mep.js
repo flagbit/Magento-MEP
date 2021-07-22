@@ -97,6 +97,9 @@ var mepPreviewDialog = {
                 $('widget_window').setStyle({
                     display: 'block'
                 });
+                var widgetWindowContent = jQuery('#widget_window_content');
+                widgetWindowContent.removeClass("magento_content");
+                widgetWindowContent.attr('style', 'height: ' + (jQuery(window).height() - 100) + 'px !important');
             }
         });
     },
@@ -153,25 +156,29 @@ document.observe('dom:loaded', function() {
             words: {
                 color: '#00FF11',
                 words: [delimiter]
-            }
+            },
+            resizable: true
         });
         jQuery('#twig_content_template').highlightTextarea({
             words: {
                 color: '#00FF11',
                 words: [delimiter]
-            }
+            },
+            resizable: true
         });
     });
     jQuery('#twig_header_template').highlightTextarea({
         words: {
             color: '#00FF11',
             words: [delimiter]
-        }
+        },
+        resizable: true
     });
     jQuery('#twig_content_template').highlightTextarea({
         words: {
             color: '#00FF11',
             words: [delimiter]
-        }
+        },
+        resizable: true
     });
 });

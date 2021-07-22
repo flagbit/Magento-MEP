@@ -78,19 +78,23 @@ class Flagbit_MEP_Block_Adminhtml_Profile_View_Grid extends Mage_Adminhtml_Block
             'header'    => Mage::helper('cms')->__('Product Count'),
             'index'     => 'product_count',
             'filter' => false,
-            'sortable' => false,
+            'sortable' => false
         ));
 
         $this->addColumn('Execution Time', array(
             'header'    => Mage::helper('cms')->__('Execution Time'),
             'index'     => 'mep_cron_start_time',
-            'renderer'  => 'mep/adminhtml_profile_view_grid_cron_renderer'
+            'renderer'  => 'mep/adminhtml_profile_view_grid_cron_renderer',
+            'filter' => false,
+            'sortable' => false
         ));
 
         $this->addColumn('Execution Frequency', array(
             'header'    => Mage::helper('cms')->__('Execution Frequency'),
             'index'     => 'mep_cron_frequency',
-            'renderer'  => 'mep/adminhtml_profile_view_grid_cron_renderer'
+            'renderer'  => 'mep/adminhtml_profile_view_grid_cron_renderer',
+            'filter' => false,
+            'sortable' => false
         ));
 
         $this->addColumn('action', array(
